@@ -47,16 +47,16 @@ h1,h2,h3{margin:0 0 .4em; line-height:1.2}
 /* ---- Hero: mindre logo m/ bevegelige skyer ---- */
 .hero{text-align:center; padding:46px 0 26px}
 .logo-wrap{position:relative; display:inline-block; padding:30px 40px}
-.am-logo{position:relative; z-index:2; width:clamp(150px,32vw,300px); height:auto;
-  filter:drop-shadow(0 8px 30px rgba(120,160,255,.35))}
+.am-logo{position:relative; z-index:2; width:clamp(240px,46vw,440px); height:auto;
+  border-radius:16px; box-shadow:0 10px 40px rgba(120,160,255,.4)}
 .clouds{position:absolute; inset:-10px; z-index:1; overflow:visible; pointer-events:none}
 .cloud{position:absolute; width:70%; height:55%;
   background:radial-gradient(closest-side, rgba(220,235,255,.42), rgba(220,235,255,0) 72%);
   filter:blur(16px); mix-blend-mode:screen; opacity:.4; animation:cloudDrift linear infinite}
-.cloud.c1{top:6%;  left:2%;  animation-duration:52s}
-.cloud.c2{top:38%; left:20%; opacity:.28; animation-duration:76s}
-.cloud.c3{top:0;   left:40%; opacity:.32; animation-duration:98s}
-@keyframes cloudDrift{from{transform:translateX(-26%)} to{transform:translateX(26%)}}
+.cloud.c1{top:6%;  left:2%;  animation-duration:30s}
+.cloud.c2{top:38%; left:20%; opacity:.34; animation-duration:42s}
+.cloud.c3{top:0;   left:40%; opacity:.38; animation-duration:56s}
+@keyframes cloudDrift{from{transform:translateX(-34%)} to{transform:translateX(34%)}}
 @media (prefers-reduced-motion:reduce){ .cloud{animation:none} }
 .tagline{color:var(--muted); font-weight:600; letter-spacing:.02em; margin:0 0 18px}
 .booking-line{margin:14px 0 0; color:var(--muted); font-size:14px}
