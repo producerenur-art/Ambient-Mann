@@ -1,0 +1,15 @@
+{
+  "name": "Ambient Mann — Booking",
+  "short_name": "Ambient Mann",
+  "description": "Book Ambient Mann. Psybient, psychill og cinematic dark ambient — live via Traktor, opplastet musikk, podcaster og donasjon.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#04060f",
+  "theme_color": "#04060f",
+  "categories": ["music", "entertainment"],
+  "icons": [
+    { "src": "assets/ambient-mann-logo.png", "sizes": "any", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

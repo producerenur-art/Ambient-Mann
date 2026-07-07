@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ambient Mann — Booking · Psybient / Psychill</title>
+  <meta name="description" content="Book Ambient Mann — psybient, psychill, cinematic dark ambient. Live direkte via Traktor, opplastet musikk, podcaster og donasjon.">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#04060f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="icon" href="assets/ambient-mann-logo.png">
+  <link rel="apple-touch-icon" href="assets/ambient-mann-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- Live-bakgrunn: bilde eller mp4-video mens Ambient Mann er live -->
+  <div id="live-bg" class="live-bg"><video id="live-bg-video" muted loop playsinline></video></div>
+  <!-- Bevegelig univers-bakgrunn (stjerner over det opplastede bildet) -->
+  <canvas id="starfield"></canvas>
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <button class="nav-toggle" id="nav-toggle" aria-label="Åpne meny">☰</button>
+    <nav class="nav" id="nav">
+      <a href="#live">Live</a>
+      <a href="#listen">Musikk</a>
+      <a href="#donasjon">Donasjon</a>
+      <a href="#links">Lenker</a>
+    </nav>
+    <button class="btn btn-ghost" id="owner-btn">Eier-innlogging</button>
+  </header>
+
+  <main class="wrap">
+    <!-- HERO: mindre logo m/ bevegelige skyer over stjernehimmelen -->
+    <section class="hero">
+      <div class="logo-wrap">
+        <div class="clouds" aria-hidden="true">
+          <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+        </div>
+        <img id="hero-logo" class="am-logo" src="assets/ambient-mann-logo.png" alt="Ambient Mann">
+      </div>
+      <p class="tagline" id="tagline">Psybient · Psychill · Cinematic Dark Ambient</p>
+      <a class="btn btn-primary book-btn" href="#">✉ Book Ambient Mann</a>
+      <p class="booking-line">Booking: <span id="booking-emails"></span></p>
+    </section>
+
+    <!-- BIO (over booking-e-posten) -->
+    <section id="bio" class="block">
+      <div class="section-head"><h2>Om Ambient Mann</h2></div>
+      <div class="card">
+        <p id="bio-text" class="bio"></p>
+        <p id="bio-credits" class="bio muted"></p>
+        <h3 class="mini-h">Scene &amp; labels</h3>
+        <ul id="label-credits" class="credits"></ul>
+        <div class="booking-cta">
+          <p>Ambient Mann bookes via e-post:</p>
+          <a class="btn btn-primary book-btn" href="#">✉ Send booking-forespørsel</a>
+        </div>
+      </div>
+      <div class="card owner-only" style="display:none">
+        <h3 class="mini-h">Rediger tekst (kun deg)</h3>
+        <label>Bio</label><textarea id="edit-bio" class="input" rows="4"></textarea>
+        <button class="btn btn-tiny" id="save-bio">Lagre bio</button>
+        <label>Kreditter</label><textarea id="edit-credits" class="input" rows="3"></textarea>
+        <button class="btn btn-tiny" id="save-credits">Lagre kreditter</button>
+      </div>
+    </section>
+
+    <!-- MUSIKK: lytterne velger selv, med spiller + spoling -->
+    <section id="listen" class="block">
+      <div class="section-head"><h2>Musikk</h2><span class="hint">Velg selv — spill av og spol (1–2 t sett)</span></div>
+      <div class="card">
+        <div class="track-player">
+          <div class="tp-cover empty" id="tp-cover">♪</div>
+          <div class="tp-body">
+            <div class="tp-title" id="tp-title">Velg et spor</div>
+            <div class="tp-controls">
+              <button class="tp-play" id="tp-play">▶</button>
+              <input class="tp-seek" id="tp-seek" type="range" min="0" max="100" value="0" step="0.1" aria-label="Spol">
+              <span class="tp-time" id="tp-time">0:00 / 0:00</span>
+            </div>
+          </div>
+        </div>
+        <div id="tracks-list" class="tracks"></div>
+      </div>
+      <!-- Eier: last opp lyd + eget cover-bilde -->
+      <div class="card owner-only" style="display:none">
+        <h3 class="mini-h">Last opp musikk (WAV/MP3) + eget cover</h3>
+        <label>Tittel</label><input id="track-title" class="input" placeholder="f.eks. All The Way From Heaven 060">
+        <label>Cover-bilde (valgfritt)</label><input id="track-cover" class="input" type="file" accept="image/*">
+        <label>Lyd-fil (WAV/MP3)</label><input id="track-file" class="input" type="file" accept="audio/*">
+        <button class="btn btn-primary" id="track-upload">⬆ Last opp</button>
+        <span id="track-upstatus" class="muted"></span>
+      </div>
+    </section>
+
+    <!-- LIVE via Traktor -->
+    <section id="live" class="block">
+      <div class="section-head"><h2>Live direkte <span id="live-badge" class="badge badge-live" style="display:none"><span class="dot"></span>LIVE</span></h2><span class="hint">Traktor · Native Instruments</span></div>
+      <div class="card live-box">
+        <div class="live-meta">
+          <div class="kicker" id="live-kicker">OFFLINE</div>
+          <div class="title" id="live-title">Ambient Mann</div>
+          <div class="sub" id="live-sub">Ambient Mann er ikke live akkurat nå – se sendeplanen under.</div>
+        </div>
+        <div class="live-stats"><b id="live-listeners">0</b>lyttere</div>
+      </div>
+      <p id="live-desc" class="live-desc"></p>
+
+      <h3 class="mini-h">Sendeplan</h3>
+      <div id="schedule" class="schedule"></div>
+
+      <!-- Eier: live-sending (bak innlogging) -->
+      <div class="card owner-only" style="display:none">
+        <h3 class="mini-h">Sett sendetid (kun deg)</h3>
+        <div class="row">
+          <div><label>Dato &amp; tid</label><input id="sched-when" class="input" type="datetime-local"></div>
+          <div><label>Timer</label><input id="sched-hours" class="input" type="number" min="1" max="12" value="2"></div>
+        </div>
+        <label>Tittel</label><input id="sched-title-in" class="input" placeholder="f.eks. Deep Psybient Journey">
+        <button class="btn btn-primary" id="sched-add">+ Legg til sendetid</button>
+        <hr>
+        <h3 class="mini-h">Live-strøm fra Traktor (Icecast/AzuraCast)</h3>
+        <label>Stream-URL (Traktor sender hit)</label><input id="stream-url" class="input" placeholder="https://din-server.no/listen/ambientmann/radio.mp3">
+        <label>Now-playing-URL (valgfri – gir «LIVE» + lyttertall)</label><input id="stream-np" class="input" placeholder="https://din-server.no/api/nowplaying/1">
+        <button class="btn btn-tiny" id="save-stream">Lagre strøm</button>
+        <p class="note">Se docs/AZURACAST-TRAKTOR.md for å koble Traktor på (Preferences → Broadcasting).</p>
+        <hr>
+        <h3 class="mini-h">Bakgrunn ved live (bilde eller mp4-video)</h3>
+        <div class="row">
+          <div><label>Type</label><select id="livebg-type" class="input"><option value="image">Bilde</option><option value="video">Video (mp4)</option></select></div>
+          <div><label>Eller last opp</label><input id="livebg-file" class="input" type="file" accept="image/*,video/mp4"></div>
+        </div>
+        <label>URL</label><input id="livebg-url" class="input" placeholder="https://… (bilde eller mp4)">
+        <button class="btn btn-tiny" id="save-livebg">Lagre live-bakgrunn</button>
+        <span id="livebg-status" class="muted"></span>
+        <hr>
+        <label>Live-beskrivelse (vises til publikum)</label>
+        <textarea id="edit-livedesc" class="input" rows="3"></textarea>
+        <button class="btn btn-tiny" id="save-livedesc">Lagre beskrivelse</button>
+      </div>
+    </section>
+
+    <!-- DONASJON (frivillig) -->
+    <section id="donasjon" class="block">
+      <div class="section-head"><h2>Donasjon</h2><span class="hint">Helt frivillig — takk for støtten 💜</span></div>
+      <div class="card don-card">
+        <div class="don-presets">
+          <button class="don-preset" data-kr="100">100 kr</button>
+          <button class="don-preset" data-kr="200">200 kr</button>
+          <button class="don-preset" data-kr="500">500 kr</button>
+        </div>
+        <div class="don-custom">
+          <label>Beløp (kr)</label>
+          <input id="don-amount" class="input" type="number" min="20" max="10000" value="100">
+        </div>
+        <div class="don-actions">
+          <button class="btn btn-primary" id="don-stripe">💳 Doner med kort</button>
+          <a class="btn btn-vipps" id="don-vipps" href="#" target="_blank" rel="noopener">Vipps 97253713</a>
+        </div>
+        <p class="note">Vipps: <b>97253713</b> (Ambient Mann). Booking av Ambient Mann avtales via e-post.</p>
+      </div>
+    </section>
+
+    <!-- LENKER (navn → URL, som SoundCloud) -->
+    <section id="links" class="block">
+      <div class="section-head"><h2>Lenker &amp; podcaster</h2></div>
+      <div id="links-list" class="links"></div>
+      <div class="card owner-only" style="display:none">
+        <h3 class="mini-h">Legg til lenke (navn → URL, som SoundCloud)</h3>
+        <label>Navn (vises som klikkbar lenke)</label><input id="link-name" class="input" placeholder="f.eks. SoundCloud – Ambient Mann">
+        <label>URL</label><input id="link-url" class="input" placeholder="https://soundcloud.com/…">
+        <button class="btn btn-primary" id="link-add">+ Legg til</button>
+      </div>
+    </section>
+
+    <!-- BUNN-LOGOER (mindre enn bakgrunn + hovedlogo, klikkbare) -->
+    <section class="logo-strip">
+      <a id="logo-portrait" class="brand-logo" target="_blank" rel="noopener" title="Ambient Mann på radioq37"><img src="assets/ambient-mann-portrait.jpg" alt="Ambient Mann — radioq37"></a>
+      <a id="logo-feedfreq" class="brand-logo" target="_blank" rel="noopener" title="FeedFreq"><img src="assets/feedfreq-logo.png" alt="FeedFreq"></a>
+      <a id="logo-newmessage" class="brand-logo" title="The New Message From God"><img src="assets/new-message-from-god.jpg" alt="The New Message From God"></a>
+      <a id="logo-psybient" class="brand-logo" target="_blank" rel="noopener" title="psybient.org"><img src="assets/psybient-logo.png" alt="psybient.org"></a>
+      <a id="logo-diceradio" class="brand-logo" target="_blank" rel="noopener" title="Dice Radio"><img src="assets/diceradio-logo.png" alt="Dice Radio"></a>
+      <a id="logo-trancentral" class="brand-logo" target="_blank" rel="noopener" title="Trancentral"><img src="assets/trancentral-logo.png" alt="Trancentral"></a>
+      <a id="logo-itathens" class="brand-logo" target="_blank" rel="noopener" title="IT Athens — Wake the Beat"><img src="assets/it-athens-logo.png" alt="IT Athens"></a>
+      <a id="logo-newmessageorg" class="brand-logo" target="_blank" rel="noopener" title="The New Message From God"><img src="assets/newmessage-logo.png" alt="The New Message From God"></a>
+      <a id="logo-siriusfm" class="brand-logo" target="_blank" rel="noopener" title="Sirius FM"><img src="assets/siriusfm-logo.png" alt="siriusfm.no"></a>
+    </section>
+  </main>
+
+  <footer class="wrap foot">
+    <p>✦ Ambient Mann — Minimal · Ambient · Deep · Psybient · Psychill · Downtempo · Chill Out · Cinematic Dark Ambient</p>
+  </footer>
+
+  <!-- Live-spiller-bar -->
+  <div class="player-bar">
+    <button class="pb-play" id="pb-play">▶</button>
+    <div class="pb-info">
+      <div class="now" id="pb-now">Offline</div>
+      <div class="by" id="pb-by"><span class="pb-ai">✦</span> Ikke live nå</div>
+    </div>
+    <div class="pb-right">
+      <span style="font-size:15px">🔊</span>
+      <input class="pb-vol" id="pb-vol" type="range" min="0" max="100" value="85">
+    </div>
+  </div>
+
+  <!-- Flyttbar chat -->
+  <button class="chat-fab" id="chat-fab">💬 Chat</button>
+  <div class="chat-panel" id="chat-panel">
+    <div class="chat-head" id="chat-head">
+      <div class="t">💬 Chat <span class="drag-hint">dra for å flytte</span></div>
+      <button class="x" id="chat-close">×</button>
+    </div>
+    <div class="chat-log" id="chat-log"></div>
+    <div class="chat-name-row">
+      <label>Du:</label>
+      <input class="input" id="chat-name" placeholder="Ditt kallenavn" maxlength="24">
+    </div>
+    <div class="chat-input">
+      <input class="input" id="chat-text" placeholder="Skriv en melding…" maxlength="500">
+      <button class="btn btn-primary" id="chat-send">Send</button>
+    </div>
+  </div>
+
+  <!-- Eier-innlogging (kun Ambient Mann) -->
+  <div class="modal-overlay" id="owner-modal">
+    <div class="card modal">
+      <button class="x" id="owner-modal-close">×</button>
+      <h3 id="owner-modal-title">Eier-innlogging</h3>
+      <p class="muted" id="owner-modal-sub">Kun for Ambient Mann.</p>
+      <div class="field" id="owner-email-field" style="display:none">
+        <label>E-post</label><input class="input" id="owner-email" type="email" placeholder="din@epost.no" autocomplete="email">
+      </div>
+      <div class="field" id="owner-pass-field">
+        <label id="owner-pass-label">Passord</label>
+        <input class="input" id="owner-pass" type="password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn btn-primary" id="owner-submit" style="width:100%">Logg inn</button>
+      <button class="btn btn-ghost" id="owner-forgot" style="width:100%;margin-top:8px">Glemt passord?</button>
+      <button class="btn btn-ghost" id="owner-back" style="width:100%;margin-top:8px;display:none">← Tilbake til innlogging</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- Eksterne biblioteker (valgfrie – siden fungerer uten dem) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+
+  <!-- App-moduler -->
+  <script src="js/config.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/linkpreview.js"></script>
+  <script src="js/starfield.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/owner.js"></script>
+  <script src="js/content.js"></script>
+  <script src="js/schedule.js"></script>
+  <script src="js/links.js"></script>
+  <script src="js/tracks.js"></script>
+  <script src="js/donation.js"></script>
+  <script src="js/chat.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
