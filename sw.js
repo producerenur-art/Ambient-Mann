@@ -1,13 +1,13 @@
 /* Ambient Mann — service worker (installerbar PWA)
  * Cache-first for statiske filer; aldri cache API-kall eller lyd-strøm.
  * Bump CACHE-navnet når filene endres. */
-const CACHE = 'ambientmann-v4';
+const CACHE = 'ambientmann-v5';
 const ASSETS = [
   './', './index.html', './css/styles.css', './manifest.json',
   './js/config.js', './js/ui.js', './js/storage.js', './js/linkpreview.js',
   './js/starfield.js', './js/player.js', './js/owner.js', './js/content.js',
   './js/schedule.js', './js/links.js', './js/tracks.js', './js/donation.js',
-  './js/chat.js', './js/app.js',
+  './js/lang.js', './js/chat.js', './js/app.js',
 ];
 
 self.addEventListener('install', e => {
