@@ -28,7 +28,7 @@ window.AM_CONFIG = {
     'Ambient Mann selv.',
 
   /* ---- BOOKING (gratis – kun via e-post) ------------------------------ */
-  bookingEmails: ['yaniv@reply.bigfreq.com', 'producerenur@gmail.com'],
+  bookingEmails: ['yaniv@reply.bigfreq.com'],
   bookingSubject: 'Booking — Ambient Mann',
   bookingBody: 'Hei Ambient Mann,\n\nVi ønsker å booke deg. Her er detaljene:\n\nDato/sted:\nType arrangement:\nKontaktperson:\n\nMvh',
 
