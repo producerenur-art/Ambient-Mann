@@ -44,6 +44,19 @@ h1,h2,h3{margin:0 0 .4em; line-height:1.2}
 .btn-tiny{padding:7px 12px; font-size:13px; border-radius:9px; margin:6px 6px 0 0}
 .btn-vipps{background:var(--vipps); color:#fff; border:0}
 
+/* ---- Språkvelger ---- */
+.lang-picker{background:var(--panel2); color:var(--text); border:1px solid var(--line);
+  border-radius:12px; padding:9px 12px; font-weight:600; font-size:14px; cursor:pointer;
+  max-width:170px; appearance:none; -webkit-appearance:none}
+.lang-picker:hover{border-color:var(--accent)}
+.lang-picker option{background:#0a0f2a; color:var(--text)}
+/* Skjul Googles egen widget-UI (banner/tooltip/uthevning) – vi bruker vår egen */
+#google_translate_element{display:none}
+.goog-te-banner-frame,.goog-te-gadget-icon,#goog-gt-tt,.goog-tooltip,.goog-tooltip *{display:none !important}
+.goog-te-gadget{height:0;overflow:hidden}
+body{top:0 !important}
+.goog-text-highlight{background:none !important;box-shadow:none !important}
+
 /* ---- Hero: mindre logo m/ bevegelige skyer ---- */
 .hero{text-align:center; padding:46px 0 26px}
 .logo-wrap{position:relative; display:inline-block; padding:30px 40px}

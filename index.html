@@ -30,8 +30,11 @@
       <a href="#donasjon">Donasjon</a>
       <a href="#links">Lenker</a>
     </nav>
+    <select id="lang-picker" class="lang-picker notranslate" translate="no" aria-label="Velg språk / Choose language"></select>
     <button class="btn btn-ghost" id="owner-btn">Eier-innlogging</button>
   </header>
+  <!-- Skjult Google Translate-motor (drives av vår egen språkvelger over) -->
+  <div id="google_translate_element" aria-hidden="true"></div>
 
   <main class="wrap">
     <!-- HERO: mindre logo m/ bevegelige skyer over stjernehimmelen -->
@@ -143,7 +146,7 @@
 
     <!-- DONASJON (frivillig) -->
     <section id="donasjon" class="block">
-      <div class="section-head"><h2>Donasjon</h2><span class="hint">Helt frivillig — takk for støtten 💜</span></div>
+      <div class="section-head"><h2>Donasjon</h2></div>
       <div class="card don-card">
         <div class="don-presets">
           <button class="don-preset" data-kr="100">100 kr</button>
@@ -262,5 +265,9 @@
   <script src="js/donation.js"></script>
   <script src="js/chat.js"></script>
   <script src="js/app.js"></script>
+
+  <!-- Språkvelger (Google Translate) — brukeren velger språk selv -->
+  <script src="js/lang.js"></script>
+  <script src="https://translate.google.com/translate_a/element.js?cb=amGoogleTranslateInit"></script>
 </body>
 </html>
