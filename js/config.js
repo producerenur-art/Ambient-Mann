@@ -87,15 +87,13 @@ window.AM_CONFIG = {
 
   /* ---- BIO (verbatim) -------------------------------------------------- */
   bioDefault:
-    'Born in 1982 from Lwood Norway.. With its magical sound of the best ' +
+    'Born in 1982 from Greenland.. With its magical sound of the best ' +
     'ambient, chill out and clarity psybient can offer, Spiced up with a ' +
     'customized twist, he seduces the audience with excitement and narrative ' +
     'at the same time.. Minimal, Ambient, Deep, Psybient, Psychill, Downtempo, ' +
     'Chill Out, Cinematic Dark Ambient & (Ritual-Spiritual) Experimental.',
-  bioCreditsDefault:
-    'Born in 1982 from Greenland.. With its magical sound of the best ambient, ' +
-    'chill out and clarity psybient can offer, Spiced up with a customized twist, ' +
-    'he seduces the audience with excitement.',
+  // Duplikat-bio fjernet – hele biografien står nå kun i bioDefault over.
+  bioCreditsDefault: '',
 
   /* ---- BILDE-STIER (last opp filene til assets/ – se assets/README.md) - */
   assets: {
