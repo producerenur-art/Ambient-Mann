@@ -83,11 +83,6 @@ window.AM_CONFIG = {
   // Kreditter/scene (label & community). MERK: den ene bevisst utelatte
   // label-en skal aldri stå her (holdes ute — se innholdsfilteret i content.js).
   labelCredits: [
-    'FeedFreq Community (tidl. «Tree Of Life»)',
-    'Cryo Chamber',
-    'Altar Records',
-    'BM Bookings',
-    'Mikelabella Records',
     'Cosmicleaf Records',
   ],
 
@@ -99,9 +94,9 @@ window.AM_CONFIG = {
     'at the same time.. Minimal, Ambient, Deep, Psybient, Psychill, Downtempo, ' +
     'Chill Out, Cinematic Dark Ambient & (Ritual-Spiritual) Experimental.',
   bioCreditsDefault:
-    '14 years of professional experience in the psychedelic psy-chill scene. ' +
-    'Started out on web «Dice Radio», then joined web radio «Q37» — and it grew ' +
-    'from there. Known across the psychill community worldwide.',
+    'Born in 1982 from Greenland.. With its magical sound of the best ambient, ' +
+    'chill out and clarity psybient can offer, Spiced up with a customized twist, ' +
+    'he seduces the audience with excitement.',
 
   /* ---- BILDE-STIER (last opp filene til assets/ – se assets/README.md) - */
   assets: {
