@@ -23,9 +23,8 @@ window.AM_CONFIG = {
   nowPlayingUrl: '',
   nowPlayingInterval: 15000,
   liveDescriptionDefault:
-    'Ambient Mann sender live direkte herfra via Traktor (Native Instruments) ' +
-    'når han går på lufta. Følg med på sendeplanen under – tidene settes av ' +
-    'Ambient Mann selv.',
+    'Ambient Mann sender live direkte følg med når han går på lufta. ' +
+    'Følg med på sendeplanen under – tidene settes av Ambient Mann selv.',
 
   /* ---- BOOKING (gratis – kun via e-post) ------------------------------ */
   bookingEmails: ['yaniv@reply.bigfreq.com'],
