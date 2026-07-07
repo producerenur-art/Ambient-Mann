@@ -147,7 +147,8 @@ hr{border:0; border-top:1px solid var(--line); margin:16px 0}
   padding:34px 0 12px; border-top:1px solid var(--line)}
 .brand-logo{display:inline-flex; opacity:.82; transition:opacity .2s, transform .2s}
 .brand-logo:hover{opacity:1; transform:translateY(-2px)}
-.brand-logo img{height:56px; width:auto; max-width:120px; object-fit:contain; border-radius:10px}
+.brand-logo img{height:56px; width:auto; max-width:120px; object-fit:contain; border-radius:10px;
+  font-size:11px; line-height:1.2; text-align:center}
 
 .foot{text-align:center; color:var(--muted); font-size:13px; padding:20px 18px 96px}
 
