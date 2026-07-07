@@ -79,6 +79,17 @@ window.Content = (function () {
     }
   }
 
+  // Escaper HTML og gjør URL-er (https:// … eller www. …) om til trygge lenker.
+  function linkify(text) {
+    const esc = String(text).replace(/[&<>"']/g, (c) => (
+      { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+    ));
+    return esc.replace(/(https?:\/\/[^\s]+|www\.[^\s]+)/g, (m) => {
+      const href = m.startsWith('http') ? m : 'https://' + m;
+      return '<a href="' + href + '" target="_blank" rel="noopener">' + m + '</a>';
+    });
+  }
+
   // Skriv bio/kreditter/live-tekst inn i DOM ved oppstart.
   function applyText() {
     const bio = document.getElementById('bio-text');
@@ -86,7 +97,7 @@ window.Content = (function () {
     const cr = document.getElementById('bio-credits');
     if (cr) cr.textContent = get('credits');
     const ld = document.getElementById('live-desc');
-    if (ld) ld.textContent = get('liveDescription');
+    if (ld) ld.innerHTML = linkify(get('liveDescription'));
   }
 
   return { load, get, set, applyText, isLoaded: () => loaded };

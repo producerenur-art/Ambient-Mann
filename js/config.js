@@ -23,7 +23,7 @@ window.AM_CONFIG = {
   nowPlayingUrl: '',
   nowPlayingInterval: 15000,
   liveDescriptionDefault:
-    'Ambient Mann sender live direkte følg med når han går på lufta. ' +
+    'Ambient Mann sender live direkte her www.ambientmann.com ' +
     'Følg med på sendeplanen under – tidene settes av Ambient Mann selv.',
 
   /* ---- BOOKING (gratis – kun via e-post) ------------------------------ */
