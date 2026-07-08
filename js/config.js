@@ -47,8 +47,8 @@ window.AM_CONFIG = {
 
   /* ---- SUPABASE (kun offentlige verdier) ------------------------------
    * service_role-nøkkelen ligger BARE i Vercel-env, aldri her. */
-  SUPABASE_URL: '',
-  SUPABASE_ANON_KEY: '',
+  SUPABASE_URL: 'https://eprcauxqmdlxjscygsrb.supabase.co',
+  SUPABASE_ANON_KEY: 'sb_publishable_vTCGDnn574IUQPkAnmBwdw_EpB8GWD6',
   SUPABASE_BUCKET: 'ambient-mann-media',
 
   /* ---- CHAT (Gun.js, desentralisert – ingen server) ------------------- */
