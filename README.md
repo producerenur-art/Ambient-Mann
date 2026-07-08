@@ -63,11 +63,30 @@ Alt er valgfritt — siden kjører i fallback-modus uten dem.
 | `SITE_URL` | `https://www.ambientmann.com` (Stripe-retur + reset-lenker) |
 | `RESEND_API_KEY`, `RESEND_FROM_EMAIL` | Sende «Glemt passord?»- og **gjest-bekreftelses**-e-post |
 
-> **Merk:** Uten `RESEND_API_KEY` regnes gjeste-kontoer som bekreftet med det samme (ingen
-> e-postbekreftelse sendes), men de må fortsatt godkjennes av Ambient Mann før de kan hoste.
-
 Offentlige verdier (`SUPABASE_URL`/anon-key, Vipps-nr., lenker) settes i
 [js/config.js](js/config.js). Hemmeligheter settes KUN i Vercel-env.
+
+### ⚠️ MÅ GJØRES: aktiver e-post (Resend)
+`RESEND_API_KEY` er **ikke satt i produksjon ennå**. Uten den:
+- **«Glemt passord?»** virker ikke — verken for Ambient Mann (eier) eller for gjester.
+- Gjester får **ingen** bekreftelses-/godkjennings-e-post (de auto-bekreftes i stedet, men må
+  fortsatt godkjennes manuelt av Ambient Mann før de kan hoste).
+
+Slik aktiverer du det:
+1. Lag konto på [resend.com](https://resend.com), verifiser avsender-domenet (`ambientmann.com`)
+   og hent en API-nøkkel.
+2. Sett variablene i Vercel og re-deploy:
+   ```bash
+   vercel env add RESEND_API_KEY production
+   vercel env add RESEND_FROM_EMAIL production   # f.eks. "Ambient Mann <noreply@ambientmann.com>"
+   vercel --prod
+   ```
+3. Sjekk at det slo til: `curl -s https://www.ambientmann.com/api/site?action=guest-status`
+   skal nå gi `"resetSupported":true` og `"confirmSupported":true`.
+
+> **Uten domene-verifisering** kan du teste med Resends standardavsender
+> `onboarding@resend.dev` (settes automatisk hvis `RESEND_FROM_EMAIL` mangler), men e-post til
+> vilkårlige mottakere krever verifisert domene i produksjon.
 
 ## Supabase
 Kjør [supabase/migrations/0001_init.sql](supabase/migrations/0001_init.sql) i
