@@ -25,7 +25,7 @@
   <header class="topbar">
     <button class="nav-toggle" id="nav-toggle" aria-label="Åpne meny">☰</button>
     <nav class="nav" id="nav">
-      <a href="#live">Live</a>
+      <a href="#live" class="owner-only" style="display:none">Live</a>
       <a href="#listen">Musikk</a>
       <a href="#donasjon">Donasjon</a>
       <a href="#links">Lenker</a>
@@ -97,9 +97,21 @@
       </div>
     </section>
 
-    <!-- LIVE via Traktor -->
-    <section id="live" class="block">
-      <div class="section-head"><h2>Live direkte <span id="live-badge" class="badge badge-live" style="display:none"><span class="dot"></span>LIVE</span></h2><span class="hint">Traktor · Native Instruments</span></div>
+    <!-- LENKER (navn → URL, som SoundCloud) -->
+    <section id="links" class="block">
+      <div class="section-head"><h2>Lenker &amp; podcaster</h2></div>
+      <div id="links-list" class="links"></div>
+      <div class="card owner-only" style="display:none">
+        <h3 class="mini-h">Legg til lenke (navn → URL, som SoundCloud)</h3>
+        <label>Navn (vises som klikkbar lenke)</label><input id="link-name" class="input" placeholder="f.eks. SoundCloud – Ambient Mann">
+        <label>URL</label><input id="link-url" class="input" placeholder="https://soundcloud.com/…">
+        <button class="btn btn-primary" id="link-add">+ Legg til</button>
+      </div>
+    </section>
+
+    <!-- LIVE via Traktor — kun synlig for eier (innlogget) -->
+    <section id="live" class="block owner-only" style="display:none">
+      <div class="section-head"><h2>Live direkte <span id="live-badge" class="badge badge-live" style="display:none"><span class="dot"></span>LIVE</span></h2></div>
       <div class="card live-box">
         <div class="live-meta">
           <div class="kicker" id="live-kicker">OFFLINE</div>
@@ -141,18 +153,6 @@
         <label>Live-beskrivelse (vises til publikum)</label>
         <textarea id="edit-livedesc" class="input" rows="3"></textarea>
         <button class="btn btn-tiny" id="save-livedesc">Lagre beskrivelse</button>
-      </div>
-    </section>
-
-    <!-- LENKER (navn → URL, som SoundCloud) -->
-    <section id="links" class="block">
-      <div class="section-head"><h2>Lenker &amp; podcaster</h2></div>
-      <div id="links-list" class="links"></div>
-      <div class="card owner-only" style="display:none">
-        <h3 class="mini-h">Legg til lenke (navn → URL, som SoundCloud)</h3>
-        <label>Navn (vises som klikkbar lenke)</label><input id="link-name" class="input" placeholder="f.eks. SoundCloud – Ambient Mann">
-        <label>URL</label><input id="link-url" class="input" placeholder="https://soundcloud.com/…">
-        <button class="btn btn-primary" id="link-add">+ Legg til</button>
       </div>
     </section>
 
