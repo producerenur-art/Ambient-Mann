@@ -107,7 +107,22 @@
     }, 'google_translate_element');
   };
 
+  // Merkenavnet skal ALLTID være «Ambient Mann» (to n-er), uansett
+  // språk. Google Translate oversetter fane-tittelen og gjør norsk
+  // «Mann» → engelsk «Man». Vi retter det opp igjen fortløpende.
+  function guardTitle() {
+    var titleEl = document.querySelector('title');
+    if (!titleEl) return;
+    function fix() {
+      var fixed = document.title.replace(/Ambient Man(?!n)/g, 'Ambient Mann');
+      if (fixed !== document.title) document.title = fixed;
+    }
+    fix();
+    new MutationObserver(fix).observe(titleEl, { childList: true, characterData: true, subtree: true });
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
+    guardTitle();
     var sel = byId('lang-picker');
     if (!sel) return;
     var current = langFromCookie();
