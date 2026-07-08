@@ -268,3 +268,16 @@ hr{border:0; border-top:1px solid var(--line); margin:16px 0}
 .modal{position:relative; width:100%; max-width:380px; margin:0}
 .modal .x{position:absolute; top:8px; right:10px}
 .field{margin-bottom:4px}
+
+/* ---- Gjest Show Live Stream ---- */
+.guest-nav-name{color:var(--accent2); font-size:13px; font-weight:700}
+.guest-auth-cta{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin:14px 0}
+.guest-streams{display:flex; flex-direction:column; gap:12px; margin-bottom:14px}
+.guest-stream-card{padding:14px}
+.gs-head{display:flex; align-items:center; gap:10px; margin-bottom:10px}
+.gs-audio,.gt-audio{width:100%; max-width:100%; height:38px; margin-top:2px}
+.guest-track-row .gt-audio{flex:1 1 180px; min-width:140px}
+.guest-track-row{cursor:default; flex-wrap:wrap}
+.gs-link{font-size:13px; color:var(--accent2); font-weight:700; white-space:nowrap}
+.guest-admin-list{display:flex; flex-direction:column; gap:8px}
+#guest-panel h4.mini-h{margin-top:8px}

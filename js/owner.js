@@ -30,7 +30,7 @@ window.Owner = (function () {
 
   function refresh() {
     applyVisibility();
-    ['Schedule', 'Links', 'Tracks'].forEach(n => { if (window[n] && window[n].render) try { window[n].render(); } catch (_) {} });
+    ['Schedule', 'Links', 'Tracks', 'Guest'].forEach(n => { if (window[n] && window[n].render) try { window[n].render(); } catch (_) {} });
   }
 
   async function post(action, body) {

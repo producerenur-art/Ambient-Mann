@@ -26,6 +26,7 @@
     <button class="nav-toggle" id="nav-toggle" aria-label="Åpne meny">☰</button>
     <nav class="nav" id="nav">
       <a href="#live" class="owner-only" style="display:none">Live</a>
+      <a href="#gjest-live" id="guest-nav">Gjest <span id="guest-nav-name" class="guest-nav-name"></span></a>
       <a href="#listen">Musikk</a>
       <a href="#donasjon">Donasjon</a>
       <a href="#links">Lenker</a>
@@ -47,7 +48,6 @@
         <img id="hero-logo" class="am-logo" src="assets/ambient-mann-logo.png" alt="Ambient Mann">
       </div>
       <p class="tagline" id="tagline">Psybient · Psychill · Downtempo · Cinematic Dark Ambient</p>
-      <a class="btn btn-primary book-btn" href="#">✉ Book <span translate="no" class="notranslate">Ambient Mann</span></a>
     </section>
 
     <!-- BIO (over booking-e-posten) -->
@@ -169,6 +169,75 @@
       </div>
     </section>
 
+    <!-- GJEST SHOW LIVE STREAM — offentlig; godkjente gjester hoster egne sett -->
+    <section id="gjest-live" class="block">
+      <div class="section-head">
+        <h2>Gjest Show Live Stream</h2>
+        <span class="hint">Godkjente gjester hoster egne live-sett og deler egen musikk</span>
+      </div>
+      <p class="live-desc" id="guest-desc">Her sender inviterte gjester live og deler egen musikk. Er du gjest? Logg inn under – eller registrer deg, bekreft e-posten, og vent på at Ambient Mann godkjenner kontoen din.</p>
+
+      <!-- Offentlig: gjest-strømmer som er live nå -->
+      <div id="guest-streams" class="guest-streams"></div>
+
+      <!-- Offentlig: kommende / pågående gjeste-sendinger -->
+      <h3 class="mini-h">Gjest-sendeplan</h3>
+      <div id="guest-schedule" class="schedule"></div>
+
+      <!-- Offentlig: musikk lastet opp av gjester -->
+      <h3 class="mini-h">Gjest-musikk</h3>
+      <div id="guest-tracks" class="tracks"></div>
+
+      <!-- Innlogging / registrering for gjest -->
+      <div class="guest-auth-cta">
+        <button class="btn btn-primary" id="guest-btn">Logg inn som gjest</button>
+        <span id="guest-status-text" class="muted"></span>
+      </div>
+
+      <!-- Venter-på-godkjenning (innlogget, men ikke godkjent ennå) -->
+      <div class="card" id="guest-pending" style="display:none">
+        <p class="muted">Takk! E-posten din er bekreftet, men kontoen venter på godkjenning fra <span translate="no" class="notranslate">Ambient Mann</span> før du kan hoste. Du får e-post når du er godkjent.</p>
+      </div>
+
+      <!-- GJEST-KONSOLL: samme oppsett som admin, men per gjest (kun innlogget + godkjent) -->
+      <div class="card" id="guest-panel" style="display:none">
+        <h3 class="mini-h">Din gjest-konsoll — <span id="guest-panel-name" translate="no" class="notranslate"></span></h3>
+
+        <h4 class="mini-h">Sett din sendetid</h4>
+        <div class="row">
+          <div><label>Dato &amp; tid</label><input id="gsched-when" class="input" type="datetime-local"></div>
+          <div><label>Timer</label><input id="gsched-hours" class="input" type="number" min="1" max="12" value="2"></div>
+        </div>
+        <label>Tittel</label><input id="gsched-title" class="input" placeholder="f.eks. Deep Psybient Journey">
+        <label>Lenke (valgfri – der du sender: YouTube/Twitch/egen strøm)</label>
+        <input id="gsched-link" class="input" placeholder="https://…">
+        <button class="btn btn-primary" id="gsched-add">+ Legg til sendetid</button>
+        <hr>
+
+        <h4 class="mini-h">Last opp musikk (WAV/MP3) + eget cover</h4>
+        <label>Tittel</label><input id="gtrack-title" class="input" placeholder="Spor-tittel">
+        <label>Cover-bilde (valgfritt)</label><input id="gtrack-cover" class="input" type="file" accept="image/*">
+        <label>Lyd-fil (WAV/MP3)</label><input id="gtrack-file" class="input" type="file" accept="audio/*">
+        <button class="btn btn-primary" id="gtrack-upload">⬆ Last opp</button>
+        <span id="gtrack-status" class="muted"></span>
+        <hr>
+
+        <h4 class="mini-h">Din live-strøm (Icecast / egen server)</h4>
+        <label>Stream-URL (du sender hit)</label>
+        <input id="gstream-url" class="input" placeholder="https://din-server.no/listen/…/radio.mp3">
+        <label>Now-playing-URL (valgfri – gir «LIVE» + lyttertall)</label>
+        <input id="gstream-np" class="input" placeholder="https://din-server.no/api/nowplaying/1">
+        <button class="btn btn-tiny" id="gstream-save">Lagre strøm</button>
+        <span id="gstream-status" class="muted"></span>
+      </div>
+
+      <!-- EIER: godkjenn / avvis gjester -->
+      <div class="card owner-only" id="guest-admin" style="display:none">
+        <h3 class="mini-h">Gjester — godkjenn / avvis (kun deg)</h3>
+        <div id="guest-admin-list" class="guest-admin-list"><p class="muted">Laster …</p></div>
+      </div>
+    </section>
+
     <!-- BUNN-LOGOER (mindre enn bakgrunn + hovedlogo, klikkbare) -->
     <section class="logo-strip">
       <a id="logo-portrait" class="brand-logo" target="_blank" rel="noopener" title="Ambient Mann på radioq37" href="https://radioq37.com/artist/ambient-mann/"><img src="assets/ambient-mann-portrait.jpg" alt="Ambient Mann — radioq37"></a>
@@ -269,6 +338,31 @@
     </div>
   </div>
 
+  <!-- Gjest-innlogging / registrering -->
+  <div class="modal-overlay" id="guest-modal">
+    <div class="card modal">
+      <button class="x" id="guest-modal-close">×</button>
+      <h3 id="guest-modal-title">Logg inn som gjest</h3>
+      <p class="muted" id="guest-modal-sub">For godkjente gjester hos <span translate="no" class="notranslate">Ambient Mann</span>.</p>
+      <div class="field" id="guest-name-field" style="display:none">
+        <label>Navn / artistnavn (vises til publikum)</label>
+        <input class="input" id="guest-name" type="text" placeholder="f.eks. DJ Nebula" autocomplete="name">
+      </div>
+      <div class="field" id="guest-email-field">
+        <label>E-post</label>
+        <input class="input" id="guest-email" type="email" placeholder="din@epost.no" autocomplete="email">
+      </div>
+      <div class="field" id="guest-pass-field">
+        <label id="guest-pass-label">Passord</label>
+        <input class="input" id="guest-pass" type="password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn btn-primary" id="guest-submit" style="width:100%">Logg inn</button>
+      <button class="btn btn-ghost" id="guest-toggle-mode" style="width:100%;margin-top:8px">Ny gjest? Registrer deg</button>
+      <button class="btn btn-ghost" id="guest-forgot" style="width:100%;margin-top:8px">Glemt passord?</button>
+      <button class="btn btn-ghost" id="guest-back" style="width:100%;margin-top:8px;display:none">← Tilbake til innlogging</button>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
   <!-- Eksterne biblioteker (valgfrie – siden fungerer uten dem) -->
@@ -283,6 +377,7 @@
   <script src="js/starfield.js"></script>
   <script src="js/player.js"></script>
   <script src="js/owner.js"></script>
+  <script src="js/guest.js"></script>
   <script src="js/content.js"></script>
   <script src="js/schedule.js"></script>
   <script src="js/links.js"></script>

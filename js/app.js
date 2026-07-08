@@ -120,6 +120,7 @@
     wireBooking();
     wireNav();
     Owner.bind();
+    Guest.bind();
     Chat.init();
     Donation.bind();
     Donation.handleReturn();
@@ -131,6 +132,7 @@
     Schedule.bind(); Schedule.render();
     Links.bind(); Links.render();
     Tracks.bind(); Tracks.render();
+    Guest.render();
     Owner.applyVisibility();
   }
 

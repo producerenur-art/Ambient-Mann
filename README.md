@@ -15,8 +15,20 @@ Frittstående, byggefri nettside (vanilla JS) for booking av **Ambient Mann**
 - **Lenker** (navn → URL, som SoundCloud) som spillbare kort.
 - **Flyttbar chat** med kallenavn.
 - **Eier-innlogging kun for Ambient Mann**: eget passord + «Glemt passord?» (e-post-reset).
+- **Gjest Show Live Stream**: inviterte gjester kan registrere seg (navn + e-post + passord),
+  bekrefte e-posten, og — etter at Ambient Mann **godkjenner** kontoen — sette egne sendetider,
+  laste opp egen musikk (WAV/MP3 + cover) og legge inn egen live-strøm. Samme flyt som admin,
+  men egen konto. Publikum ser gjestenes sendeplan, live-strømmer og spor. Toppmenyen har en
+  **«Gjest»**-lenke, og den innloggede gjestens selvvalgte navn vises der.
 
 Booking er det eneste som «koster» (avtales via e-post). Alt annet er gratis.
+
+### Gjest-flyt (kort)
+1. Gjest trykker **«Logg inn som gjest» → «Ny gjest? Registrer deg»** og oppretter konto.
+2. Gjesten bekrefter e-posten via lenken (`?gconfirm=…`).
+3. Ambient Mann (innlogget som eier) ser gjesten under **«Gjester — godkjenn / avvis»** og trykker **Godkjenn**.
+4. Gjesten får e-post om godkjenning og kan nå sette sendetid / laste opp musikk / legge inn live-strøm.
+5. **«Glemt passord?»** fungerer for gjester (`?greset=…`), akkurat som for eier.
 
 ## Kjør lokalt
 ```bash
@@ -49,14 +61,19 @@ Alt er valgfritt — siden kjører i fallback-modus uten dem.
 | `SUPABASE_BUCKET` | (valgfri) standard `ambient-mann-media` |
 | `STRIPE_SECRET_KEY` | Kort-donasjon (Vipps virker uten) |
 | `SITE_URL` | `https://www.ambientmann.com` (Stripe-retur + reset-lenker) |
-| `RESEND_API_KEY`, `RESEND_FROM_EMAIL` | Sende «Glemt passord?»-e-post |
+| `RESEND_API_KEY`, `RESEND_FROM_EMAIL` | Sende «Glemt passord?»- og **gjest-bekreftelses**-e-post |
+
+> **Merk:** Uten `RESEND_API_KEY` regnes gjeste-kontoer som bekreftet med det samme (ingen
+> e-postbekreftelse sendes), men de må fortsatt godkjennes av Ambient Mann før de kan hoste.
 
 Offentlige verdier (`SUPABASE_URL`/anon-key, Vipps-nr., lenker) settes i
 [js/config.js](js/config.js). Hemmeligheter settes KUN i Vercel-env.
 
 ## Supabase
 Kjør [supabase/migrations/0001_init.sql](supabase/migrations/0001_init.sql) i
-Supabase → SQL editor (lager tabeller + storage-bøtte). Lim `SUPABASE_URL` +
+Supabase → SQL editor (lager tabeller + storage-bøtte), og deretter
+[supabase/migrations/0002_guest.sql](supabase/migrations/0002_guest.sql) (lager
+`guest_account`-tabellen for Gjest Show Live Stream). Lim `SUPABASE_URL` +
 `SUPABASE_ANON_KEY` inn i `js/config.js`, og `SUPABASE_SERVICE_ROLE_KEY` i Vercel.
 
 ## Live fra Traktor
