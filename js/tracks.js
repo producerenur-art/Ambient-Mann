@@ -31,11 +31,32 @@ window.Tracks = (function () {
     P.play = document.getElementById('tp-play');
     P.seek = document.getElementById('tp-seek');
     P.time = document.getElementById('tp-time');
+    P.mute = document.getElementById('tp-mute');
+    P.vol = document.getElementById('tp-vol');
     if (P.play) P.play.addEventListener('click', () => { if (current < 0) play(0); else toggle(); });
     if (P.seek) {
       P.seek.addEventListener('input', () => { seeking = true; if (P.time) P.time.textContent = fmtTime(audio.duration * (P.seek.value / 100)) + ' / ' + fmtTime(audio.duration); });
       P.seek.addEventListener('change', () => { if (audio.duration) audio.currentTime = audio.duration * (P.seek.value / 100); seeking = false; });
     }
+    // ---- volum (huskes mellom besøk) ----
+    let saved = 1;
+    try { const v = parseFloat(localStorage.getItem('am_vol')); if (isFinite(v)) saved = Math.min(1, Math.max(0, v)); } catch (_) {}
+    audio.volume = saved;
+    if (P.vol) {
+      P.vol.value = Math.round(saved * 100);
+      P.vol.addEventListener('input', () => {
+        const v = P.vol.value / 100;
+        audio.volume = v; audio.muted = false;
+        try { localStorage.setItem('am_vol', String(v)); } catch (_) {}
+        paintVol();
+      });
+    }
+    if (P.mute) P.mute.addEventListener('click', () => { audio.muted = !audio.muted; paintVol(); });
+    paintVol();
+  }
+  function paintVol() {
+    if (P.mute) P.mute.textContent = (audio.muted || audio.volume === 0) ? '🔇' : (audio.volume < 0.5 ? '🔉' : '🔊');
+    if (P.vol && !audio.muted) P.vol.value = Math.round(audio.volume * 100);
   }
   function paintPlayer() {
     const t = list()[current];
