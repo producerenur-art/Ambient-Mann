@@ -26,13 +26,14 @@
     <button class="nav-toggle" id="nav-toggle" aria-label="Åpne meny">☰</button>
     <nav class="nav" id="nav">
       <a href="#live" class="owner-only" style="display:none">Live</a>
-      <a href="#gjest-live" id="guest-nav">Gjest <span id="guest-nav-name" class="guest-nav-name"></span></a>
+      <a href="#gjest-live" id="guest-nav" style="display:none">Gjest <span id="guest-nav-name" class="guest-nav-name"></span></a>
       <a href="#listen">Musikk</a>
       <a href="#donasjon">Donasjon</a>
       <a href="#links">Lenker</a>
       <a href="#plateselskaper">Plateselskaper</a>
     </nav>
     <select id="lang-picker" class="lang-picker notranslate" translate="no" aria-label="Velg språk / Choose language"></select>
+    <button class="btn btn-ghost" id="guest-login-btn">Gjest-innlogging</button>
     <button class="btn btn-ghost" id="owner-btn">Eier-innlogging</button>
   </header>
   <!-- Skjult Google Translate-motor (drives av vår egen språkvelger over) -->
@@ -170,9 +171,9 @@
 
     <!-- GJEST SHOW LIVE STREAM — innholdet vises KUN for innloggede gjester / eier;
          publikum ser bare «Logg inn som gjest»-knappen. -->
-    <section id="gjest-live" class="block">
-      <!-- Skjult for publikum — synlig først etter innlogging (gjest eller eier) -->
-      <div id="guest-private-content" style="display:none">
+    <!-- Hele seksjonen er skjult for publikum — vises kun for innlogget gjest/eier -->
+    <section id="gjest-live" class="block" style="display:none">
+      <div id="guest-private-content">
         <div class="section-head">
           <h2>Gjest Show Live Stream</h2>
           <span class="hint">Godkjente gjester hoster egne live-sett og deler egen musikk</span>

@@ -133,18 +133,35 @@ window.Guest = (function () {
   // ---- innlogget-tilstand (panel / venter / nav-navn) ----------------------
   function applyVisibility() {
     const on = isGuest(), approved = isApproved();
+    const ownerOn = !!(window.Owner && Owner.isOwner());
+    const canSee = on || ownerOn;
 
-    // Selve gjeste-innholdet (sendeplan, musikk, strømmer) er skjult for publikum;
-    // vises kun for innloggede gjester eller eieren. «Logg inn som gjest»-knappen
-    // ligger utenfor og er alltid synlig for alle.
+    // Hele gjest-seksjonen er skjult for publikum; vises kun for innlogget gjest/eier.
+    // Innlogging skjer fra «Gjest-innlogging»-knappen i toppbaren.
+    const section = document.getElementById('gjest-live');
+    if (section) section.style.display = canSee ? '' : 'none';
     const priv = document.getElementById('guest-private-content');
-    const canSee = on || (window.Owner && Owner.isOwner());
-    if (priv) priv.style.display = canSee ? '' : 'none';
+    if (priv) priv.style.display = '';
 
     const panel = document.getElementById('guest-panel');
     const pending = document.getElementById('guest-pending');
     if (panel) panel.style.display = (on && approved) ? '' : 'none';
     if (pending) pending.style.display = (on && !approved) ? '' : 'none';
+
+    // Toppbar-knapp: gjest-innlogging / logg ut (skjules for eier).
+    const hbtn = document.getElementById('guest-login-btn');
+    if (hbtn) {
+      hbtn.style.display = ownerOn ? 'none' : '';
+      hbtn.textContent = on ? 'Logg ut gjest' : 'Gjest-innlogging';
+    }
+
+    // Nav-lenken «Gjest» peker inn i seksjonen — kun nyttig når den er synlig.
+    const navLink = document.getElementById('guest-nav');
+    if (navLink) navLink.style.display = canSee ? '' : 'none';
+
+    // Gammel innloggings-CTA inne i seksjonen er erstattet av toppbar-knappen.
+    const cta = document.querySelector('#gjest-live .guest-auth-cta');
+    if (cta) cta.style.display = 'none';
 
     const btn = document.getElementById('guest-btn');
     if (btn) btn.textContent = on ? 'Logg ut som gjest' : 'Logg inn som gjest';
@@ -420,6 +437,8 @@ window.Guest = (function () {
     grab();
     const btn = document.getElementById('guest-btn');
     if (btn) btn.addEventListener('click', () => { if (isGuest()) logout(); else open(); });
+    const hbtn = document.getElementById('guest-login-btn');
+    if (hbtn) hbtn.addEventListener('click', () => { if (isGuest()) logout(); else open(); });
     if (M.submit) M.submit.addEventListener('click', submit);
     if (M.pass) M.pass.addEventListener('keydown', e => { if (e.key === 'Enter') submit(); });
     if (M.email) M.email.addEventListener('keydown', e => { if (e.key === 'Enter' && mode === 'forgot') submit(); });
