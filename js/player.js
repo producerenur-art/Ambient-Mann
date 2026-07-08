@@ -148,8 +148,34 @@ window.Player = (function () {
 
   function isLive() { return !!state.live; }
 
+  function autoHide() {
+    var bar = document.querySelector('.player-bar');
+    if (!bar) return;
+    var hideTimer = null;
+    var THRESHOLD = 90;          // hvor nær bunnen musa må være (px)
+    var LINGER = 1200;           // hvor lenge baren blir synlig etter at musa forlater sonen (ms)
+    function show() { clearTimeout(hideTimer); hideTimer = null; bar.classList.add('reveal'); }
+    function scheduleHide() {
+      if (hideTimer) return;
+      hideTimer = setTimeout(function () { bar.classList.remove('reveal'); hideTimer = null; }, LINGER);
+    }
+    document.addEventListener('mousemove', function (e) {
+      if (e.clientY >= window.innerHeight - THRESHOLD) show();
+      else scheduleHide();
+    });
+    // hold synlig så lenge musa faktisk er over baren
+    bar.addEventListener('mouseenter', show);
+    bar.addEventListener('mouseleave', scheduleHide);
+    // touch/uten mus: vis kort ved berøring nederst
+    document.addEventListener('touchstart', function (e) {
+      var t = e.touches && e.touches[0];
+      if (t && t.clientY >= window.innerHeight - THRESHOLD) { show(); scheduleHide(); }
+    }, { passive: true });
+  }
+
   function init() {
     bind();
+    autoHide();
     render();
     poll();
     setInterval(poll, (window.AM_CONFIG && AM_CONFIG.nowPlayingInterval) || 15000);
