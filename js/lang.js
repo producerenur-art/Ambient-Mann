@@ -63,19 +63,14 @@
     });
   }
 
-  // Driv Googles skjulte combo → oversetter siden uten reload.
+  // Sett googtrans-cookie og last siden på nytt. Google Translate leser
+  // cookien ved oppstart og oversetter automatisk – dette er den robuste
+  // veien. Å drive Googles skjulte combo med et syntetisk change-event er
+  // upålitelig (combo-en ligger i en display:none-container), så vi gjør
+  // det ikke lenger.
   function applyLang(code) {
     setCookie(code ? '/' + PAGE_LANG + '/' + code : '/' + PAGE_LANG + '/' + PAGE_LANG);
-    var combo = document.querySelector('.goog-te-combo');
-    if (combo) {
-      combo.value = code;
-      combo.dispatchEvent(new Event('change'));
-      // Tilbake til original er mest robust med en frisk last.
-      if (!code) location.reload();
-    } else if (code) {
-      // Google ikke lastet ennå: cookie er satt, en reload tar oversettelsen.
-      location.reload();
-    }
+    location.reload();
   }
 
   // Kopier ALLE språk fra Googles combo inn i vår egen select.
