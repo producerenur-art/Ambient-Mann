@@ -131,8 +131,9 @@ window.Tracks = (function () {
       if (fileEl) fileEl.value = ''; if (coverEl) coverEl.value = ''; if (titleEl) titleEl.value = '';
       render();
     } catch (e) {
-      if (status) status.textContent = '';
-      UI.toast(e.message === 'not-configured' ? 'Lyd-lagring ikke satt opp.' : 'Opplasting feilet.');
+      const msg = (e && e.message) || String(e);
+      if (status) status.textContent = 'Feil: ' + msg;
+      UI.toast(msg === 'not-configured' ? 'Lyd-lagring ikke satt opp.' : ('Opplasting feilet: ' + msg));
     }
   }
 
