@@ -135,6 +135,10 @@ hr{border:0; border-top:1px solid var(--line); margin:16px 0}
 .don-preset.active{background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#0a0f2a; border:0}
 .don-custom{max-width:220px}
 .don-actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px}
+.don-qr{margin-top:16px}
+.don-qr img{display:block; width:160px; height:160px; border-radius:12px; background:#fff; padding:8px;
+  border:1px solid var(--line)}
+.don-qr-cap{margin:8px 0 0; font-size:13px; color:var(--muted)}
 
 /* ---- Lenke-forhåndsvisning (LinkPreview) ---- */
 .links{display:flex; flex-direction:column; gap:10px}

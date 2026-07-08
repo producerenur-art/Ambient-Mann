@@ -70,6 +70,12 @@ window.Donation = (function () {
     if (s) s.addEventListener('click', payStripe);
     const v = document.getElementById('don-vipps');
     if (v) v.setAttribute('href', vippsHref());
+    // QR-koden peker til samme Vipps-dyplenke som knappen.
+    const qLink = document.getElementById('don-qr-link');
+    if (qLink) qLink.setAttribute('href', vippsHref());
+    const qImg = document.getElementById('don-qr-img');
+    const qSrc = (window.AM_CONFIG && AM_CONFIG.vipps && AM_CONFIG.vipps.qr);
+    if (qImg && qSrc) qImg.setAttribute('src', qSrc);
     const presets = cfg().presets || [];
     if (presets.length) setAmount(presets[0]);
   }
