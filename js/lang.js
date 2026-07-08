@@ -119,17 +119,28 @@
   }
 
   // Samme vern for selve siden: Google Translate skriver «Ambient Mann» → «Ambient
-  // Man» inne i tekst-noder (pakket i <font>-tagger) når man bytter språk. Vi går
-  // gjennom alle tekst-noder og setter tilbake den andre n-en fortløpende.
+  // Man» både inne i tekst-noder (pakket i <font>-tagger) OG i oversettbare
+  // attributter (alt/title/placeholder/aria-label) når man bytter språk. Vi går
+  // gjennom alt og setter tilbake den andre n-en fortløpende.
+  var BRAND_ATTRS = ['alt', 'title', 'placeholder', 'aria-label'];
+  function has(s) { BRAND_RE.lastIndex = 0; return BRAND_RE.test(s); }
   function guardBody() {
     if (!document.body) return;
+    function fixAttrs(elm) {
+      for (var a = 0; a < BRAND_ATTRS.length; a++) {
+        var name = BRAND_ATTRS[a];
+        if (elm.hasAttribute && elm.hasAttribute(name)) {
+          var v = elm.getAttribute(name);
+          if (has(v)) elm.setAttribute(name, v.replace(BRAND_RE, 'Ambient Mann'));
+        }
+      }
+    }
     function fixNode(node) {
       if (node.nodeType === 3) {
-        if (BRAND_RE.test(node.nodeValue)) {
-          node.nodeValue = node.nodeValue.replace(BRAND_RE, 'Ambient Mann');
-        }
-      } else if (node.nodeType === 1 && node.childNodes) {
-        for (var i = 0; i < node.childNodes.length; i++) fixNode(node.childNodes[i]);
+        if (has(node.nodeValue)) node.nodeValue = node.nodeValue.replace(BRAND_RE, 'Ambient Mann');
+      } else if (node.nodeType === 1) {
+        fixAttrs(node);
+        if (node.childNodes) for (var i = 0; i < node.childNodes.length; i++) fixNode(node.childNodes[i]);
       }
     }
     fixNode(document.body);
@@ -137,9 +148,13 @@
       for (var i = 0; i < muts.length; i++) {
         var m = muts[i];
         if (m.type === 'characterData') fixNode(m.target);
+        else if (m.type === 'attributes') { if (m.target.nodeType === 1) fixAttrs(m.target); }
         else for (var j = 0; j < m.addedNodes.length; j++) fixNode(m.addedNodes[j]);
       }
-    }).observe(document.body, { childList: true, characterData: true, subtree: true });
+    }).observe(document.body, {
+      childList: true, characterData: true, subtree: true,
+      attributes: true, attributeFilter: BRAND_ATTRS
+    });
   }
 
   document.addEventListener('DOMContentLoaded', function () {
