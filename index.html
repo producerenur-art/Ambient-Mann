@@ -168,26 +168,30 @@
       </div>
     </section>
 
-    <!-- GJEST SHOW LIVE STREAM — offentlig; godkjente gjester hoster egne sett -->
+    <!-- GJEST SHOW LIVE STREAM — innholdet vises KUN for innloggede gjester / eier;
+         publikum ser bare «Logg inn som gjest»-knappen. -->
     <section id="gjest-live" class="block">
-      <div class="section-head">
-        <h2>Gjest Show Live Stream</h2>
-        <span class="hint">Godkjente gjester hoster egne live-sett og deler egen musikk</span>
+      <!-- Skjult for publikum — synlig først etter innlogging (gjest eller eier) -->
+      <div id="guest-private-content" style="display:none">
+        <div class="section-head">
+          <h2>Gjest Show Live Stream</h2>
+          <span class="hint">Godkjente gjester hoster egne live-sett og deler egen musikk</span>
+        </div>
+        <p class="live-desc" id="guest-desc">Her sender inviterte gjester live og deler egen musikk. Er du gjest? Logg inn under – eller registrer deg, bekreft e-posten, og vent på at Ambient Mann godkjenner kontoen din.</p>
+
+        <!-- Gjest-strømmer som er live nå -->
+        <div id="guest-streams" class="guest-streams"></div>
+
+        <!-- Kommende / pågående gjeste-sendinger -->
+        <h3 class="mini-h">Gjest-sendeplan</h3>
+        <div id="guest-schedule" class="schedule"></div>
+
+        <!-- Musikk lastet opp av gjester -->
+        <h3 class="mini-h">Gjest-musikk</h3>
+        <div id="guest-tracks" class="tracks"></div>
       </div>
-      <p class="live-desc" id="guest-desc">Her sender inviterte gjester live og deler egen musikk. Er du gjest? Logg inn under – eller registrer deg, bekreft e-posten, og vent på at Ambient Mann godkjenner kontoen din.</p>
 
-      <!-- Offentlig: gjest-strømmer som er live nå -->
-      <div id="guest-streams" class="guest-streams"></div>
-
-      <!-- Offentlig: kommende / pågående gjeste-sendinger -->
-      <h3 class="mini-h">Gjest-sendeplan</h3>
-      <div id="guest-schedule" class="schedule"></div>
-
-      <!-- Offentlig: musikk lastet opp av gjester -->
-      <h3 class="mini-h">Gjest-musikk</h3>
-      <div id="guest-tracks" class="tracks"></div>
-
-      <!-- Innlogging / registrering for gjest -->
+      <!-- Innlogging / registrering for gjest (alltid synlig for alle) -->
       <div class="guest-auth-cta">
         <button class="btn btn-primary" id="guest-btn">Logg inn som gjest</button>
         <span id="guest-status-text" class="muted"></span>

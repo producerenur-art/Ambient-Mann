@@ -133,6 +133,14 @@ window.Guest = (function () {
   // ---- innlogget-tilstand (panel / venter / nav-navn) ----------------------
   function applyVisibility() {
     const on = isGuest(), approved = isApproved();
+
+    // Selve gjeste-innholdet (sendeplan, musikk, strømmer) er skjult for publikum;
+    // vises kun for innloggede gjester eller eieren. «Logg inn som gjest»-knappen
+    // ligger utenfor og er alltid synlig for alle.
+    const priv = document.getElementById('guest-private-content');
+    const canSee = on || (window.Owner && Owner.isOwner());
+    if (priv) priv.style.display = canSee ? '' : 'none';
+
     const panel = document.getElementById('guest-panel');
     const pending = document.getElementById('guest-pending');
     if (panel) panel.style.display = (on && approved) ? '' : 'none';
