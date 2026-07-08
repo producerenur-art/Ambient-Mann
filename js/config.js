@@ -31,6 +31,11 @@ window.AM_CONFIG = {
   bookingSubject: 'Booking — Ambient Mann',
   bookingBody: 'Hei Ambient Mann,\n\nVi ønsker å booke deg. Her er detaljene:\n\nDato/sted:\nType arrangement:\nKontaktperson:\n\nMvh',
 
+  /* ---- KONTAKT (går direkte til Ambient Manns e-post) ----------------- */
+  contactEmail: 'aon_h@mailfence.com',
+  contactSubject: 'Kontakt — Ambient Mann',
+  contactBody: 'Hei Ambient Mann,\n\n',
+
   /* ---- DONASJON (frivillig) ------------------------------------------- */
   donation: {
     enabled: true,

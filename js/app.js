@@ -22,6 +22,17 @@
     }
   }
 
+  // ---- Kontakt (går direkte til Ambient Manns e-post) --------------------
+  function contactHref() {
+    const to = C.contactEmail || '';
+    const q = 'subject=' + encodeURIComponent(C.contactSubject || 'Kontakt') +
+              '&body=' + encodeURIComponent(C.contactBody || '');
+    return 'mailto:' + to + '?' + q;
+  }
+  function wireContact() {
+    UI.$all('.contact-btn').forEach(a => a.setAttribute('href', contactHref()));
+  }
+
   // ---- Bunn-logoer + bakgrunn + hero-logo (fra config) --------------------
   function wireAssets() {
     const A = C.assets || {}, L = C.links || {};
@@ -118,6 +129,7 @@
     wireAssets();
     wireCredits();
     wireBooking();
+    wireContact();
     wireNav();
     Owner.bind();
     Guest.bind();
