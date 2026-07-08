@@ -19,8 +19,8 @@ window.AM_CONFIG = {
    * Lim inn lytte-URL-en her (eller la eieren sette den inne på siden).
    * nowPlayingUrl gir automatisk «LIVE NÅ» + låt/lyttertall. Se
    * docs/AZURACAST-TRAKTOR.md. Tomt = «live er ikke satt opp ennå». */
-  streamUrl: '',
-  nowPlayingUrl: '',
+  streamUrl: 'https://radio.ambientmann.com/listen/ambient_mann/radio.mp3',
+  nowPlayingUrl: 'https://radio.ambientmann.com/api/nowplaying/ambient_mann',
   nowPlayingInterval: 15000,
   liveDescriptionDefault:
     'Ambient Mann sender live direkte her www.ambientmann.com ' +
