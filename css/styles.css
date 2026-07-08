@@ -140,6 +140,19 @@ hr{border:0; border-top:1px solid var(--line); margin:16px 0}
   border:1px solid var(--line)}
 .don-qr-cap{margin:8px 0 0; font-size:13px; color:var(--muted)}
 
+/* Sammenleggbar donasjon (mindre, nederst) */
+.don-details > .don-card{margin-top:14px}
+.don-summary{display:flex; align-items:center; gap:12px; cursor:pointer; list-style:none;
+  user-select:none; width:fit-content}
+.don-summary::-webkit-details-marker{display:none}
+.don-summary h2{font-size:20px; margin:0}
+.don-toggle{display:inline-flex; align-items:center; justify-content:center;
+  width:26px; height:26px; border-radius:8px; border:1px solid var(--line);
+  background:var(--panel2); color:var(--text); font-size:16px; line-height:1; font-weight:700}
+.don-toggle::before{content:"+"}
+.don-details[open] .don-toggle::before{content:"–"}
+.don-summary:hover .don-toggle{border-color:var(--accent)}
+
 /* ---- Lenke-forhåndsvisning (LinkPreview) ---- */
 .links{display:flex; flex-direction:column; gap:10px}
 .link-item{display:flex; align-items:center; gap:8px}

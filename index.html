@@ -144,33 +144,6 @@
       </div>
     </section>
 
-    <!-- DONASJON (frivillig) -->
-    <section id="donasjon" class="block">
-      <div class="section-head"><h2>Donasjon</h2></div>
-      <div class="card don-card">
-        <div class="don-presets">
-          <button class="don-preset" data-kr="100">100 kr</button>
-          <button class="don-preset" data-kr="200">200 kr</button>
-          <button class="don-preset" data-kr="500">500 kr</button>
-        </div>
-        <div class="don-custom">
-          <label>Beløp (kr)</label>
-          <input id="don-amount" class="input" type="number" min="20" max="10000" value="100">
-        </div>
-        <div class="don-actions">
-          <button class="btn btn-primary" id="don-stripe">💳 Doner med kort</button>
-          <a class="btn btn-vipps" id="don-vipps" href="#" target="_blank" rel="noopener">Doner med Vipps</a>
-        </div>
-        <div class="don-qr" id="don-qr">
-          <a id="don-qr-link" href="#" target="_blank" rel="noopener">
-            <img id="don-qr-img" src="assets/vipps-qr.png" alt="Vipps-QR – doner til Ambient Mann" width="160" height="160" loading="lazy">
-          </a>
-          <p class="don-qr-cap">Skann med mobilen for å donere via Vipps</p>
-        </div>
-        <p class="note">Vipps åpnes automatisk med riktig mottaker (<span translate="no" class="notranslate">Ambient Mann</span>). Booking av <span translate="no" class="notranslate">Ambient Mann</span> avtales via e-post.</p>
-      </div>
-    </section>
-
     <!-- LENKER (navn → URL, som SoundCloud) -->
     <section id="links" class="block">
       <div class="section-head"><h2>Lenker &amp; podcaster</h2></div>
@@ -194,6 +167,38 @@
       <a id="logo-itathens" class="brand-logo" target="_blank" rel="noopener" title="IT Athens — Wake the Beat" href="https://ra.co/clubs/212119"><img src="assets/it-athens-logo.png" alt="IT Athens"></a>
       <a id="logo-newmessageorg" class="brand-logo" target="_blank" rel="noopener" title="The New Message From God" href="https://www.newmessage.org/"><img src="assets/newmessage-logo.png" alt="The New Message From God"></a>
       <a id="logo-siriusfm" class="brand-logo" target="_blank" rel="noopener" title="Sirius FM" href="https://www.siriusfm.no"><img src="assets/siriusfm-logo.png" alt="siriusfm.no"></a>
+    </section>
+
+    <!-- DONASJON (frivillig) — sammenleggbar, nederst -->
+    <section id="donasjon" class="block don-block">
+      <details class="don-details">
+        <summary class="don-summary">
+          <h2>Donasjon</h2>
+          <span class="don-toggle" aria-hidden="true"></span>
+        </summary>
+        <div class="card don-card">
+          <div class="don-presets">
+            <button class="don-preset" data-kr="100">100 kr</button>
+            <button class="don-preset" data-kr="200">200 kr</button>
+            <button class="don-preset" data-kr="500">500 kr</button>
+          </div>
+          <div class="don-custom">
+            <label>Beløp (kr)</label>
+            <input id="don-amount" class="input" type="number" min="20" max="10000" value="100">
+          </div>
+          <div class="don-actions">
+            <button class="btn btn-primary" id="don-stripe">💳 Doner med kort</button>
+            <a class="btn btn-vipps" id="don-vipps" href="#" target="_blank" rel="noopener">Doner med Vipps</a>
+          </div>
+          <div class="don-qr" id="don-qr">
+            <a id="don-qr-link" href="#" target="_blank" rel="noopener">
+              <img id="don-qr-img" src="assets/vipps-qr.png" alt="Vipps-QR – doner til Ambient Mann" width="160" height="160" loading="lazy">
+            </a>
+            <p class="don-qr-cap">Skann med mobilen for å donere via Vipps</p>
+          </div>
+          <p class="note">Vipps åpnes automatisk med riktig mottaker (<span translate="no" class="notranslate">Ambient Mann</span>). Booking av <span translate="no" class="notranslate">Ambient Mann</span> avtales via e-post.</p>
+        </div>
+      </details>
     </section>
   </main>
 
