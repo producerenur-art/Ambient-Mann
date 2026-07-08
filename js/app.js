@@ -30,7 +30,19 @@
     return 'mailto:' + to + '?' + q;
   }
   function wireContact() {
+    const email = C.contactEmail || '';
     UI.$all('.contact-btn').forEach(a => a.setAttribute('href', contactHref()));
+    // Synlig adresse (webmail-brukere uten mailto-handler kan lese/klikke/kopiere)
+    const link = document.getElementById('contact-email-link');
+    if (link) { link.textContent = email; link.setAttribute('href', 'mailto:' + email); }
+    const copy = document.getElementById('contact-copy');
+    if (copy) copy.addEventListener('click', async () => {
+      try {
+        if (navigator.clipboard) await navigator.clipboard.writeText(email);
+        else { const t = document.createElement('textarea'); t.value = email; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); }
+        UI.toast('E-postadresse kopiert: ' + email);
+      } catch (_) { UI.toast('Kopier manuelt: ' + email); }
+    });
   }
 
   // ---- Bunn-logoer + bakgrunn + hero-logo (fra config) --------------------
