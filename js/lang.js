@@ -105,19 +105,46 @@
   // Merkenavnet skal ALLTID være «Ambient Mann» (to n-er), uansett
   // språk. Google Translate oversetter fane-tittelen og gjør norsk
   // «Mann» → engelsk «Man». Vi retter det opp igjen fortløpende.
+  var BRAND_RE = /Ambient Man(?!n)/g;
+
   function guardTitle() {
     var titleEl = document.querySelector('title');
     if (!titleEl) return;
     function fix() {
-      var fixed = document.title.replace(/Ambient Man(?!n)/g, 'Ambient Mann');
+      var fixed = document.title.replace(BRAND_RE, 'Ambient Mann');
       if (fixed !== document.title) document.title = fixed;
     }
     fix();
     new MutationObserver(fix).observe(titleEl, { childList: true, characterData: true, subtree: true });
   }
 
+  // Samme vern for selve siden: Google Translate skriver «Ambient Mann» → «Ambient
+  // Man» inne i tekst-noder (pakket i <font>-tagger) når man bytter språk. Vi går
+  // gjennom alle tekst-noder og setter tilbake den andre n-en fortløpende.
+  function guardBody() {
+    if (!document.body) return;
+    function fixNode(node) {
+      if (node.nodeType === 3) {
+        if (BRAND_RE.test(node.nodeValue)) {
+          node.nodeValue = node.nodeValue.replace(BRAND_RE, 'Ambient Mann');
+        }
+      } else if (node.nodeType === 1 && node.childNodes) {
+        for (var i = 0; i < node.childNodes.length; i++) fixNode(node.childNodes[i]);
+      }
+    }
+    fixNode(document.body);
+    new MutationObserver(function (muts) {
+      for (var i = 0; i < muts.length; i++) {
+        var m = muts[i];
+        if (m.type === 'characterData') fixNode(m.target);
+        else for (var j = 0; j < m.addedNodes.length; j++) fixNode(m.addedNodes[j]);
+      }
+    }).observe(document.body, { childList: true, characterData: true, subtree: true });
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     guardTitle();
+    guardBody();
     var sel = byId('lang-picker');
     if (!sel) return;
     var current = langFromCookie();
