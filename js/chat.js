@@ -8,7 +8,7 @@
 window.Chat = (function () {
   const NS = 'ambientmann_chat_v1';
   const NICK_KEY = 'am_chat_nick', COLOR_KEY = 'am_chat_color';
-  const COLORS = ['#8ab4ff', '#c792ff', '#7ee0ff', '#ff9ecb', '#9dffcf', '#ffd479', '#ff8f6b'];
+  const COLORS = ['#8ab4ff', '#7fe3b0', '#7ee0ff', '#ff9ecb', '#9dffcf', '#ffd479', '#ff8f6b'];
 
   let gun = null, ref = null, seen = {}, msgs = [], open = false;
 
