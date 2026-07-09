@@ -18,16 +18,19 @@ window.Player = (function () {
 
   const els = {};
 
+  // Godta kun absolutte http(s)-URL-er. En bar/ugyldig lagret verdi (f.eks.
+  // «www.ambientmann.com» uten https://) ville ellers bli tolket relativt og
+  // gi en 404-forespørsel mot vårt eget domene på hver enhet.
+  function absHttp(u) { return /^https?:\/\//i.test(String(u || '')) ? String(u) : ''; }
+
   // Aktiv strøm-URL: eierens overstyring (Content) → config.
   function streamUrl() {
     const c = (window.Content && Content.get('stream')) || null;
-    if (c && c.url) return c.url;
-    return (window.AM_CONFIG && AM_CONFIG.streamUrl) || '';
+    return absHttp(c && c.url) || absHttp(window.AM_CONFIG && AM_CONFIG.streamUrl);
   }
   function nowPlayingUrl() {
     const c = (window.Content && Content.get('stream')) || null;
-    if (c && c.nowPlayingUrl) return c.nowPlayingUrl;
-    return (window.AM_CONFIG && AM_CONFIG.nowPlayingUrl) || '';
+    return absHttp(c && c.nowPlayingUrl) || absHttp(window.AM_CONFIG && AM_CONFIG.nowPlayingUrl);
   }
 
   function bind() {
