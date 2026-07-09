@@ -13,6 +13,13 @@ window.UI = (function () {
       .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
+  // Beskytt merkenavnet «Ambient Mann» mot Google Translate («Mann» → «Male»).
+  // Kjøres PÅ allerede escaped tekst — spennet som legges til er statisk/trygt.
+  function brandSafe(escaped) {
+    return String(escaped).replace(/Ambient Mann/g,
+      '<span translate="no" class="notranslate">Ambient Mann</span>');
+  }
+
   let toastTimer = null;
   function toast(msg, ms) {
     const el = document.getElementById('toast');
@@ -30,7 +37,7 @@ window.UI = (function () {
   };
   function Icon(name) { return ICONS[name] || '✦'; }
 
-  return { $, $all, esc, toast, Icon };
+  return { $, $all, esc, brandSafe, toast, Icon };
 })();
 // Bakoverkompatible globaler enkelte moduler forventer.
 window.Icon = window.UI.Icon;

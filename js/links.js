@@ -24,7 +24,7 @@ window.Links = (function () {
         return '<div class="link-item">' +
           '<div class="link-main">' +
             '<a class="link-name" href="' + UI.esc(it.url) + '" target="_blank" rel="noopener noreferrer">' +
-              UI.esc(name) + ' ↗</a>' +
+              UI.brandSafe(UI.esc(name)) + ' ↗</a>' +
             LinkPreview.cardHtml(it.url, 'lk' + i) +
           '</div>' + del +
         '</div>';

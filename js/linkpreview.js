@@ -17,6 +17,13 @@
     return /^https?:\/\//i.test(String(u || '')) ? String(u) : '';
   }
 
+  // Beskytt merkenavnet mot Google Translate («Mann» → «Male»). Kjøres PÅ
+  // allerede escaped tekst, så spennet vi legger til er trygt (statisk HTML).
+  function brandSafe(escaped) {
+    return String(escaped).replace(/Ambient Mann/g,
+      '<span translate="no" class="notranslate">Ambient Mann</span>');
+  }
+
   // Plukk ut den 11-tegns YouTube-video-IDen fra alle vanlige lenkeformer.
   function youTubeId(u) {
     const m = String(u || '').match(
@@ -104,8 +111,8 @@
       '<a class="cp-prev-card" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">' +
         thumb +
         '<div class="cp-prev-info">' +
-          (site  ? '<div class="cp-prev-site">' + esc(site) + '</div>' : '') +
-          (title ? '<div class="cp-prev-title">' + esc(title) + '</div>' : '') +
+          (site  ? '<div class="cp-prev-site">' + brandSafe(esc(site)) + '</div>' : '') +
+          (title ? '<div class="cp-prev-title">' + brandSafe(esc(title)) + '</div>' : '') +
         '</div>' +
       '</a>';
   }
