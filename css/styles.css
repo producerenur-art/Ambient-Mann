@@ -4,7 +4,7 @@
 :root{
   --bg:#04060f; --panel:rgba(16,20,38,.66); --panel2:rgba(24,28,52,.6);
   --line:rgba(140,160,255,.16); --text:#eaf0ff; --muted:#9aa6cf;
-  --accent:#8ab4ff; --accent2:#c792ff; --live:#ff4d6d; --vipps:#ff5b24;
+  --accent:#8ab4ff; --accent2:#7fe3b0; --live:#ff4d6d; --vipps:#ff5b24;
   --radius:16px; --maxw:920px;
 }
 *{box-sizing:border-box}
