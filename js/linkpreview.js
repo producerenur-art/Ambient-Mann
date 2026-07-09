@@ -17,6 +17,13 @@
     return /^https?:\/\//i.test(String(u || '')) ? String(u) : '';
   }
 
+  // Plukk ut den 11-tegns YouTube-video-IDen fra alle vanlige lenkeformer.
+  function youTubeId(u) {
+    const m = String(u || '').match(
+      /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|v\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+    return m ? m[1] : '';
+  }
+
   function linkify(raw) {
     const text = String(raw == null ? '' : raw);
     const urls = [];
@@ -57,6 +64,17 @@
       el.removeAttribute('data-lp-idle');
       const url = el.getAttribute('data-url');
       const key = el.getAttribute('data-key');
+      // YouTube: bygg cover-bilde + spiller lokalt fra video-IDen. Da får publikum
+      // alltid et forsidebilde, uten å være avhengig av at /api/unfurl svarer.
+      const yid = youTubeId(url);
+      if (yid) {
+        _fill(el, key, url, {
+          image: 'https://i.ytimg.com/vi/' + yid + '/hqdefault.jpg',
+          embed: 'https://www.youtube.com/embed/' + yid + '?autoplay=1&rel=0',
+          site:  'YouTube',
+        });
+        return;
+      }
       fetch('/api/unfurl?url=' + encodeURIComponent(url))
         .then(function (r) { return r.json(); })
         .then(function (d) { _fill(el, key, url, d || {}); })
@@ -78,7 +96,8 @@
         esc(key) + '\')">' + PLAY_SVG + '</button>'
       : '';
     const thumb = img
-      ? '<div class="cp-prev-thumb"><img src="' + esc(img) + '" loading="lazy" alt="">' + playBtn + '</div>'
+      ? '<div class="cp-prev-thumb"><img src="' + esc(img) + '" loading="lazy" alt="" ' +
+        'onerror="this.parentNode&amp;&amp;this.parentNode.classList.add(\'cp-prev-noimg\');this.remove()">' + playBtn + '</div>'
       : (embed ? '<div class="cp-prev-thumb cp-prev-noimg">' + playBtn + '</div>' : '');
 
     el.innerHTML =
