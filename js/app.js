@@ -146,6 +146,7 @@
     Owner.bind();
     Guest.bind();
     Chat.init();
+    if (window.PWAInstall) PWAInstall.init();
     Donation.bind();
     Donation.handleReturn();
 
