@@ -220,6 +220,15 @@ module.exports = async (req, res) => {
     '(function(){\n' +
     '  var a=document.getElementById("a"),hint=document.getElementById("hint");\n' +
     '  var url=' + JSON.stringify(pageUrl) + ',title=' + JSON.stringify(rawTitle) + ';\n' +
+    // Overlever avspillingen til forsiden: lagre hvilket spor + hvor langt vi
+    // er kommet, så hovedspilleren kan fortsette der man slapp når man trykker
+    // «← Ambient Mann» tilbake. Samme domene ⇒ delt localStorage.
+    '  var tid=' + JSON.stringify(String(track.id)) + ',tslug=' + JSON.stringify(slug) + ';\n' +
+    '  function saveResume(){try{localStorage.setItem("am_track_resume",JSON.stringify(\n' +
+    '    {id:tid,slug:tslug,time:a.currentTime||0,playing:!a.paused,ts:Date.now()}));}catch(e){}}\n' +
+    '  a.addEventListener("timeupdate",saveResume);a.addEventListener("pause",saveResume);\n' +
+    '  var backLink=document.querySelector(".back");\n' +
+    '  if(backLink)backLink.addEventListener("click",function(){saveResume();try{localStorage.setItem("am_track_resume_go","1");}catch(e){}});\n' +
     '  function tryPlay(){return a.play();}\n' +
     '  var p=tryPlay();\n' +
     '  if(p&&p.catch){p.catch(function(){\n' +

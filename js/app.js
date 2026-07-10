@@ -157,7 +157,7 @@
     Schedule.bind(); Schedule.render();
     Links.bind(); Links.render();
     Labels.bind(); Labels.render();
-    Tracks.bind(); Tracks.render();
+    Tracks.bind(); Tracks.render(); Tracks.resume();
     Guest.render();
     Owner.applyVisibility();
   }

@@ -204,6 +204,47 @@ window.Tracks = (function () {
 
   function render() { paintPlayer(); renderList(); }
 
+  // ---- fortsett fra spor-side ---------------------------------------------
+  // Når man spiller et spor på en delbar spor-side (/track/<slug>) og trykker
+  // «← Ambient Mann»-lenka tilbake til forsiden, skal hovedspilleren plukke
+  // opp samme spor der man slapp og spille videre. Spor-sida lagrer tilstanden
+  // i localStorage (samme domene), og vi leser den her – kun én gang, og kun
+  // hvis tilbake-lenka faktisk ble trykket (ikke ved vanlig besøk på forsiden).
+  const RESUME_KEY = 'am_track_resume';
+  const RESUME_GO = 'am_track_resume_go';
+  function resume() {
+    let go = false, h = null;
+    try { go = localStorage.getItem(RESUME_GO) === '1'; } catch (_) {}
+    try { localStorage.removeItem(RESUME_GO); } catch (_) {}
+    if (!go) return;
+    try { h = JSON.parse(localStorage.getItem(RESUME_KEY) || 'null'); } catch (_) {}
+    if (!h || !h.ts || (Date.now() - h.ts) > 30 * 60 * 1000) return; // ignorer eldre enn 30 min
+    const tr = list();
+    let i = tr.findIndex(t => t && String(t.id) === String(h.id));
+    if (i < 0 && h.slug) i = tr.findIndex(t => t && slugify(t.title) === h.slug);
+    if (i < 0) return;
+    if (!tr[i].url) return;
+    audio.src = tr[i].url; current = i;
+    const t0 = Math.max(0, Number(h.time) || 0);
+    if (t0 > 0) audio.addEventListener('loadedmetadata', function seek() {
+      audio.removeEventListener('loadedmetadata', seek);
+      try { audio.currentTime = t0; } catch (_) {}
+    }, { once: true });
+    paintPlayer(); renderList();
+    // Vis at det spiller: rull spilleren inn i synsfeltet.
+    const cov = document.getElementById('tp-cover');
+    if (cov) try { cov.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (_) {}
+    if (h.playing !== false) {
+      const p = audio.play();
+      if (p && p.catch) p.catch(() => {
+        // Nettleseren blokkerte autoplay – start ved første trykk/tast.
+        const kick = () => { audio.play().catch(() => {}); document.removeEventListener('pointerdown', kick); document.removeEventListener('keydown', kick); };
+        document.addEventListener('pointerdown', kick, { once: true });
+        document.addEventListener('keydown', kick, { once: true });
+      });
+    }
+  }
+
   // ---- eier: opplasting (lyd + eget cover-bilde) --------------------------
   async function doUpload() {
     const fileEl = document.getElementById('track-file');
@@ -265,5 +306,5 @@ window.Tracks = (function () {
     if (btn) btn.addEventListener('click', doUpload);
   }
 
-  return { render, bind, play };
+  return { render, bind, play, resume };
 })();
