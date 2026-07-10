@@ -169,7 +169,19 @@ window.Tracks = (function () {
     audio.src = t.url; current = idx;
     paintPlayer(); renderList();
     audio.play().then(() => { paintPlayer(); renderList(); })
-      .catch(() => UI.toast('Trykk ▶ for å spille «' + (t.title || 'sporet') + '»'));
+      .catch(() => {
+        // Nettleseren blokkerte autoplay – start automatisk ved første klikk/berøring hvor som helst.
+        UI.toast('Trykk hvor som helst for å spille «' + (t.title || 'sporet') + '»');
+        const kick = () => {
+          if (current === idx && audio.paused) audio.play().then(() => { paintPlayer(); renderList(); }).catch(() => {});
+          document.removeEventListener('pointerdown', kick);
+          document.removeEventListener('keydown', kick);
+          document.removeEventListener('touchstart', kick);
+        };
+        document.addEventListener('pointerdown', kick, { once: true });
+        document.addEventListener('keydown', kick, { once: true });
+        document.addEventListener('touchstart', kick, { once: true });
+      });
     // Scroll ned til sporet etter at bilder/layout har satt seg (ellers lander man nær toppen).
     setTimeout(() => {
       const wrap = document.getElementById('tracks-list');
