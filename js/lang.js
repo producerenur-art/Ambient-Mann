@@ -51,6 +51,16 @@
     return code === PAGE_LANG ? '' : code;
   }
 
+  // Første besøk (ingen googtrans-cookie ennå): vis siden på ENGELSK som
+  // standard. Kildeteksten er norsk, så vi setter cookien til no→en FØR
+  // Google-widgeten laster (element.js står etter dette skriptet), slik at
+  // den oversetter til engelsk med én gang – uten reload. Brukeren kan når
+  // som helst velge et annet språk, eller «Norsk (original)» (som setter
+  // /no/no). Da finnes cookien, og standarden slår ikke inn på nytt.
+  if (!/(?:^|;\s*)googtrans=/.test(document.cookie)) {
+    setCookie('/' + PAGE_LANG + '/en');
+  }
+
   // Chrome/Google tilbyr automatisk oversetting av den norske originalsiden (den
   // hvite topplinja øverst). <html translate="no"> demper det tilbudet. MEN vår
   // egen Google-widget kan da ikke oversette. Derfor: står brukeren på originalen
