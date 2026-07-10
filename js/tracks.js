@@ -163,10 +163,20 @@ window.Tracks = (function () {
     if (idx < 0 && /^\d+$/.test(key) && tr[+key]) idx = +key;
     if (idx < 0) return; // lista er kanskje ikke lastet ennå – prøver igjen ved neste render
     deepLinked = true;
-    const wrap = document.getElementById('tracks-list');
-    const row = wrap && wrap.querySelector('.track-row[data-play="' + idx + '"]');
-    if (row && row.scrollIntoView) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    play(idx);
+    const t = tr[idx];
+    if (!t || !t.url) return;
+    // Legg opp valgt spor i spilleren (markeres selv om nettleseren blokkerer autoplay).
+    audio.src = t.url; current = idx;
+    paintPlayer(); renderList();
+    audio.play().then(() => { paintPlayer(); renderList(); })
+      .catch(() => UI.toast('Trykk ▶ for å spille «' + (t.title || 'sporet') + '»'));
+    // Scroll ned til sporet etter at bilder/layout har satt seg (ellers lander man nær toppen).
+    setTimeout(() => {
+      const wrap = document.getElementById('tracks-list');
+      const row = wrap && wrap.querySelector('.track-row[data-play="' + idx + '"]');
+      const target = row || document.getElementById('listen');
+      if (target && target.scrollIntoView) target.scrollIntoView({ behavior: 'smooth', block: row ? 'center' : 'start' });
+    }, 400);
   }
 
   function render() { paintPlayer(); renderList(); }
