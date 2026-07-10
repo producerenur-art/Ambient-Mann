@@ -97,21 +97,64 @@ window.Tracks = (function () {
         const playing = i === current && !audio.paused;
         const del = Owner.isOwner()
           ? '<button class="btn btn-tiny owner-only" data-rm="' + i + '">Slett</button>' : '';
+        const share = '<button class="track-share" data-share="' + i + '" title="Del sporet" aria-label="Del sporet">🔗</button>';
         const cov = t.coverUrl ? '<span class="track-cover" style="background-image:url(\'' + UI.esc(t.coverUrl) + '\')"></span>'
                                : '<span class="track-cover empty">♪</span>';
         return '<div class="track-row' + (i === current ? ' playing' : '') + '" data-play="' + i + '">' +
           cov +
           '<button class="track-play" data-play="' + i + '">' + (playing ? '⏸' : '▶') + '</button>' +
           '<div class="track-meta"><div class="track-title">' + UI.esc(t.title || ('Spor ' + (i + 1))) + '</div>' +
-          '<div class="track-sub">' + UI.esc(fmtSize(t.size)) + '</div></div>' + del +
+          '<div class="track-sub">' + UI.esc(fmtSize(t.size)) + '</div></div>' + share + del +
         '</div>';
       }).join('');
     }
     UI.$all('[data-play]', wrap).forEach(el =>
       el.addEventListener('click', () => play(parseInt(el.getAttribute('data-play'), 10))));
+    UI.$all('[data-share]', wrap).forEach(b =>
+      b.addEventListener('click', (ev) => { ev.stopPropagation(); share(parseInt(b.getAttribute('data-share'), 10)); }));
     UI.$all('[data-rm]', wrap).forEach(b =>
       b.addEventListener('click', (ev) => { ev.stopPropagation(); del(parseInt(b.getAttribute('data-rm'), 10)); }));
     Owner.applyVisibility();
+    maybeDeepLink();
+  }
+
+  // ---- del et spor (alle kan dele; åpner enten native del-ark eller kopierer lenke) ----
+  function shareUrl(t, i) {
+    const key = (t && t.id) ? t.id : String(i);
+    return location.origin + location.pathname + '#track=' + encodeURIComponent(key);
+  }
+  async function share(i) {
+    const t = list()[i]; if (!t) return;
+    const title = t.title || ('Spor ' + (i + 1));
+    const url = shareUrl(t, i);
+    const data = { title: 'Ambient Mann — ' + title, text: 'Hør «' + title + '» hos Ambient Mann', url };
+    if (navigator.share) {
+      try { await navigator.share(data); return; }
+      catch (e) { if (e && e.name === 'AbortError') return; /* faller tilbake til kopiering */ }
+    }
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) await navigator.clipboard.writeText(url);
+      else { const ta = document.createElement('textarea'); ta.value = url; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }
+      UI.toast('Lenke til sporet er kopiert – klar til å deles!');
+    } catch (_) { UI.toast('Kunne ikke dele lenken.'); }
+  }
+
+  // ---- deep-link: en delt lenke (#track=…) åpner og starter riktig spor ----
+  let deepLinked = false;
+  function maybeDeepLink() {
+    if (deepLinked) return;
+    const m = /(?:^|[#&])track=([^&]+)/.exec(location.hash || '');
+    if (!m) { deepLinked = true; return; }
+    const key = decodeURIComponent(m[1]);
+    const tr = list();
+    let idx = tr.findIndex(t => t && String(t.id) === key);
+    if (idx < 0 && /^\d+$/.test(key) && tr[+key]) idx = +key;
+    if (idx < 0) return; // lista er kanskje ikke lastet ennå – prøver igjen ved neste render
+    deepLinked = true;
+    const wrap = document.getElementById('tracks-list');
+    const row = wrap && wrap.querySelector('.track-row[data-play="' + idx + '"]');
+    if (row && row.scrollIntoView) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    play(idx);
   }
 
   function render() { paintPlayer(); renderList(); }
