@@ -30,6 +30,17 @@ function slugify(s) {
     .replace(/^-+|-+$/g, '');
 }
 
+// Plateselskaper – samme navn + lenker som på forsiden (kun navnene, klikkbare).
+const LABELS = [
+  ['Mike La Bella Records', 'https://mikelabellarecords.bandcamp.com/'],
+  ['Cosmic Leaf Records', 'https://cosmicleaf.bandcamp.com/'],
+  ['Altar Records', 'https://altar.bandcamp.com/'],
+  ['Ultimae Records', 'https://ultimae.bandcamp.com/'],
+  ['Cryo Chamber', 'https://cryochamber.bandcamp.com/'],
+  ['Sofa Beats Music', 'https://sofabeatsmusic.bandcamp.com/'],
+  ['Synchronos Recordings', 'https://synchronos-recordings.bandcamp.com/album/subspace-garden'],
+];
+
 module.exports = async (req, res) => {
   const id = String((req.query && req.query.id) || '');
   const proto = (req.headers['x-forwarded-proto'] || 'https').split(',')[0];
@@ -100,6 +111,11 @@ module.exports = async (req, res) => {
     ['E-post', 'mailto:?subject=' + encodeURIComponent(rawTitle) + '&body=' + encodeURIComponent(shareText + '\n\n' + pageUrl)],
   ].map(function (s) { return '<a class="soc" target="_blank" rel="noopener" href="' + esc(s[1]) + '">' + esc(s[0]) + '</a>'; }).join('');
 
+  // Plateselskaper (kun navn, direkte lenke – ingen overskrift), som på forsiden.
+  const labels = LABELS.map(function (l) {
+    return '<a href="' + esc(l[1]) + '" target="_blank" rel="noopener noreferrer">' + esc(l[0]) + ' ↗</a>';
+  }).join('');
+
   const html = '<!doctype html>\n<html lang="no">\n<head>\n' +
     '<meta charset="utf-8">\n' +
     '<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
@@ -120,7 +136,11 @@ module.exports = async (req, res) => {
     // Ingen boks/skygge bak teksten – universet skal synes gjennom.
     '.card{width:100%;max-width:420px;background:transparent;border:0;border-radius:20px;padding:22px;text-align:center;box-shadow:none}\n' +
     // Lett tekst-skygge kun for lesbarhet over stjernene (ingen boks).
-    '.brand,h1,.hint{text-shadow:0 2px 14px rgba(2,4,12,.85),0 0 4px rgba(2,4,12,.7)}\n' +
+    '.brand,h1,.hint,.labels a{text-shadow:0 2px 14px rgba(2,4,12,.85),0 0 4px rgba(2,4,12,.7)}\n' +
+    // Plateselskaper – bare navn som lenker, stjernene synes rett bak.
+    '.labels{display:flex;flex-direction:column;gap:9px;margin-top:20px}\n' +
+    '.labels a{color:var(--accent);font-weight:700;font-size:15px;text-decoration:none}\n' +
+    '.labels a:hover{text-decoration:underline}\n' +
     '.cover{width:220px;height:220px;max-width:70vw;max-height:70vw;margin:0 auto 18px;border-radius:16px;\n' +
     '  background:#0a0f2a center/cover no-repeat;display:flex;align-items:center;justify-content:center;font-size:64px;color:rgba(140,160,255,.5)}\n' +
     '.brand{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}\n' +
@@ -169,6 +189,7 @@ module.exports = async (req, res) => {
     '    <button class="btn" id="copy">Kopier lenke</button>\n' +
     '  </div>\n' +
     '  <div class="social">' + social + '</div>\n' +
+    '  <div class="labels">' + labels + '</div>\n' +
     '  <a class="back" href="' + esc(origin) + '/">← <span translate="no">Ambient Mann</span></a>\n' +
     '</main>\n' +
     '<button class="chat-fab" id="chat-fab">💬 Chat</button>\n' +
