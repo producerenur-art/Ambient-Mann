@@ -111,7 +111,24 @@ window.Chat = (function () {
         if (v) localStorage.setItem(NICK_KEY, v);
       });
     }
+    bindBrowserChoice();
     makeDraggable();
+  }
+
+  // ---- Nettleser-valg (kun visuelt: markerer valgt knapp) -----------------
+  function bindBrowserChoice() {
+    const KEY = 'am_browser_choice';
+    const btns = [document.getElementById('browser-mobile'), document.getElementById('browser-desktop')].filter(Boolean);
+    if (!btns.length) return;
+    const saved = localStorage.getItem(KEY);
+    btns.forEach((b) => {
+      if (b.dataset.browser === saved) b.classList.add('selected');
+      b.addEventListener('click', () => {
+        btns.forEach((x) => x.classList.remove('selected'));
+        b.classList.add('selected');
+        localStorage.setItem(KEY, b.dataset.browser);
+      });
+    });
   }
 
   function init() { bind(); initGun(); }

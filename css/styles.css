@@ -235,6 +235,11 @@ hr{border:0; border-top:1px solid var(--line); margin:16px 0}
 .chat-input{display:flex; gap:8px; padding:10px 12px; border-top:1px solid var(--line)}
 .chat-input .input{padding:9px 11px}
 
+/* ---- Nettleser-valg (rett over chat-vinduet, samme bredde) ---- */
+.browser-box{border-bottom:1px solid var(--line); padding:10px 12px; background:rgba(10,15,42,.35)}
+.res-opt.selected{opacity:1; border-color:var(--accent); background:rgba(138,180,255,.16)}
+.res-opt.selected .res-cta{background:linear-gradient(135deg,#7fe3b0,#7ee0ff)}
+
 /* ---- Bildeoppløsning-boks (under chatten) ---- */
 .res-box{border-top:1px solid var(--line); padding:10px 12px; background:rgba(10,15,42,.35)}
 .res-box-title{font-weight:700; font-size:13px; margin-bottom:8px}

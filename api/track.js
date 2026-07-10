@@ -191,6 +191,18 @@ module.exports = async (req, res) => {
     '  background:rgba(10,15,42,.6);color:var(--text);font:inherit}\n' +
     '.chat-send{padding:9px 14px;border-radius:10px;border:0;font-weight:700;cursor:pointer;\n' +
     '  background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0a0f2a}\n' +
+    // Nettleser-valg rett over chat-vinduet (samme bredde). Kun visuelt valg.
+    '.browser-box{border-bottom:1px solid var(--line);padding:10px 12px;background:rgba(10,15,42,.35)}\n' +
+    '.res-box-title{font-weight:700;font-size:13px;margin-bottom:8px;text-align:left}\n' +
+    '.res-opts{display:flex;flex-direction:column;gap:6px}\n' +
+    '.res-opt{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;\n' +
+    '  padding:9px 12px;border-radius:10px;border:1px solid rgba(140,160,255,.32);background:rgba(10,15,42,.5);\n' +
+    '  color:var(--text);font-weight:600;font-size:13px;cursor:pointer}\n' +
+    '.res-opt:hover{background:rgba(138,180,255,.12);border-color:var(--accent)}\n' +
+    '.res-opt .res-cta{font-size:11px;font-weight:700;color:#0a0f2a;white-space:nowrap;\n' +
+    '  background:linear-gradient(135deg,var(--accent),var(--accent2));padding:3px 10px;border-radius:999px}\n' +
+    '.res-opt.selected{border-color:var(--accent);background:rgba(138,180,255,.16)}\n' +
+    '.res-opt.selected .res-cta{background:linear-gradient(135deg,#7fe3b0,#7ee0ff)}\n' +
     '</style>\n</head>\n<body>\n' +
     '<canvas id="starfield"></canvas>\n' +
     '<main class="card">\n' +
@@ -211,6 +223,15 @@ module.exports = async (req, res) => {
     '<div class="chat-panel" id="chat-panel">\n' +
     '  <div class="chat-head" id="chat-head"><div class="t">💬 Chat <span class="drag-hint">dra for å flytte</span></div>' +
     '<button class="chat-x" id="chat-close">×</button></div>\n' +
+    '  <div class="browser-box" id="browser-box">\n' +
+    '    <div class="res-box-title">🌐 Åpne i nettleser</div>\n' +
+    '    <div class="res-opts">\n' +
+    '      <button class="res-opt" type="button" id="browser-mobile" data-browser="mobile">' +
+    '<span class="res-name">📱 Mobil nettleser</span><span class="res-cta">Velg ▸</span></button>\n' +
+    '      <button class="res-opt" type="button" id="browser-desktop" data-browser="desktop">' +
+    '<span class="res-name">💻 PC / Mac nettleser</span><span class="res-cta">Velg ▸</span></button>\n' +
+    '    </div>\n' +
+    '  </div>\n' +
     '  <div class="chat-log" id="chat-log"></div>\n' +
     '  <div class="chat-name-row"><label>Du:</label><input class="input" id="chat-name" placeholder="Ditt kallenavn" maxlength="24"></div>\n' +
     '  <div class="chat-input"><input class="input" id="chat-text" placeholder="Skriv en melding…" maxlength="500">' +
@@ -335,6 +356,12 @@ module.exports = async (req, res) => {
     '  document.getElementById("chat-send").addEventListener("click",send);\n' +
     '  var ti=document.getElementById("chat-text");if(ti)ti.addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();send();}});\n' +
     '  var nm=document.getElementById("chat-name");if(nm){nm.value=nick();nm.addEventListener("change",function(){var v=nm.value.trim().slice(0,24);if(v)localStorage.setItem(NICK_KEY,v);});}\n' +
+    '  (function(){var BK="am_browser_choice";\n' +
+    '    var bb=[document.getElementById("browser-mobile"),document.getElementById("browser-desktop")].filter(Boolean);\n' +
+    '    if(!bb.length)return;var sv=localStorage.getItem(BK);\n' +
+    '    bb.forEach(function(b){if(b.getAttribute("data-browser")===sv)b.classList.add("selected");\n' +
+    '      b.addEventListener("click",function(){bb.forEach(function(x){x.classList.remove("selected");});\n' +
+    '        b.classList.add("selected");localStorage.setItem(BK,b.getAttribute("data-browser"));});});})();\n' +
     '  makeDraggable();initGun();\n' +
     '})();\n' +
     '</script>\n</body>\n</html>';
