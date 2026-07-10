@@ -117,8 +117,10 @@ module.exports = async (req, res) => {
     '#starfield{position:fixed;inset:0;z-index:-2;pointer-events:none}\n' +
     'body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;\n' +
     '  background:radial-gradient(120% 80% at 50% 0%,rgba(0,0,0,0) 40%,rgba(2,4,12,.72) 100%)}\n' +
-    '.card{width:100%;max-width:420px;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:22px;text-align:center;\n' +
-    '  backdrop-filter:blur(8px);box-shadow:0 20px 60px rgba(0,0,0,.45)}\n' +
+    // Ingen boks/skygge bak teksten – universet skal synes gjennom.
+    '.card{width:100%;max-width:420px;background:transparent;border:0;border-radius:20px;padding:22px;text-align:center;box-shadow:none}\n' +
+    // Lett tekst-skygge kun for lesbarhet over stjernene (ingen boks).
+    '.brand,h1,.hint{text-shadow:0 2px 14px rgba(2,4,12,.85),0 0 4px rgba(2,4,12,.7)}\n' +
     '.cover{width:220px;height:220px;max-width:70vw;max-height:70vw;margin:0 auto 18px;border-radius:16px;\n' +
     '  background:#0a0f2a center/cover no-repeat;display:flex;align-items:center;justify-content:center;font-size:64px;color:rgba(140,160,255,.5)}\n' +
     '.brand{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}\n' +
