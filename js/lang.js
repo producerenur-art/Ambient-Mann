@@ -51,6 +51,17 @@
     return code === PAGE_LANG ? '' : code;
   }
 
+  // Chrome/Google tilbyr automatisk oversetting av den norske originalsiden (den
+  // hvite topplinja øverst). <html translate="no"> demper det tilbudet. MEN vår
+  // egen Google-widget kan da ikke oversette. Derfor: står brukeren på originalen
+  // beholder vi translate="no" (Chrome-linja vekk). Har brukeren valgt et språk
+  // fjerner vi attributtet nå – dette skriptet kjører FØR Google-widgeten laster –
+  // slik at widgeten oversetter fritt. (På et allerede oversatt språk tilbyr ikke
+  // Chrome oversetting til samme språk uansett.)
+  if (langFromCookie()) {
+    document.documentElement.removeAttribute('translate');
+  }
+
   function fillSelect(sel, list, current) {
     sel.innerHTML = '';
     list.forEach(function (pair) {
