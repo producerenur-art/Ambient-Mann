@@ -30,16 +30,27 @@ function slugify(s) {
     .replace(/^-+|-+$/g, '');
 }
 
-// Plateselskaper – samme navn + lenker som på forsiden (kun navnene, klikkbare).
-const LABELS = [
-  ['Mike La Bella Records', 'https://mikelabellarecords.bandcamp.com/'],
-  ['Cosmic Leaf Records', 'https://cosmicleaf.bandcamp.com/'],
-  ['Altar Records', 'https://altar.bandcamp.com/'],
-  ['Ultimae Records', 'https://ultimae.bandcamp.com/'],
-  ['Cryo Chamber', 'https://cryochamber.bandcamp.com/'],
-  ['Sofa Beats Music', 'https://sofabeatsmusic.bandcamp.com/'],
-  ['Synchronos Recordings', 'https://synchronos-recordings.bandcamp.com/album/subspace-garden'],
+// Plateselskaper – standardliste (samme som js/config.js labelsDefault).
+// Brukes som reserve hvis eieren ikke har lagret en egen 'labels'-liste ennå.
+// Når eieren legger til/fjerner plateselskaper på forsiden, lagres det under
+// nøkkelen 'labels' og vises automatisk her på hver spor-side også.
+const DEFAULT_LABELS = [
+  { name: 'Mike La Bella Records', url: 'https://mikelabellarecords.bandcamp.com/' },
+  { name: 'Cosmic Leaf Records', url: 'https://cosmicleaf.bandcamp.com/' },
+  { name: 'Altar Records', url: 'https://altar.bandcamp.com/' },
+  { name: 'Ultimae Records', url: 'https://ultimae.bandcamp.com/' },
+  { name: 'Cryo Chamber', url: 'https://cryochamber.bandcamp.com/' },
+  { name: 'Sofa Beats Music', url: 'https://sofabeatsmusic.bandcamp.com/' },
+  { name: 'Synchronos Recordings', url: 'https://synchronos-recordings.bandcamp.com/album/subspace-garden' },
 ];
+function normLabels(v) {
+  if (!Array.isArray(v)) return null;
+  const out = v.map(function (x) {
+    if (typeof x === 'string') return { name: '', url: x };
+    return x && typeof x === 'object' ? { name: String(x.name || ''), url: String(x.url || '') } : null;
+  }).filter(function (x) { return x && /^https?:\/\//i.test(x.url); });
+  return out.length ? out : null;
+}
 
 module.exports = async (req, res) => {
   const id = String((req.query && req.query.id) || '');
@@ -48,17 +59,21 @@ module.exports = async (req, res) => {
   const origin = proto + '://' + host;
 
   let track = null;
+  let labelList = DEFAULT_LABELS;
   try {
     const c = sb();
     if (c) {
-      const { data } = await c.from('site_content').select('data').eq('key', 'tracks').maybeSingle();
-      const arr = data && Array.isArray(data.data) ? data.data : [];
+      const { data } = await c.from('site_content').select('key,data').in('key', ['tracks', 'labels']);
+      const rows = {}; (data || []).forEach(r => { rows[r.key] = r.data; });
+      const arr = Array.isArray(rows.tracks) ? rows.tracks : [];
       const want = slugify(id);
       // Nye lenker: pen tittel-slug (/track/all-the-way-from-heaven-017).
       // Gamle lenker: rå id (/track/t_xxxx) fungerer fortsatt.
       track = arr.find(t => t && String(t.id) === id)
            || arr.find(t => t && slugify(t.title) === want && want)
            || null;
+      // Eierens lagrede plateselskaper (hvis satt) – ellers standardlista.
+      labelList = normLabels(rows.labels) || DEFAULT_LABELS;
     }
   } catch (_) {}
 
@@ -112,8 +127,8 @@ module.exports = async (req, res) => {
   ].map(function (s) { return '<a class="soc" target="_blank" rel="noopener" href="' + esc(s[1]) + '">' + esc(s[0]) + '</a>'; }).join('');
 
   // Plateselskaper (kun navn, direkte lenke – ingen overskrift), som på forsiden.
-  const labels = LABELS.map(function (l) {
-    return '<a href="' + esc(l[1]) + '" target="_blank" rel="noopener noreferrer">' + esc(l[0]) + ' ↗</a>';
+  const labels = labelList.map(function (l) {
+    return '<a href="' + esc(l.url) + '" target="_blank" rel="noopener noreferrer">' + esc(l.name || l.url) + ' ↗</a>';
   }).join('');
 
   const html = '<!doctype html>\n<html lang="no">\n<head>\n' +

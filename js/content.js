@@ -49,6 +49,7 @@ window.Content = (function () {
       case 'liveDescription': return C.liveDescriptionDefault || '';
       case 'schedule': return [];
       case 'links': return (C.podcastLinks || []).slice();
+      case 'labels': return (C.labelsDefault || []).slice();
       case 'stream': return { url: C.streamUrl || '', nowPlayingUrl: C.nowPlayingUrl || '' };
       case 'liveBg': return { type: 'image', url: '' };
       case 'tracks': return [];

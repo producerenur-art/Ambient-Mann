@@ -84,6 +84,19 @@ window.AM_CONFIG = {
   // legge til/fjerne flere inne på siden når han er logget inn.
   podcastLinks: [],
 
+  // Plateselskaper (navn → URL). Standardliste; eieren kan legge til/fjerne
+  // flere inne på siden når han er logget inn. Lagres under nøkkelen 'labels'
+  // og vises både på forsiden OG på hver spor-side (/track/...).
+  labelsDefault: [
+    { name: 'Mike La Bella Records', url: 'https://mikelabellarecords.bandcamp.com/' },
+    { name: 'Cosmic Leaf Records', url: 'https://cosmicleaf.bandcamp.com/' },
+    { name: 'Altar Records', url: 'https://altar.bandcamp.com/' },
+    { name: 'Ultimae Records', url: 'https://ultimae.bandcamp.com/' },
+    { name: 'Cryo Chamber', url: 'https://cryochamber.bandcamp.com/' },
+    { name: 'Sofa Beats Music', url: 'https://sofabeatsmusic.bandcamp.com/' },
+    { name: 'Synchronos Recordings', url: 'https://synchronos-recordings.bandcamp.com/album/subspace-garden' },
+  ],
+
   // Kreditter/scene (label & community). MERK: den ene bevisst utelatte
   // label-en skal aldri stå her (holdes ute — se innholdsfilteret i content.js).
   labelCredits: [

@@ -117,17 +117,15 @@
       </div>
     </section>
 
-    <!-- PLATESELSKAPER (faste lenker) -->
+    <!-- PLATESELSKAPER (navn → URL; samme liste vises på hver spor-side) -->
     <section id="plateselskaper" class="block">
       <div class="section-head"><h2>Plateselskaper</h2></div>
-      <div class="links">
-        <div class="link-item"><div class="link-main"><a class="link-name" href="https://mikelabellarecords.bandcamp.com/" target="_blank" rel="noopener noreferrer">Mike La Bella Records ↗</a></div></div>
-        <div class="link-item"><div class="link-main"><a class="link-name" href="https://cosmicleaf.bandcamp.com/" target="_blank" rel="noopener noreferrer">Cosmic Leaf Records ↗</a></div></div>
-        <div class="link-item"><div class="link-main"><a class="link-name" href="https://altar.bandcamp.com/" target="_blank" rel="noopener noreferrer">Altar Records ↗</a></div></div>
-        <div class="link-item"><div class="link-main"><a class="link-name" href="https://ultimae.bandcamp.com/" target="_blank" rel="noopener noreferrer">Ultimae Records ↗</a></div></div>
-        <div class="link-item"><div class="link-main"><a class="link-name" href="https://cryochamber.bandcamp.com/" target="_blank" rel="noopener noreferrer">Cryo Chamber ↗</a></div></div>
-        <div class="link-item"><div class="link-main"><a class="link-name" href="https://sofabeatsmusic.bandcamp.com/" target="_blank" rel="noopener noreferrer">Sofa Beats Music ↗</a></div></div>
-        <div class="link-item"><div class="link-main"><a class="link-name" href="https://synchronos-recordings.bandcamp.com/album/subspace-garden" target="_blank" rel="noopener noreferrer">Synchronos Recordings ↗</a></div></div>
+      <div id="labels-list" class="links"></div>
+      <div class="card owner-only" style="display:none">
+        <h3 class="mini-h">Legg til plateselskap (navn → URL)</h3>
+        <label>Navn (vises som klikkbar lenke)</label><input id="label-name" class="input" placeholder="f.eks. Cosmic Leaf Records">
+        <label>URL</label><input id="label-url" class="input" placeholder="https://…bandcamp.com/">
+        <button class="btn btn-primary" id="label-add">+ Legg til</button>
       </div>
     </section>
 
@@ -404,6 +402,7 @@
   <script src="js/content.js"></script>
   <script src="js/schedule.js"></script>
   <script src="js/links.js"></script>
+  <script src="js/labels.js"></script>
   <script src="js/tracks.js"></script>
   <script src="js/donation.js"></script>
   <script src="js/chat.js"></script>

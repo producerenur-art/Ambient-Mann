@@ -80,8 +80,8 @@ body{top:0 !important}
 .section-head{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:14px}
 .section-head h2{font-size:26px}
 .hint{color:var(--muted); font-size:13px}
-.card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
-  padding:18px; backdrop-filter:blur(8px); margin-bottom:14px}
+.card{background:transparent; border:1px solid var(--line); border-radius:var(--radius);
+  padding:18px; margin-bottom:14px}
 .mini-h{font-size:15px; color:var(--accent); margin:14px 0 8px; text-transform:uppercase; letter-spacing:.05em}
 .bio{font-size:16px; margin:0 0 12px}
 .credits{margin:0; padding-left:18px; color:var(--muted)}
