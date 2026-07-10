@@ -109,6 +109,18 @@ hr{border:0; border-top:1px solid var(--line); margin:16px 0}
   border:1px solid var(--line); background:transparent; color:var(--muted); font-size:14px; line-height:1}
 .track-share:hover{color:var(--accent); border-color:var(--accent)}
 .track-meta{flex:1; min-width:0}
+
+/* ---- del-meny (Facebook/X/WhatsApp/…) ---- */
+.share-back{position:fixed; inset:0; z-index:1000; background:rgba(2,4,10,.6);
+  display:flex; align-items:center; justify-content:center; padding:20px}
+.share-menu{width:100%; max-width:320px; background:var(--panel); border:1px solid var(--line);
+  border-radius:16px; padding:10px; backdrop-filter:blur(10px); box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.share-title{font-weight:700; padding:8px 10px 12px; text-align:center;
+  border-bottom:1px solid var(--line); margin-bottom:8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.share-item{display:block; width:100%; text-align:left; padding:12px 14px; border:0; border-radius:10px;
+  background:transparent; color:var(--text); font-size:15px; font-weight:600; cursor:pointer; text-decoration:none}
+.share-item:hover{background:rgba(140,160,255,.12)}
+.share-cancel{text-align:center; color:var(--muted); margin-top:4px}
 .track-title{font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .track-sub{color:var(--muted); font-size:12px}
 

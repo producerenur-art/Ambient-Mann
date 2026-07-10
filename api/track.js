@@ -72,6 +72,18 @@ module.exports = async (req, res) => {
 
   const coverStyle = cover ? "background-image:url('" + esc(cover) + "')" : '';
 
+  // Sosiale delelenker (server-beregnet, samme URL som deles).
+  const eu = encodeURIComponent(pageUrl);
+  const shareText = 'Hør «' + rawTitle + '» hos Ambient Mann';
+  const et = encodeURIComponent(shareText);
+  const social = [
+    ['Facebook', 'https://www.facebook.com/sharer/sharer.php?u=' + eu],
+    ['X', 'https://twitter.com/intent/tweet?url=' + eu + '&text=' + et],
+    ['WhatsApp', 'https://wa.me/?text=' + encodeURIComponent(shareText + ' ' + pageUrl)],
+    ['Telegram', 'https://t.me/share/url?url=' + eu + '&text=' + et],
+    ['E-post', 'mailto:?subject=' + encodeURIComponent(rawTitle) + '&body=' + encodeURIComponent(shareText + '\n\n' + pageUrl)],
+  ].map(function (s) { return '<a class="soc" target="_blank" rel="noopener" href="' + esc(s[1]) + '">' + esc(s[0]) + '</a>'; }).join('');
+
   const html = '<!doctype html>\n<html lang="no">\n<head>\n' +
     '<meta charset="utf-8">\n' +
     '<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
@@ -98,6 +110,9 @@ module.exports = async (req, res) => {
     '  font-weight:700;font-size:14px;cursor:pointer;text-decoration:none;display:inline-block}\n' +
     '.btn:hover{border-color:var(--accent)}\n' +
     '.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0a0f2a;border:0}\n' +
+    '.social{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}\n' +
+    '.soc{font-size:13px;font-weight:600;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:7px 13px;text-decoration:none}\n' +
+    '.soc:hover{color:var(--accent);border-color:var(--accent)}\n' +
     '.back{display:inline-block;margin-top:16px;color:var(--muted);font-size:13px}\n' +
     '</style>\n</head>\n<body>\n' +
     '<main class="card">\n' +
@@ -110,6 +125,7 @@ module.exports = async (req, res) => {
     '    <button class="btn btn-primary" id="share">Del</button>\n' +
     '    <button class="btn" id="copy">Kopier lenke</button>\n' +
     '  </div>\n' +
+    '  <div class="social">' + social + '</div>\n' +
     '  <a class="back" href="' + esc(origin) + '/">← <span translate="no">Ambient Mann</span></a>\n' +
     '</main>\n' +
     '<script>\n' +

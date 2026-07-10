@@ -127,16 +127,62 @@ window.Tracks = (function () {
     if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(url); return; }
     const ta = document.createElement('textarea'); ta.value = url; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
   }
-  async function share(i) {
+  function share(i) {
     const t = list()[i]; if (!t || !t.id) return;
+    openShareMenu(t, i);
+  }
+
+  // Del-meny med Facebook / X / WhatsApp / Telegram / e-post + kopier (+ native del-ark på mobil).
+  function openShareMenu(t, i) {
     const title = t.title || ('Spor ' + (i + 1));
     const url = trackUrl(t);
+    const text = 'Hør «' + title + '» hos Ambient Mann';
+    const eu = encodeURIComponent(url), et = encodeURIComponent(text);
+    const targets = [
+      { label: 'Facebook', href: 'https://www.facebook.com/sharer/sharer.php?u=' + eu },
+      { label: 'X / Twitter', href: 'https://twitter.com/intent/tweet?url=' + eu + '&text=' + et },
+      { label: 'WhatsApp', href: 'https://wa.me/?text=' + encodeURIComponent(text + ' ' + url) },
+      { label: 'Telegram', href: 'https://t.me/share/url?url=' + eu + '&text=' + et },
+      { label: 'E-post', href: 'mailto:?subject=' + encodeURIComponent(title) + '&body=' + encodeURIComponent(text + '\n\n' + url) },
+    ];
+    const back = document.createElement('div');
+    back.className = 'share-back';
+    const menu = document.createElement('div');
+    menu.className = 'share-menu';
+    const head = document.createElement('div');
+    head.className = 'share-title';
+    head.textContent = 'Del «' + title + '»';
+    menu.appendChild(head);
+
+    function close() { back.remove(); document.removeEventListener('keydown', onKey); }
+    function onKey(e) { if (e.key === 'Escape') close(); }
+
+    targets.forEach(tg => {
+      const a = document.createElement('a');
+      a.className = 'share-item'; a.href = tg.href; a.target = '_blank'; a.rel = 'noopener';
+      a.textContent = tg.label;
+      a.addEventListener('click', () => close());
+      menu.appendChild(a);
+    });
+    const cp = document.createElement('button');
+    cp.className = 'share-item'; cp.textContent = '📋 Kopier lenke';
+    cp.addEventListener('click', async () => { try { await copyToClipboard(url); UI.toast('Lenke kopiert!'); } catch (_) {} close(); });
+    menu.appendChild(cp);
     if (navigator.share) {
-      try { await navigator.share({ title: 'Ambient Mann — ' + title, text: 'Hør «' + title + '» hos Ambient Mann', url }); return; }
-      catch (e) { if (e && e.name === 'AbortError') return; }
+      const nb = document.createElement('button');
+      nb.className = 'share-item'; nb.textContent = 'Flere apper …';
+      nb.addEventListener('click', async () => { close(); try { await navigator.share({ title: 'Ambient Mann — ' + title, text, url }); } catch (_) {} });
+      menu.appendChild(nb);
     }
-    try { await copyToClipboard(url); UI.toast('Lenke til sporet er kopiert – klar til å deles!'); }
-    catch (_) { UI.toast('Kunne ikke dele lenken.'); }
+    const cancel = document.createElement('button');
+    cancel.className = 'share-item share-cancel'; cancel.textContent = 'Avbryt';
+    cancel.addEventListener('click', () => close());
+    menu.appendChild(cancel);
+
+    back.addEventListener('click', (e) => { if (e.target === back) close(); });
+    document.addEventListener('keydown', onKey);
+    back.appendChild(menu);
+    document.body.appendChild(back);
   }
   async function copyLink(i) {
     const t = list()[i]; if (!t || !t.id) return;
