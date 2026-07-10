@@ -20,6 +20,15 @@ function esc(s) {
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 function safeHttps(u) { return /^https?:\/\//i.test(String(u || '')) ? String(u) : ''; }
+// Lag en pen URL-bit av tittelen: «All The Way From Heaven 017» → «all-the-way-from-heaven-017».
+function slugify(s) {
+  return String(s == null ? '' : s)
+    .toLowerCase()
+    .replace(/æ/g, 'ae').replace(/ø/g, 'o').replace(/å/g, 'a')
+    .normalize('NFKD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
 
 module.exports = async (req, res) => {
   const id = String((req.query && req.query.id) || '');
@@ -33,7 +42,12 @@ module.exports = async (req, res) => {
     if (c) {
       const { data } = await c.from('site_content').select('data').eq('key', 'tracks').maybeSingle();
       const arr = data && Array.isArray(data.data) ? data.data : [];
-      track = arr.find(t => t && String(t.id) === id) || null;
+      const want = slugify(id);
+      // Nye lenker: pen tittel-slug (/track/all-the-way-from-heaven-017).
+      // Gamle lenker: rå id (/track/t_xxxx) fungerer fortsatt.
+      track = arr.find(t => t && String(t.id) === id)
+           || arr.find(t => t && slugify(t.title) === want && want)
+           || null;
     }
   } catch (_) {}
 
@@ -52,7 +66,9 @@ module.exports = async (req, res) => {
   const title = esc(rawTitle);
   const cover = safeHttps(track.coverUrl);
   const audioUrl = safeHttps(track.url);
-  const pageUrl = origin + '/track/' + encodeURIComponent(id);
+  // Kanonisk URL = pen tittel-slug (faller tilbake til id hvis tittelen ikke gir slug).
+  const slug = slugify(track.title) || String(track.id);
+  const pageUrl = origin + '/track/' + slug;
   const desc = 'Hør «' + rawTitle + '» hos Ambient Mann.';
 
   const meta = [

@@ -121,8 +121,20 @@ window.Tracks = (function () {
     Owner.applyVisibility();
   }
 
-  // ---- delbar egen URL per spor: /track/<id> (egen side m/ forhåndsvisning + autoplay) ----
-  function trackUrl(t) { return location.origin + '/track/' + encodeURIComponent(t.id); }
+  // ---- delbar egen URL per spor: /track/<tittel-slug> (egen side m/ forhåndsvisning + autoplay) ----
+  // Pen URL som matcher sportittelen, f.eks. /track/all-the-way-from-heaven-017.
+  function slugify(s) {
+    return String(s == null ? '' : s)
+      .toLowerCase()
+      .replace(/æ/g, 'ae').replace(/ø/g, 'o').replace(/å/g, 'a')
+      .normalize('NFKD').replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+  function trackUrl(t) {
+    const slug = slugify(t.title) || encodeURIComponent(t.id);
+    return location.origin + '/track/' + slug;
+  }
   async function copyToClipboard(url) {
     if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(url); return; }
     const ta = document.createElement('textarea'); ta.value = url; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
