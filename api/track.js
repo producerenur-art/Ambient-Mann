@@ -113,6 +113,10 @@ module.exports = async (req, res) => {
     'body{margin:0;min-height:100vh;font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--text);\n' +
     '  background:radial-gradient(1200px 800px at 50% -10%,rgba(138,180,255,.14),transparent),var(--bg);\n' +
     '  display:flex;align-items:center;justify-content:center;padding:24px}\n' +
+    // Samme bevegelige stjernehimmel som på forsiden (bak innholdet).
+    '#starfield{position:fixed;inset:0;z-index:-2;pointer-events:none}\n' +
+    'body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;\n' +
+    '  background:radial-gradient(120% 80% at 50% 0%,rgba(0,0,0,0) 40%,rgba(2,4,12,.72) 100%)}\n' +
     '.card{width:100%;max-width:420px;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:22px;text-align:center;\n' +
     '  backdrop-filter:blur(8px);box-shadow:0 20px 60px rgba(0,0,0,.45)}\n' +
     '.cover{width:220px;height:220px;max-width:70vw;max-height:70vw;margin:0 auto 18px;border-radius:16px;\n' +
@@ -131,6 +135,7 @@ module.exports = async (req, res) => {
     '.soc:hover{color:var(--accent);border-color:var(--accent)}\n' +
     '.back{display:inline-block;margin-top:16px;color:var(--muted);font-size:13px}\n' +
     '</style>\n</head>\n<body>\n' +
+    '<canvas id="starfield"></canvas>\n' +
     '<main class="card">\n' +
     '  <div class="cover" style="' + coverStyle + '">' + (cover ? '' : '♪') + '</div>\n' +
     '  <p class="brand" translate="no">Ambient Mann</p>\n' +
@@ -167,6 +172,34 @@ module.exports = async (req, res) => {
     '    else{var t=document.createElement("textarea");t.value=url;document.body.appendChild(t);t.select();document.execCommand("copy");t.remove();}\n' +
     '    hint.textContent="Lenke kopiert!";}catch(e){}}\n' +
     '  document.getElementById("copy").addEventListener("click",copy);\n' +
+    '})();\n' +
+    // Bevegelig stjernehimmel – samme effekt som forsiden (js/starfield.js).
+    '(function(){\n' +
+    '  var canvas=document.getElementById("starfield");if(!canvas)return;\n' +
+    '  var ctx=canvas.getContext("2d");\n' +
+    '  var w,h,dpr,stars=[],nebulae=[];var STAR_COUNT=220;\n' +
+    '  function rand(a,b){return a+Math.random()*(b-a);}\n' +
+    '  function resize(){dpr=Math.min(window.devicePixelRatio||1,2);\n' +
+    '    w=canvas.width=Math.floor(innerWidth*dpr);h=canvas.height=Math.floor(innerHeight*dpr);\n' +
+    '    canvas.style.width=innerWidth+"px";canvas.style.height=innerHeight+"px";build();}\n' +
+    '  function build(){stars=[];for(var i=0;i<STAR_COUNT;i++){stars.push({\n' +
+    '    x:Math.random()*w,y:Math.random()*h,z:rand(0.2,1),tw:rand(0,Math.PI*2),tws:rand(0.6,2.2)});}\n' +
+    '    nebulae=[{x:w*0.2,y:h*0.25,r:Math.max(w,h)*0.45,c:"80,120,255"},\n' +
+    '      {x:w*0.8,y:h*0.7,r:Math.max(w,h)*0.5,c:"150,90,255"},\n' +
+    '      {x:w*0.55,y:h*0.15,r:Math.max(w,h)*0.35,c:"90,220,255"}];}\n' +
+    '  var t=0;\n' +
+    '  function frame(){t+=0.016;ctx.clearRect(0,0,w,h);\n' +
+    '    for(var i=0;i<nebulae.length;i++){var n=nebulae[i];\n' +
+    '      var g=ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,n.r);\n' +
+    '      g.addColorStop(0,"rgba("+n.c+",0.08)");g.addColorStop(1,"rgba(0,0,0,0)");\n' +
+    '      ctx.fillStyle=g;ctx.fillRect(0,0,w,h);}\n' +
+    '    for(var j=0;j<stars.length;j++){var s=stars[j];\n' +
+    '      s.y+=s.z*0.12*dpr;if(s.y>h){s.y=0;s.x=Math.random()*w;}\n' +
+    '      var aa=0.35+0.65*(0.5+0.5*Math.sin(t*s.tws+s.tw));var r=s.z*1.6*dpr;\n' +
+    '      ctx.beginPath();ctx.arc(s.x,s.y,r,0,Math.PI*2);\n' +
+    '      ctx.fillStyle="rgba(200,228,255,"+(aa*s.z)+")";ctx.fill();}\n' +
+    '    requestAnimationFrame(frame);}\n' +
+    '  addEventListener("resize",resize);resize();frame();\n' +
     '})();\n' +
     '</script>\n</body>\n</html>';
 
