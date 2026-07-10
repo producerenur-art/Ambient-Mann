@@ -13,7 +13,25 @@
   let w, h, dpr, stars = [], nebulae = [];
   const STAR_COUNT = 220;
 
+  // Sjeldne stjerneskudd (meteorer) som streifer over innimellom.
+  let shooting = [];
+  let nextShoot = 4;
+
   function rand(a, b) { return a + Math.random() * (b - a); }
+
+  function spawnShoot() {
+    const down = Math.PI * rand(0.12, 0.38);   // vinkel nedover
+    const dir = Math.random() < 0.5 ? 1 : -1;  // mot høyre eller venstre
+    const speed = rand(7, 12) * dpr;
+    shooting.push({
+      x: dir > 0 ? rand(0, w * 0.5) : rand(w * 0.5, w),
+      y: rand(0, h * 0.4),
+      vx: dir * Math.cos(down) * speed,
+      vy: Math.sin(down) * speed,
+      len: rand(140, 280) * dpr,
+      life: 1,
+    });
+  }
 
   function resize() {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -68,6 +86,26 @@
       ctx.arc(s.x, s.y, r, 0, Math.PI * 2);
       ctx.fillStyle = `rgba(200,228,255,${a * s.z})`;
       ctx.fill();
+    }
+
+    // stjerneskudd — sjeldne, dukker opp innimellom
+    nextShoot -= 0.016;
+    if (nextShoot <= 0) { spawnShoot(); nextShoot = rand(7, 18); }
+    for (let i = shooting.length - 1; i >= 0; i--) {
+      const m = shooting[i];
+      m.x += m.vx; m.y += m.vy; m.life -= 0.012;
+      const d = Math.hypot(m.vx, m.vy) || 1;
+      const tx = m.x - (m.vx / d) * m.len, ty = m.y - (m.vy / d) * m.len;
+      const al = Math.max(0, Math.min(1, m.life));
+      const g = ctx.createLinearGradient(m.x, m.y, tx, ty);
+      g.addColorStop(0, `rgba(255,255,255,${0.9 * al})`);
+      g.addColorStop(0.4, `rgba(180,210,255,${0.35 * al})`);
+      g.addColorStop(1, 'rgba(180,210,255,0)');
+      ctx.strokeStyle = g; ctx.lineWidth = 2 * dpr; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(m.x, m.y); ctx.lineTo(tx, ty); ctx.stroke();
+      ctx.beginPath(); ctx.arc(m.x, m.y, 1.6 * dpr, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${al})`; ctx.fill();
+      if (m.life <= 0 || m.x < -m.len || m.x > w + m.len || m.y > h + m.len) shooting.splice(i, 1);
     }
     requestAnimationFrame(frame);
   }

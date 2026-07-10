@@ -178,7 +178,11 @@ module.exports = async (req, res) => {
     '  var canvas=document.getElementById("starfield");if(!canvas)return;\n' +
     '  var ctx=canvas.getContext("2d");\n' +
     '  var w,h,dpr,stars=[],nebulae=[];var STAR_COUNT=220;\n' +
+    '  var shooting=[],nextShoot=4;\n' +
     '  function rand(a,b){return a+Math.random()*(b-a);}\n' +
+    '  function spawnShoot(){var down=Math.PI*rand(0.12,0.38);var dir=Math.random()<0.5?1:-1;var speed=rand(7,12)*dpr;\n' +
+    '    shooting.push({x:dir>0?rand(0,w*0.5):rand(w*0.5,w),y:rand(0,h*0.4),\n' +
+    '      vx:dir*Math.cos(down)*speed,vy:Math.sin(down)*speed,len:rand(140,280)*dpr,life:1});}\n' +
     '  function resize(){dpr=Math.min(window.devicePixelRatio||1,2);\n' +
     '    w=canvas.width=Math.floor(innerWidth*dpr);h=canvas.height=Math.floor(innerHeight*dpr);\n' +
     '    canvas.style.width=innerWidth+"px";canvas.style.height=innerHeight+"px";build();}\n' +
@@ -198,6 +202,19 @@ module.exports = async (req, res) => {
     '      var aa=0.35+0.65*(0.5+0.5*Math.sin(t*s.tws+s.tw));var r=s.z*1.6*dpr;\n' +
     '      ctx.beginPath();ctx.arc(s.x,s.y,r,0,Math.PI*2);\n' +
     '      ctx.fillStyle="rgba(200,228,255,"+(aa*s.z)+")";ctx.fill();}\n' +
+    '    nextShoot-=0.016;if(nextShoot<=0){spawnShoot();nextShoot=rand(7,18);}\n' +
+    '    for(var k=shooting.length-1;k>=0;k--){var m=shooting[k];\n' +
+    '      m.x+=m.vx;m.y+=m.vy;m.life-=0.012;var d=Math.hypot(m.vx,m.vy)||1;\n' +
+    '      var tx=m.x-(m.vx/d)*m.len,ty=m.y-(m.vy/d)*m.len;var al=Math.max(0,Math.min(1,m.life));\n' +
+    '      var gg=ctx.createLinearGradient(m.x,m.y,tx,ty);\n' +
+    '      gg.addColorStop(0,"rgba(255,255,255,"+(0.9*al)+")");\n' +
+    '      gg.addColorStop(0.4,"rgba(180,210,255,"+(0.35*al)+")");\n' +
+    '      gg.addColorStop(1,"rgba(180,210,255,0)");\n' +
+    '      ctx.strokeStyle=gg;ctx.lineWidth=2*dpr;ctx.lineCap="round";\n' +
+    '      ctx.beginPath();ctx.moveTo(m.x,m.y);ctx.lineTo(tx,ty);ctx.stroke();\n' +
+    '      ctx.beginPath();ctx.arc(m.x,m.y,1.6*dpr,0,Math.PI*2);\n' +
+    '      ctx.fillStyle="rgba(255,255,255,"+al+")";ctx.fill();\n' +
+    '      if(m.life<=0||m.x<-m.len||m.x>w+m.len||m.y>h+m.len)shooting.splice(k,1);}\n' +
     '    requestAnimationFrame(frame);}\n' +
     '  addEventListener("resize",resize);resize();frame();\n' +
     '})();\n' +
