@@ -136,6 +136,26 @@ module.exports = async (req, res) => {
     '.soc{font-size:13px;font-weight:600;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:7px 13px;text-decoration:none}\n' +
     '.soc:hover{color:var(--accent);border-color:var(--accent)}\n' +
     '.back{display:inline-block;margin-top:16px;color:var(--muted);font-size:13px}\n' +
+    // Samme fellesskaps-chat som forsiden (delt Gun-rom på tvers av alle sider).
+    '.chat-fab{position:fixed;right:16px;bottom:16px;z-index:41;padding:11px 16px;border-radius:999px;border:0;\n' +
+    '  cursor:pointer;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0a0f2a}\n' +
+    '.chat-panel{position:fixed;right:16px;bottom:70px;z-index:42;width:320px;max-width:calc(100vw - 24px);\n' +
+    '  height:420px;max-height:calc(100vh - 120px);display:none;flex-direction:column;\n' +
+    '  background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;backdrop-filter:blur(12px)}\n' +
+    '.chat-panel.open{display:flex}\n' +
+    '.chat-head{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;\n' +
+    '  background:rgba(10,15,42,.7);cursor:move;user-select:none;touch-action:none}\n' +
+    '.chat-head .t{font-weight:700;font-size:14px}\n' +
+    '.drag-hint{color:var(--muted);font-weight:400;font-size:11px;margin-left:6px}\n' +
+    '.chat-x{background:none;border:0;color:var(--muted);font-size:20px;cursor:pointer}\n' +
+    '.chat-log{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:6px;text-align:left}\n' +
+    '.chat-msg{font-size:14px;word-wrap:break-word}\n' +
+    '.chat-name-row{display:flex;align-items:center;gap:8px;padding:6px 12px;font-size:14px;color:var(--muted)}\n' +
+    '.chat-input{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line)}\n' +
+    '.chat-panel .input{flex:1;padding:9px 11px;border-radius:10px;border:1px solid var(--line);\n' +
+    '  background:rgba(10,15,42,.6);color:var(--text);font:inherit}\n' +
+    '.chat-send{padding:9px 14px;border-radius:10px;border:0;font-weight:700;cursor:pointer;\n' +
+    '  background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0a0f2a}\n' +
     '</style>\n</head>\n<body>\n' +
     '<canvas id="starfield"></canvas>\n' +
     '<main class="card">\n' +
@@ -151,6 +171,15 @@ module.exports = async (req, res) => {
     '  <div class="social">' + social + '</div>\n' +
     '  <a class="back" href="' + esc(origin) + '/">← <span translate="no">Ambient Mann</span></a>\n' +
     '</main>\n' +
+    '<button class="chat-fab" id="chat-fab">💬 Chat</button>\n' +
+    '<div class="chat-panel" id="chat-panel">\n' +
+    '  <div class="chat-head" id="chat-head"><div class="t">💬 Chat <span class="drag-hint">dra for å flytte</span></div>' +
+    '<button class="chat-x" id="chat-close">×</button></div>\n' +
+    '  <div class="chat-log" id="chat-log"></div>\n' +
+    '  <div class="chat-name-row"><label>Du:</label><input class="input" id="chat-name" placeholder="Ditt kallenavn" maxlength="24"></div>\n' +
+    '  <div class="chat-input"><input class="input" id="chat-text" placeholder="Skriv en melding…" maxlength="500">' +
+    '<button class="chat-send" id="chat-send">Send</button></div>\n' +
+    '</div>\n' +
     '<script>\n' +
     '(function(){\n' +
     '  var a=document.getElementById("a"),hint=document.getElementById("hint");\n' +
@@ -219,6 +248,49 @@ module.exports = async (req, res) => {
     '      if(m.life<=0||m.x<-m.len||m.x>w+m.len||m.y>h+m.len)shooting.splice(k,1);}\n' +
     '    requestAnimationFrame(frame);}\n' +
     '  addEventListener("resize",resize);resize();frame();\n' +
+    '})();\n' +
+    '</script>\n' +
+    // Gun.js (samme desentraliserte sanntids-chat som forsiden bruker).
+    '<script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>\n' +
+    '<script>\n' +
+    '(function(){\n' +
+    '  var NS="ambientmann_chat_v1",NICK_KEY="am_chat_nick",COLOR_KEY="am_chat_color";\n' +
+    '  var COLORS=["#8ab4ff","#7fe3b0","#7ee0ff","#ff9ecb","#9dffcf","#ffd479","#ff8f6b"];\n' +
+    '  var PEERS=["https://relay.peer.ooo/gun","https://gun.defucc.me/gun"];\n' +
+    '  var gun=null,ref=null,seen={},msgs=[],open=false;\n' +
+    '  function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/\'/g,"&#39;");}\n' +
+    '  function nick(){var n=localStorage.getItem(NICK_KEY);if(!n){n="Gjest"+Math.floor(100+Math.random()*900);localStorage.setItem(NICK_KEY,n);}return n;}\n' +
+    '  function color(){var c=localStorage.getItem(COLOR_KEY);if(!c){c=COLORS[Math.floor(Math.random()*COLORS.length)];localStorage.setItem(COLOR_KEY,c);}return c;}\n' +
+    '  function renderLog(){var log=document.getElementById("chat-log");if(!log)return;\n' +
+    '    var nb=log.scrollHeight-log.scrollTop-log.clientHeight<60;\n' +
+    '    log.innerHTML=msgs.map(function(m){return "<div class=\\"chat-msg\\"><b style=\\"color:"+esc(m.color)+"\\">"+esc(m.nick)+"</b> "+esc(m.text)+"</div>";}).join("");\n' +
+    '    if(nb)log.scrollTop=log.scrollHeight;}\n' +
+    '  function initGun(){if(!window.Gun)return null;try{gun=Gun({peers:PEERS});ref=gun.get(NS);\n' +
+    '    ref.map().on(function(m,id){if(!m||seen[id]||!m.text)return;seen[id]=true;\n' +
+    '      msgs.push({nick:m.nick||"Gjest",color:m.color||"#8ab4ff",text:String(m.text).slice(0,500),ts:m.ts||0});\n' +
+    '      msgs.sort(function(a,b){return a.ts-b.ts;});if(msgs.length>200)msgs=msgs.slice(-200);renderLog();});\n' +
+    '    return ref;}catch(e){return null;}}\n' +
+    '  function send(){var inp=document.getElementById("chat-text");var text=inp&&inp.value.trim();if(!text)return;\n' +
+    '    var msg={nick:nick(),color:color(),text:text.slice(0,500),ts:Date.now()};\n' +
+    '    if(ref){ref.set(msg);}else{msgs.push(msg);renderLog();}inp.value="";}\n' +
+    '  function toggle(force){var panel=document.getElementById("chat-panel");if(!panel)return;\n' +
+    '    open=force!=null?force:!open;panel.classList.toggle("open",open);\n' +
+    '    if(open){var n=document.getElementById("chat-name");if(n)n.value=nick();renderLog();}}\n' +
+    '  function makeDraggable(){var panel=document.getElementById("chat-panel"),head=document.getElementById("chat-head");if(!panel||!head)return;\n' +
+    '    var dragging=false,sx=0,sy=0,ox=0,oy=0;\n' +
+    '    head.addEventListener("pointerdown",function(e){if(e.target.closest("button"))return;dragging=true;\n' +
+    '      var r=panel.getBoundingClientRect();panel.style.right="auto";panel.style.bottom="auto";panel.style.left=r.left+"px";panel.style.top=r.top+"px";\n' +
+    '      sx=e.clientX;sy=e.clientY;ox=r.left;oy=r.top;head.setPointerCapture(e.pointerId);});\n' +
+    '    head.addEventListener("pointermove",function(e){if(!dragging)return;\n' +
+    '      var nx=Math.max(4,Math.min(innerWidth-60,ox+(e.clientX-sx))),ny=Math.max(4,Math.min(innerHeight-40,oy+(e.clientY-sy)));\n' +
+    '      panel.style.left=nx+"px";panel.style.top=ny+"px";});\n' +
+    '    head.addEventListener("pointerup",function(){dragging=false;});}\n' +
+    '  document.getElementById("chat-fab").addEventListener("click",function(){toggle();});\n' +
+    '  document.getElementById("chat-close").addEventListener("click",function(){toggle(false);});\n' +
+    '  document.getElementById("chat-send").addEventListener("click",send);\n' +
+    '  var ti=document.getElementById("chat-text");if(ti)ti.addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();send();}});\n' +
+    '  var nm=document.getElementById("chat-name");if(nm){nm.value=nick();nm.addEventListener("change",function(){var v=nm.value.trim().slice(0,24);if(v)localStorage.setItem(NICK_KEY,v);});}\n' +
+    '  makeDraggable();initGun();\n' +
     '})();\n' +
     '</script>\n</body>\n</html>';
 
