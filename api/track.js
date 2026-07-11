@@ -42,6 +42,9 @@ const DEFAULT_LABELS = [
   { name: 'Cryo Chamber', url: 'https://cryochamber.bandcamp.com/' },
   { name: 'Sofa Beats Music', url: 'https://sofabeatsmusic.bandcamp.com/' },
   { name: 'Synchronos Recordings', url: 'https://synchronos-recordings.bandcamp.com/album/subspace-garden' },
+  { name: 'Merkaba Music', url: 'https://merkabamusic1.bandcamp.com/' },
+  { name: 'Zenon Records', url: 'https://zenonrecords.bandcamp.com/' },
+  { name: 'Interchill Records', url: 'https://interchill.bandcamp.com/' },
 ];
 function normLabels(v) {
   if (!Array.isArray(v)) return null;

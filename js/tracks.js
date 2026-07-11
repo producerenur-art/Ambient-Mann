@@ -251,14 +251,31 @@ window.Tracks = (function () {
     const coverEl = document.getElementById('track-cover');
     const titleEl = document.getElementById('track-title');
     const status = document.getElementById('track-upstatus');
+    const btn = document.getElementById('track-upload');
     const file = fileEl && fileEl.files && fileEl.files[0];
     if (!file) { UI.toast('Velg en lyd-fil (WAV/MP3).'); return; }
+    if (!Owner.isOwner()) { UI.toast('Logg inn som eier for å laste opp.'); return; }
     if (!SC_Storage.isConfigured()) { UI.toast('Lyd-lagring er ikke satt opp ennå (mangler Supabase i config).'); return; }
-    if (status) status.textContent = 'Laster opp lyd … (store filer kan ta litt tid)';
+    // Hver opplasting skal gi sin egen URL (/track/<navn>). Samme navn = samme
+    // URL, som da ville peke til det gamle sporet – stopp og be om et unikt navn.
+    const wantTitle = (titleEl && titleEl.value.trim()) || file.name.replace(/\.[a-z0-9]+$/i, '');
+    const wantSlug = slugify(wantTitle);
+    if (wantSlug && list().some(t => slugify(t.title) === wantSlug)) {
+      if (status) status.textContent = '';
+      UI.toast('Det finnes allerede et spor med dette navnet (samme lenke). Gi det et unikt navn.');
+      if (titleEl) titleEl.focus();
+      return;
+    }
+    if (btn) { btn.disabled = true; btn.dataset.label = btn.textContent; btn.textContent = '⏳ Laster opp …'; }
+    const total = fmtSize(file.size);
+    if (status) status.textContent = 'Laster opp lyd … 0% av ' + total;
     try {
       const up = await SC_Storage.upload(file, {
         prefix: 'tracks',
-        onProgress: p => { if (status) status.textContent = 'Laster opp lyd … ' + Math.round(p * 100) + '%'; },
+        onProgress: p => {
+          if (status) status.textContent = 'Laster opp lyd … ' + Math.round(p * 100) + '% av ' + total +
+            (p >= 1 ? ' – lagrer …' : '');
+        },
       });
       let coverUrl = '', coverPath = '';
       const coverFile = coverEl && coverEl.files && coverEl.files[0];
@@ -275,15 +292,27 @@ window.Tracks = (function () {
       const r = await Owner.authFetch('/api/site?action=track-add', {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(meta),
       });
-      if (!r.ok) UI.toast('Fikk lastet opp, men klarte ikke lagre i lista.');
+      if (!r.ok) {
+        const d = await r.json().catch(() => ({}));
+        UI.toast('Fikk lastet opp lyden, men klarte ikke lagre i lista' + (d.error ? ': ' + d.error : '.'));
+      }
       const arr = list(); arr.push(meta); await Content.set('tracks', arr);
-      if (status) status.textContent = 'Lagt til!';
+      // Vis den nye, delbare URL-en som navnet lager (én ny URL per spor).
+      const newUrl = trackUrl(meta);
+      if (status) {
+        status.innerHTML = '✅ Lagt til! Ny lenke: <a href="' + UI.esc(newUrl) + '" target="_blank" rel="noopener">' +
+          UI.esc(newUrl.replace(/^https?:\/\//, '')) + '</a>';
+      }
+      try { await copyToClipboard(newUrl); UI.toast('Sporet er lagt til – lenken er kopiert.'); }
+      catch (_) { UI.toast('Sporet er lagt til.'); }
       if (fileEl) fileEl.value = ''; if (coverEl) coverEl.value = ''; if (titleEl) titleEl.value = '';
       render();
     } catch (e) {
       const msg = (e && e.message) || String(e);
       if (status) status.textContent = 'Feil: ' + msg;
       UI.toast(msg === 'not-configured' ? 'Lyd-lagring ikke satt opp.' : ('Opplasting feilet: ' + msg));
+    } finally {
+      if (btn) { btn.disabled = false; if (btn.dataset.label) btn.textContent = btn.dataset.label; }
     }
   }
 
