@@ -287,6 +287,14 @@ hr{border:0; border-top:1px solid var(--line); margin:16px 0}
 .modal .x{position:absolute; top:8px; right:10px}
 .field{margin-bottom:4px}
 
+/* ---- Om Ambient Mann (modal) ---- */
+.modal.about-modal{max-width:600px}
+.about-body{max-height:70vh; overflow-y:auto; text-align:left; margin-top:8px; padding-right:6px}
+.about-body p{margin:0 0 12px; line-height:1.6}
+.about-body .about-verse{font-style:italic; color:var(--accent)}
+.about-body .about-links{list-style:none; padding:0; margin:0 0 12px; display:flex; flex-direction:column; gap:6px}
+.about-body a{color:var(--accent); word-break:break-word}
+
 /* ---- Gjest Show Live Stream ---- */
 .guest-nav-name{color:var(--accent2); font-size:13px; font-weight:700}
 .guest-auth-cta{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin:14px 0}

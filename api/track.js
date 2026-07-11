@@ -129,9 +129,36 @@ module.exports = async (req, res) => {
     ['Lenker', origin + '/#links'],
     ['Plateselskaper', origin + '/#plateselskaper'],
   ];
-  const nav = navItems.map(function (n) {
-    return '<a href="' + esc(n[1]) + '">' + esc(n[0]) + '</a>';
-  }).join('');
+  const nav = '<a href="#" class="topnav-about">Om</a>' +
+    navItems.map(function (n) {
+      return '<a href="' + esc(n[1]) + '">' + esc(n[0]) + '</a>';
+    }).join('');
+
+  // Om Ambient Mann – samme innhold som forsidens Om-modal, vist i en overlay
+  // her på hver spor-side også (spor-sidene har ingen oversetter-widget, så
+  // teksten vises som skrevet).
+  const aboutInner =
+    '<button class="x" aria-label="Lukk">×</button>' +
+    '<h3>Om<span>&nbsp;Ambient Mann</span></h3>' +
+    '<p>Noah Kristiansen has been working professionally with podcasts for over 15 years. Born in Greenland in 1982, he later moved to Norway.</p>' +
+    '<p>Following a revelation regarding music and podcast production at the age of 14 (Back Then it Only Was A Dream), Noah <span translate="no">FeedFreq</span> reached out to channels such as <a translate="no" href="https://diceradio.gr/" target="_blank" rel="noopener">diceradio.gr</a> and <a translate="no" href="https://radioq37.com/" target="_blank" rel="noopener">Radioq37.com</a> in 2014. Shortly thereafter, he began meditating (via <a translate="no" href="https://www.stepstoknowledge.com/" target="_blank" rel="noopener">stepstoknowledge.com</a>) and producing podcasts. He subsequently experienced a new revelation on a level of spiritual consciousness and suddenly became part of Tree of Life / BM Bookings—an agency now known as <span translate="no">FeedFreq &amp; BigFreq</span>. Since 2014, he has established collaborations with numerous entities, including Mikelabella Records, Cryo Chamber, Cosmicleaf Records, Trancentral, Psybient.org, IT Athens, and others.</p>' +
+    '<p>Through the series &ldquo;All The Way From Heaven,&rdquo; he aims to unite musical frequencies with spiritual frequencies, thereby creating and spreading good vibrations to us all.</p>' +
+    '<p>Thanks to all the talented artists and record labels out there!</p>' +
+    '<p>And thanks to the Creator of the universe for opening our inner guidance system—a connection between the soul, the physical world, and the divine source.</p>' +
+    '<p>In this way, he seeks to draw spiritual strength—not only for himself but for everyone.</p>' +
+    '<p class="about-verse">A journey with Noah&rsquo;s Ark—<br>&ldquo;All The Way From Heaven&rdquo; by <span translate="no">Ambient Mann</span><br>You will not go down with the ship.</p>' +
+    '<p>With the right preparation, there is no shock reaction; there is only affirmation. Even events that might otherwise seem shocking will not overwhelm you. They may catch you off guard or cause a moment of unease, but they will not overwhelm you. You will not be paralyzed by the situation or frozen in fear, unable to figure out what to do.</p>' +
+    '<p>(<a translate="no" href="https://www.stepstoknowledge.com/" target="_blank" rel="noopener">www.stepstoknowledge.com</a>)</p>' +
+    '<p>When the ship starts to list and take on water, you will be ready. You will not freeze up. You will not go down with the ship. Contact <span translate="no">Ambient Mann</span> at: <a translate="no" href="mailto:aon_h@mailfence.com">aon_h@mailfence.com</a></p>' +
+    '<p>Booking: <a translate="no" href="mailto:yaniv@reply.bigfreq.com">yaniv@reply.bigfreq.com</a></p>' +
+    '<p>Our websites:</p>' +
+    '<ul class="about-links">' +
+    '<li><a translate="no" href="https://feedfreq.com/" target="_blank" rel="noopener">https://feedfreq.com/</a></li>' +
+    '<li><a translate="no" href="http://bigfreq.com/" target="_blank" rel="noopener">http://bigfreq.com/</a></li>' +
+    '<li><a translate="no" href="https://soundcloud.com/feedfreq" target="_blank" rel="noopener">https://soundcloud.com/feedfreq</a></li>' +
+    '<li><a translate="no" href="https://www.ambientmann.com/" target="_blank" rel="noopener">https://www.ambientmann.com/</a></li>' +
+    '</ul>' +
+    '<p class="muted">This email is &ldquo;Out Of Bounds&rdquo; &ndash; <a translate="no" href="mailto:noah@radioq37.com">noah@radioq37.com</a></p>';
 
   // Sosiale delelenker (server-beregnet, samme URL som deles).
   const eu = encodeURIComponent(pageUrl);
@@ -189,6 +216,21 @@ module.exports = async (req, res) => {
     '.topnav a{color:var(--text);font-weight:700;font-size:14px;text-decoration:none;padding:8px 12px;\n' +
     '  border-radius:10px;text-shadow:0 2px 14px rgba(2,4,12,.85),0 0 4px rgba(2,4,12,.7)}\n' +
     '.topnav a:hover{color:var(--accent);background:rgba(24,28,52,.5)}\n' +
+    // Om Ambient Mann – overlay-modal (samme innhold som forsiden).
+    '.about-ov{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;\n' +
+    '  background:rgba(2,4,12,.82);backdrop-filter:blur(6px);padding:18px}\n' +
+    '.about-ov.open{display:flex}\n' +
+    '.about-box{position:relative;width:100%;max-width:600px;max-height:82vh;overflow-y:auto;text-align:left;\n' +
+    '  background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:26px 22px;box-shadow:0 20px 60px rgba(0,0,0,.5)}\n' +
+    '.about-box h3{margin:0 0 14px;font-size:20px}\n' +
+    '.about-box p{margin:0 0 12px;line-height:1.6;color:var(--text)}\n' +
+    '.about-box a{color:var(--accent);word-break:break-word}\n' +
+    '.about-box .about-verse{font-style:italic;color:var(--accent)}\n' +
+    '.about-box .about-links{list-style:none;padding:0;margin:0 0 12px;display:flex;flex-direction:column;gap:6px}\n' +
+    '.about-box .muted{color:var(--muted)}\n' +
+    '.about-box .x{position:absolute;top:8px;right:12px;background:none;border:0;color:var(--muted);\n' +
+    '  font-size:26px;line-height:1;cursor:pointer}\n' +
+    '.about-box .x:hover{color:var(--accent)}\n' +
     'body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;\n' +
     '  background:radial-gradient(120% 80% at 50% 0%,rgba(0,0,0,0) 40%,rgba(2,4,12,.72) 100%)}\n' +
     // Ingen boks/skygge bak teksten – universet skal synes gjennom.
@@ -223,6 +265,7 @@ module.exports = async (req, res) => {
     '</style>\n</head>\n<body>\n' +
     '<canvas id="starfield"></canvas>\n' +
     '<header class="topbar"><nav class="topnav">' + nav + '</nav></header>\n' +
+    '<div class="about-ov" id="about-ov"><div class="about-box" translate="no">' + aboutInner + '</div></div>\n' +
     '<main class="card">\n' +
     '  <div class="cover" style="' + coverStyle + '">' + (cover ? '' : '♪') + '</div>\n' +
     '  <p class="brand" translate="no">Ambient Mann</p>\n' +
@@ -270,6 +313,13 @@ module.exports = async (req, res) => {
     '    else{var t=document.createElement("textarea");t.value=url;document.body.appendChild(t);t.select();document.execCommand("copy");t.remove();}\n' +
     '    hint.textContent="Lenke kopiert!";}catch(e){}}\n' +
     '  document.getElementById("copy").addEventListener("click",copy);\n' +
+    // Om Ambient Mann – åpne/lukke overlay.
+    '  var ab=document.getElementById("about-ov"),abBtn=document.querySelector(".topnav-about");\n' +
+    '  if(ab&&abBtn){var abClose=function(){ab.classList.remove("open");};\n' +
+    '    abBtn.addEventListener("click",function(e){e.preventDefault();ab.classList.add("open");});\n' +
+    '    ab.querySelector(".x").addEventListener("click",abClose);\n' +
+    '    ab.addEventListener("click",function(e){if(e.target===ab)abClose();});\n' +
+    '    document.addEventListener("keydown",function(e){if(e.key==="Escape")abClose();});}\n' +
     '})();\n' +
     // Bevegelig stjernehimmel – samme effekt som forsiden (js/starfield.js).
     '(function(){\n' +

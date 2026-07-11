@@ -130,6 +130,20 @@
     });
   }
 
+  // ---- Om Ambient Mann (modal) -------------------------------------------
+  function wireAbout() {
+    const overlay = document.getElementById('about-modal');
+    if (!overlay) return;
+    const close = () => overlay.classList.remove('open');
+    UI.$all('.about-btn').forEach(a => a.addEventListener('click', (e) => {
+      e.preventDefault(); overlay.classList.add('open');
+    }));
+    const x = document.getElementById('about-modal-close');
+    if (x) x.addEventListener('click', close);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+  }
+
   // ---- Nav toggle (mobil) -------------------------------------------------
   function wireNav() {
     const t = document.getElementById('nav-toggle'), nav = document.getElementById('nav');
@@ -142,6 +156,7 @@
     wireCredits();
     wireBooking();
     wireContact();
+    wireAbout();
     wireNav();
     Owner.bind();
     Guest.bind();
