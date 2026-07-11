@@ -148,7 +148,7 @@
   function wireNav() {
     const t = document.getElementById('nav-toggle'), nav = document.getElementById('nav');
     if (t && nav) t.addEventListener('click', () => nav.classList.toggle('open'));
-    UI.$all('#nav a').forEach(a => a.addEventListener('click', () => nav && nav.classList.remove('open')));
+    UI.$all('#nav a, #nav .btn').forEach(a => a.addEventListener('click', () => nav && nav.classList.remove('open')));
   }
 
   async function boot() {
