@@ -289,7 +289,7 @@ module.exports = async (req, res) => {
     '  <div class="cover" style="' + coverStyle + '">' + (cover ? '' : '♪') + '</div>\n' +
     '  <p class="brand" translate="no">Ambient Mann</p>\n' +
     '  <h1>' + title + '</h1>\n' +
-    '  <audio id="a" controls autoplay playsinline preload="auto" src="' + esc(audioUrl) + '"></audio>\n' +
+    '  <audio id="a" controls controlsList="nodownload noplaybackrate" disablePictureInPicture autoplay playsinline preload="auto" src="' + esc(audioUrl) + '"></audio>\n' +
     '  <p class="hint" id="hint"></p>\n' +
     '  <div class="row">\n' +
     '    <button class="btn btn-primary" id="share">Del</button>\n' +

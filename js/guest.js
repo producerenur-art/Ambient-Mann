@@ -78,7 +78,7 @@ window.Guest = (function () {
         : '<span class="badge">Strøm</span>';
       return '<div class="card guest-stream-card">' +
         '<div class="gs-head"><b translate="no" class="notranslate">' + UI.esc(s.guestName || 'Gjest') + '</b> ' + badge + '</div>' +
-        '<audio class="gs-audio" controls preload="none" src="' + UI.esc(s.url) + '"></audio>' +
+        '<audio class="gs-audio" controls controlsList="nodownload noplaybackrate" disablePictureInPicture preload="none" src="' + UI.esc(s.url) + '"></audio>' +
       '</div>';
     }).join('');
   }
@@ -123,7 +123,7 @@ window.Guest = (function () {
       return '<div class="track-row guest-track-row">' + cov +
         '<div class="track-meta"><div class="track-title">' + UI.esc(t.title || 'Spor') + '</div>' +
         '<div class="track-sub"><span translate="no" class="notranslate">' + UI.esc(t.guestName || 'Gjest') + '</span></div></div>' +
-        '<audio class="gt-audio" controls preload="none" src="' + UI.esc(t.url) + '"></audio>' + del +
+        '<audio class="gt-audio" controls controlsList="nodownload noplaybackrate" disablePictureInPicture preload="none" src="' + UI.esc(t.url) + '"></audio>' + del +
       '</div>';
     }).join('');
     UI.$all('[data-gdel-track]', wrap).forEach(b =>
