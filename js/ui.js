@@ -1,6 +1,6 @@
 /* =========================================================================
  * AMBIENT MANN — små UI-hjelpere (toast, ikoner, escaping)
- * Gir de gjenbrukte modulene (chat/linkpreview) et lite felles grunnlag,
+ * Gir de gjenbrukte modulene (linkpreview m.fl.) et lite felles grunnlag,
  * uten hele SoundCore-appen bak seg.
  * ========================================================================= */
 window.UI = (function () {
@@ -30,9 +30,9 @@ window.UI = (function () {
     toastTimer = setTimeout(() => el.classList.remove('show'), ms || 3600);
   }
 
-  // Enkelt emoji-ikonsett (chat.js/andre kaller Icon()).
+  // Enkelt emoji-ikonsett (modulene kaller Icon()).
   const ICONS = {
-    play: '▶', pause: '⏸', live: '🔴', chat: '💬', close: '×',
+    play: '▶', pause: '⏸', live: '🔴', close: '×',
     music: '♪', star: '✦', mail: '✉', heart: '♥', link: '🔗', upload: '⬆',
   };
   function Icon(name) { return ICONS[name] || '✦'; }

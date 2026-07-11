@@ -11,7 +11,11 @@
   const ctx = canvas.getContext('2d');
 
   let w, h, dpr, stars = [], nebulae = [];
-  const STAR_COUNT = 220;
+  // Færre stjerner på små skjermer (mobil) – sparer batteri/CPU uten synlig tap.
+  const reduceMotion = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  function starCount() {
+    return Math.max(70, Math.min(220, Math.round((innerWidth * innerHeight) / 9000)));
+  }
 
   // Sjeldne stjerneskudd (meteorer) som streifer over innimellom.
   let shooting = [];
@@ -44,7 +48,8 @@
 
   function build() {
     stars = [];
-    for (let i = 0; i < STAR_COUNT; i++) {
+    const count = starCount();
+    for (let i = 0; i < count; i++) {
       stars.push({
         x: Math.random() * w,
         y: Math.random() * h,
@@ -107,10 +112,17 @@
       ctx.fillStyle = `rgba(255,255,255,${al})`; ctx.fill();
       if (m.life <= 0 || m.x < -m.len || m.x > w + m.len || m.y > h + m.len) shooting.splice(i, 1);
     }
-    requestAnimationFrame(frame);
   }
 
+  // Driver: pause når fanen er skjult (sparer batteri på mobil) og start igjen
+  // når den er synlig. Ved «reduser bevegelse» tegner vi bare ett stille bilde.
+  let rafId = null;
+  function tick() { frame(); rafId = requestAnimationFrame(tick); }
+  function start() { if (rafId == null && !reduceMotion) tick(); }
+  function stop() { if (rafId != null) { cancelAnimationFrame(rafId); rafId = null; } }
+
   addEventListener('resize', resize);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); else start(); });
   resize();
-  frame();
+  if (reduceMotion) frame(); else start();
 })();

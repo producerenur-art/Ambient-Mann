@@ -56,9 +56,6 @@ window.AM_CONFIG = {
   SUPABASE_ANON_KEY: 'sb_publishable_vTCGDnn574IUQPkAnmBwdw_EpB8GWD6',
   SUPABASE_BUCKET: 'ambient-mann-media',
 
-  /* ---- CHAT (Gun.js, desentralisert – ingen server) ------------------- */
-  gunPeers: ['https://relay.peer.ooo/gun', 'https://gun.defucc.me/gun'],
-
   /* ---- LENKER (logoer nederst + podcast/web-radio) -------------------- */
   links: {
     // Portrettbildet (silhuetten) → Ambient Manns bibliotek
