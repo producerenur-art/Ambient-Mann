@@ -1,0 +1,13 @@
+# Løse rot-filer / bilder som ikke er en del av nettstedet (skal ikke deployes)
+*.jpeg
+*.jpg
+*.png
+*.webp
+*.gr
+AM
+docs/
+_unused/
+
+# Behold nødvendige bilder i assets/ (ikke ekskludert – de ligger i assets/)
+!assets/**
+!manifest.json
