@@ -194,9 +194,11 @@ module.exports = async (req, res) => {
       '<img src="' + esc(g[1]) + '" alt="' + esc(g[3]) + '"></a>';
   }).join('');
 
-  const html = '<!doctype html>\n<html lang="no">\n<head>\n' +
+  const html = '<!doctype html>\n<html lang="no" translate="no">\n<head>\n' +
     '<meta charset="utf-8">\n' +
     '<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
+    // Skru av Chrome/Google sitt AUTOMATISKE oversettelses-tilbud (samme som forsiden).
+    '<meta name="google" content="notranslate">\n' +
     '<title>' + title + ' · Ambient Mann</title>\n' +
     '<meta name="description" content="' + esc(desc) + '">\n' +
     '<link rel="canonical" href="' + esc(pageUrl) + '">\n' +
@@ -216,6 +218,20 @@ module.exports = async (req, res) => {
     '.topnav a{color:var(--text);font-weight:700;font-size:14px;text-decoration:none;padding:8px 12px;\n' +
     '  border-radius:10px;text-shadow:0 2px 14px rgba(2,4,12,.85),0 0 4px rgba(2,4,12,.7)}\n' +
     '.topnav a:hover{color:var(--accent);background:rgba(24,28,52,.5)}\n' +
+    // Språkvelger (Google Translate) – samme som forsiden, festet øverst til høyre.
+    '.topbar-lang{position:fixed;top:10px;right:12px;z-index:6}\n' +
+    '.lang-picker{background:rgba(16,20,38,.9);color:var(--text);border:1px solid var(--line);\n' +
+    '  border-radius:12px;padding:9px 12px;font-weight:600;font-size:14px;cursor:pointer;\n' +
+    '  max-width:160px;appearance:none;-webkit-appearance:none}\n' +
+    '.lang-picker:hover{border-color:var(--accent)}\n' +
+    '.lang-picker option{background:#0a0f2a;color:var(--text)}\n' +
+    // Skjul Googles egen widget-UI (banner/tooltip/uthevning) – vi bruker vår egen.
+    '#google_translate_element{display:none}\n' +
+    '.goog-te-banner-frame,.goog-te-gadget-icon,#goog-gt-tt,.goog-tooltip,.goog-tooltip *{display:none !important}\n' +
+    '.VIpgJd-ZVi9od-ORHb-OEVmcd,body>.skiptranslate{display:none !important}\n' +
+    '.goog-te-gadget{height:0;overflow:hidden}\n' +
+    'body{top:0 !important}\n' +
+    '.goog-text-highlight{background:none !important;box-shadow:none !important}\n' +
     // Om Ambient Mann – overlay-modal (samme innhold som forsiden).
     '.about-ov{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;\n' +
     '  background:rgba(2,4,12,.82);backdrop-filter:blur(6px);padding:18px}\n' +
@@ -265,6 +281,9 @@ module.exports = async (req, res) => {
     '</style>\n</head>\n<body>\n' +
     '<canvas id="starfield"></canvas>\n' +
     '<header class="topbar"><nav class="topnav">' + nav + '</nav></header>\n' +
+    // Språkvelger – oversetter hele siden (standard: engelsk), samme som forsiden.
+    '<div class="topbar-lang"><select id="lang-picker" class="lang-picker notranslate" translate="no" aria-label="Velg språk / Choose language"></select></div>\n' +
+    '<div id="google_translate_element" aria-hidden="true"></div>\n' +
     '<div class="about-ov" id="about-ov"><div class="about-box" translate="no">' + aboutInner + '</div></div>\n' +
     '<main class="card">\n' +
     '  <div class="cover" style="' + coverStyle + '">' + (cover ? '' : '♪') + '</div>\n' +
@@ -366,7 +385,12 @@ module.exports = async (req, res) => {
     '    requestAnimationFrame(frame);}\n' +
     '  addEventListener("resize",resize);resize();frame();\n' +
     '})();\n' +
-    '</script>\n</body>\n</html>';
+    '</script>\n' +
+    // Språkvelger + Google Translate – samme oppsett/oppførsel som forsiden
+    // (standard engelsk, valg lagret i cookie, merkenavn-vern «Ambient Mann»).
+    '<script src="/js/lang.js"></script>\n' +
+    '<script src="https://translate.google.com/translate_a/element.js?cb=amGoogleTranslateInit"></script>\n' +
+    '</body>\n</html>';
 
   res.statusCode = 200;
   return res.end(html);
