@@ -131,6 +131,23 @@ module.exports = async (req, res) => {
     return '<a href="' + esc(l.url) + '" target="_blank" rel="noopener noreferrer">' + esc(l.name || l.url) + ' ↗</a>';
   }).join('');
 
+  // Bunn-logoer – samme rekke som forsiden (index.html .logo-strip), så den
+  // følger med på alle spor-sider (/track/...). Bildene ligger på samme domene.
+  const LOGOS = [
+    ['https://radioq37.com/artist/ambient-mann/', '/assets/ambient-mann-portrait.jpg', 'Ambient Mann på radioq37', 'Ambient Mann — radioq37'],
+    ['https://app.bigfreq.com/communities/groups/feedfreq-public/home', '/assets/feedfreq-logo.png', 'FeedFreq', 'FeedFreq'],
+    ['https://soundcloud.com/feedfreq', '/assets/soundcloud-logo.svg', 'SoundCloud — feedfreq', 'SoundCloud'],
+    ['https://www.psybient.org/', '/assets/psybient-logo.png', 'psybient.org', 'psybient.org'],
+    ['https://diceradio.gr/', '/assets/diceradio-logo.png', 'Dice Radio', 'Dice Radio'],
+    ['https://trancentral.tv/', '/assets/trancentral-logo.png', 'Trancentral', 'Trancentral'],
+    ['https://ra.co/clubs/212119', '/assets/it-athens-logo.png', 'IT Athens — Wake the Beat', 'IT Athens'],
+    ['https://www.newmessage.org/', '/assets/newmessage-logo.png', 'The New Message From God', 'The New Message From God'],
+  ];
+  const logoStrip = LOGOS.map(function (g) {
+    return '<a class="brand-logo" target="_blank" rel="noopener" title="' + esc(g[2]) + '" href="' + esc(g[0]) + '">' +
+      '<img src="' + esc(g[1]) + '" alt="' + esc(g[3]) + '"></a>';
+  }).join('');
+
   const html = '<!doctype html>\n<html lang="no">\n<head>\n' +
     '<meta charset="utf-8">\n' +
     '<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
@@ -171,6 +188,12 @@ module.exports = async (req, res) => {
     '.soc{font-size:13px;font-weight:600;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:7px 13px;text-decoration:none}\n' +
     '.soc:hover{color:var(--accent);border-color:var(--accent)}\n' +
     '.back{display:inline-block;margin-top:16px;color:var(--muted);font-size:13px}\n' +
+    // Bunn-logoer – samme rekke som forsiden, tilpasset det smalere kortet.
+    '.logo-strip{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:center;\n' +
+    '  margin-top:26px;padding-top:20px;border-top:1px solid var(--line)}\n' +
+    '.brand-logo{display:inline-flex;opacity:.82;transition:opacity .2s,transform .2s}\n' +
+    '.brand-logo:hover{opacity:1;transform:translateY(-2px)}\n' +
+    '.brand-logo img{height:40px;width:auto;max-width:96px;object-fit:contain;border-radius:8px}\n' +
     // Samme fellesskaps-chat som forsiden (delt Gun-rom på tvers av alle sider).
     '.chat-fab{position:fixed;right:16px;bottom:16px;z-index:41;padding:11px 16px;border-radius:999px;border:0;\n' +
     '  cursor:pointer;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0a0f2a}\n' +
@@ -218,6 +241,7 @@ module.exports = async (req, res) => {
     '  <div class="social">' + social + '</div>\n' +
     '  <div class="labels">' + labels + '</div>\n' +
     '  <a class="back" href="' + esc(origin) + '/">← <span translate="no">Ambient Mann</span></a>\n' +
+    '  <section class="logo-strip">' + logoStrip + '</section>\n' +
     '</main>\n' +
     '<button class="chat-fab" id="chat-fab">💬 Chat</button>\n' +
     '<div class="chat-panel" id="chat-panel">\n' +
