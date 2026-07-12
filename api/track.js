@@ -135,12 +135,13 @@ module.exports = async (req, res) => {
     '&body=' + encodeURIComponent('Hei Ambient Mann,\n\nVi ønsker å booke deg. Her er detaljene:\n\nDato/sted:\nType arrangement:\nKontaktperson:\n\nMvh');
   const navItems = [
     ['Kontakt', contactMail, ''],
-    ['✉ Send booking-forespørsel', bookingMail, 'topnav-book'],
     ['Donasjon', '#donasjon', ''],
     ['Lenker', '#links', ''],
     ['Plateselskaper', '#plateselskaper', ''],
   ];
-  const nav = '<a href="#" class="topnav-about">Om</a>' +
+  const nav = '<a href="' + esc(bookingMail) + '" class="topnav-book">' +
+      esc('✉ Send booking-forespørsel') + '</a>' +
+    '<a href="#" class="topnav-about">Om</a>' +
     navItems.map(function (n) {
       var cls = n[2] ? ' class="' + n[2] + '"' : '';
       return '<a href="' + esc(n[1]) + '"' + cls + '>' + esc(n[0]) + '</a>';
