@@ -110,14 +110,23 @@ window.Tracks = (function () {
         '</div>';
       }).join('');
     }
-    UI.$all('[data-play]', wrap).forEach(el =>
-      el.addEventListener('click', () => play(parseInt(el.getAttribute('data-play'), 10))));
-    UI.$all('[data-share]', wrap).forEach(b =>
-      b.addEventListener('click', (ev) => { ev.stopPropagation(); share(parseInt(b.getAttribute('data-share'), 10)); }));
-    UI.$all('[data-copy]', wrap).forEach(b =>
-      b.addEventListener('click', (ev) => { ev.stopPropagation(); copyLink(parseInt(b.getAttribute('data-copy'), 10)); }));
-    UI.$all('[data-rm]', wrap).forEach(b =>
-      b.addEventListener('click', (ev) => { ev.stopPropagation(); del(parseInt(b.getAttribute('data-rm'), 10)); }));
+    // Én felles klikk-håndtering (event-delegering) som festes bare én gang.
+    // renderList() kjøres på hver play/pause, så vi må IKKE feste nye lyttere hver
+    // gang (det ville doblet avspillingen). Et klikk hvor som helst på raden –
+    // cover-bildet, tittelen eller ▶ – spiller av sporet én gang, med en gang.
+    if (!wrap._delegated) {
+      wrap._delegated = true;
+      wrap.addEventListener('click', (ev) => {
+        const s = ev.target.closest('[data-share]');
+        if (s) { share(parseInt(s.getAttribute('data-share'), 10)); return; }
+        const c = ev.target.closest('[data-copy]');
+        if (c) { copyLink(parseInt(c.getAttribute('data-copy'), 10)); return; }
+        const r = ev.target.closest('[data-rm]');
+        if (r) { del(parseInt(r.getAttribute('data-rm'), 10)); return; }
+        const p = ev.target.closest('[data-play]');
+        if (p) { play(parseInt(p.getAttribute('data-play'), 10)); }
+      });
+    }
     Owner.applyVisibility();
   }
 
