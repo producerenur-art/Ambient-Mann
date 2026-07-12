@@ -139,7 +139,8 @@ module.exports = async (req, res) => {
     ['Lenker', '#links', ''],
     ['Plateselskaper', '#plateselskaper', ''],
   ];
-  const nav = '<a href="' + esc(bookingMail) + '" class="topnav-book">' +
+  const nav = '<a href="/" class="topnav-home">⌂ Hjem</a>' +
+    '<a href="' + esc(bookingMail) + '" class="topnav-book">' +
       esc('✉ Send booking-forespørsel') + '</a>' +
     '<a href="#" class="topnav-about">Om</a>' +
     navItems.map(function (n) {
