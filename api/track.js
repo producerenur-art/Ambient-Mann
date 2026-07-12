@@ -124,25 +124,16 @@ module.exports = async (req, res) => {
   // Toppmeny – samme valg som forsiden (index.html .nav). Her på spor-sidene
   // peker Donasjon / Lenker / Plateselskaper på seksjoner LENGER NEDE på DENNE
   // siden (anker på samme side), slik at man blir værende på sporets URL i
-  // stedet for å bli sendt til forsiden. Kontakt = e-post (samme som forsiden).
-  const contactMail = 'mailto:aon_h@mailfence.com' +
-    '?subject=' + encodeURIComponent('Kontakt — Ambient Mann') +
-    '&body=' + encodeURIComponent('Hei Ambient Mann,\n\n');
-  // Booking (gratis, via e-post) – samme mottaker/tekst som forsiden
-  // (js/config.js bookingEmails/-Subject/-Body), tilgjengelig fra hver spor-side.
-  const bookingMail = 'mailto:yaniv@reply.bigfreq.com' +
-    '?subject=' + encodeURIComponent('Booking — Ambient Mann') +
-    '&body=' + encodeURIComponent('Hei Ambient Mann,\n\nVi ønsker å booke deg. Her er detaljene:\n\nDato/sted:\nType arrangement:\nKontaktperson:\n\nMvh');
+  // stedet for å bli sendt til forsiden.
+  // Toppmenyen på spor-sidene: Hjem + Donasjon/Lenker/Plateselskaper (som peker
+  // på seksjoner lenger nede på DENNE siden). Om, Kontakt og «Send booking» hører
+  // kun hjemme på forsiden, så de er bevisst utelatt her.
   const navItems = [
-    ['Kontakt', contactMail, ''],
     ['Donasjon', '#donasjon', ''],
     ['Lenker', '#links', ''],
     ['Plateselskaper', '#plateselskaper', ''],
   ];
   const nav = '<a href="/" class="topnav-home" target="_blank" rel="noopener">⌂ Hjem</a>' +
-    '<a href="' + esc(bookingMail) + '" class="topnav-book">' +
-      esc('✉ Send booking-forespørsel') + '</a>' +
-    '<a href="#" class="topnav-about">Om</a>' +
     navItems.map(function (n) {
       var cls = n[2] ? ' class="' + n[2] + '"' : '';
       return '<a href="' + esc(n[1]) + '"' + cls + '>' + esc(n[0]) + '</a>';
