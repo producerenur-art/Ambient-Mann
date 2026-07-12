@@ -408,16 +408,21 @@ module.exports = async (req, res) => {
     '  a.addEventListener("timeupdate",saveResume);a.addEventListener("pause",saveResume);\n' +
     '  var backLink=document.querySelector(".back");\n' +
     '  if(backLink)backLink.addEventListener("click",function(){saveResume();try{localStorage.setItem("am_track_resume_go","1");}catch(e){}});\n' +
-    '  function tryPlay(){return a.play();}\n' +
-    '  var p=tryPlay();\n' +
+    // Autoplay: prøv med lyd først. Blokkerer nettleseren det (vanlig i en ny
+    // fane uten brukertrykk), starter vi LIKEVEL med en gang – men dempet, som
+    // alltid er tillatt – og slår på lyden ved første trykk/tast. Da spilles
+    // sporet av umiddelbart, uten å måtte trykke play manuelt.
+    '  var p=a.play();\n' +
     '  if(p&&p.catch){p.catch(function(){\n' +
-    '    hint.textContent="Trykk hvor som helst for å spille";\n' +
-    '    var kick=function(){a.play().then(function(){hint.textContent="";}).catch(function(){});\n' +
-    '      document.removeEventListener("pointerdown",kick);document.removeEventListener("keydown",kick);};\n' +
-    '    document.addEventListener("pointerdown",kick,{once:true});\n' +
-    '    document.addEventListener("keydown",kick,{once:true});\n' +
+    '    a.muted=true;\n' +
+    '    a.play().catch(function(){});\n' +
+    '    hint.textContent="🔊 Trykk hvor som helst for lyd";\n' +
+    '    var unmute=function(){a.muted=false;if(a.paused){a.play().catch(function(){});}hint.textContent="";\n' +
+    '      document.removeEventListener("pointerdown",unmute);document.removeEventListener("keydown",unmute);};\n' +
+    '    document.addEventListener("pointerdown",unmute,{once:true});\n' +
+    '    document.addEventListener("keydown",unmute,{once:true});\n' +
     '  });}\n' +
-    '  a.addEventListener("playing",function(){hint.textContent="";});\n' +
+    '  a.addEventListener("playing",function(){if(!a.muted){hint.textContent="";}});\n' +
     '  document.getElementById("share").addEventListener("click",async function(){\n' +
     '    var data={title:"Ambient Mann — "+title,text:"Hør «"+title+"» hos Ambient Mann",url:url};\n' +
     '    if(navigator.share){try{await navigator.share(data);return;}catch(e){if(e&&e.name==="AbortError")return;}}\n' +
