@@ -102,9 +102,13 @@ window.Tracks = (function () {
         const share = hasLink ? '<button class="track-share" data-share="' + i + '" title="Del sporet" aria-label="Del sporet">🔗</button>' : '';
         const cov = t.coverUrl ? '<span class="track-cover" style="background-image:url(\'' + UI.esc(t.coverUrl) + '\')"></span>'
                                : '<span class="track-cover empty">♪</span>';
-        return '<div class="track-row' + (i === current ? ' playing' : '') + '" data-play="' + i + '">' +
+        // Har sporet egen delbar side? Da åpner klikk på cover/tittel den URL-en
+        // (/track/<navn>) i ny fane, hvor sporet autospiller. ▶-knappen spiller
+        // fortsatt av lokalt i spilleren over. Uten egen side: klikk = lokal play.
+        const rowAttr = hasLink ? ' data-open="' + UI.esc(trackUrl(t)) + '"' : ' data-play="' + i + '"';
+        return '<div class="track-row' + (i === current ? ' playing' : '') + '"' + rowAttr + '>' +
           cov +
-          '<button class="track-play" data-play="' + i + '">' + (playing ? '⏸' : '▶') + '</button>' +
+          '<button class="track-play" data-play="' + i + '" title="Spill av her" aria-label="Spill av her">' + (playing ? '⏸' : '▶') + '</button>' +
           '<div class="track-meta"><div class="track-title">' + UI.esc(t.title || ('Spor ' + (i + 1))) + '</div>' +
           '<div class="track-sub">' + UI.esc(fmtSize(t.size)) + '</div></div>' + copy + share + del +
         '</div>';
@@ -124,7 +128,9 @@ window.Tracks = (function () {
         const r = ev.target.closest('[data-rm]');
         if (r) { del(parseInt(r.getAttribute('data-rm'), 10)); return; }
         const p = ev.target.closest('[data-play]');
-        if (p) { play(parseInt(p.getAttribute('data-play'), 10)); }
+        if (p) { play(parseInt(p.getAttribute('data-play'), 10)); return; }
+        const o = ev.target.closest('[data-open]');
+        if (o) { window.open(o.getAttribute('data-open'), '_blank', 'noopener'); }
       });
     }
     Owner.applyVisibility();
