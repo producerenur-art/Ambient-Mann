@@ -194,6 +194,34 @@ module.exports = async (req, res) => {
       '<img src="' + esc(g[1]) + '" alt="' + esc(g[3]) + '"></a>';
   }).join('');
 
+  // Donasjon (frivillig) – samme sammenleggbare blokk som nederst på forsiden,
+  // så folk kan støtte Ambient Mann direkte fra hver spor-side også. Vipps
+  // åpner appen mot mottakernummeret; kort går via /api/create-checkout (Stripe),
+  // som sender tilbake til forsiden med takke-melding etter fullført betaling.
+  const vippsNumber = '97253713';
+  const vippsHref = 'https://qr.vipps.no/28/2/03/031/' + encodeURIComponent(vippsNumber);
+  const donation =
+    '<section class="don-block">' +
+    '<details class="don-details">' +
+    '<summary class="don-summary"><h2>Donasjon</h2><span class="don-toggle" aria-hidden="true"></span></summary>' +
+    '<div class="don-card">' +
+    '<div class="don-presets">' +
+    '<button class="don-preset" type="button" data-kr="100">100 kr</button>' +
+    '<button class="don-preset" type="button" data-kr="200">200 kr</button>' +
+    '<button class="don-preset" type="button" data-kr="500">500 kr</button>' +
+    '</div>' +
+    '<div class="don-custom"><label for="don-amount">Beløp (kr)</label>' +
+    '<input id="don-amount" type="number" min="20" max="10000" value="100"></div>' +
+    '<div class="don-actions">' +
+    '<button class="btn btn-primary" type="button" id="don-stripe">💳 Doner med kort</button>' +
+    '<a class="btn btn-vipps" id="don-vipps" href="' + esc(vippsHref) + '" target="_blank" rel="noopener">Doner med Vipps</a>' +
+    '</div>' +
+    '<div class="don-qr"><a href="' + esc(vippsHref) + '" target="_blank" rel="noopener">' +
+    '<img src="/assets/vipps-qr.png" alt="Vipps-QR – doner til Ambient Mann" width="160" height="160" loading="lazy"></a>' +
+    '<p class="don-qr-cap">Skann med mobilen for å donere via Vipps</p></div>' +
+    '<p class="don-note">Vipps åpnes automatisk med riktig mottaker (<span translate="no">Ambient Mann</span>).</p>' +
+    '</div></details></section>';
+
   const html = '<!doctype html>\n<html lang="no" translate="no">\n<head>\n' +
     '<meta charset="utf-8">\n' +
     '<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
@@ -278,6 +306,35 @@ module.exports = async (req, res) => {
     '.brand-logo{display:inline-flex;opacity:.82;transition:opacity .2s,transform .2s}\n' +
     '.brand-logo:hover{opacity:1;transform:translateY(-2px)}\n' +
     '.brand-logo img{height:40px;width:auto;max-width:96px;object-fit:contain;border-radius:8px}\n' +
+    // Donasjon – sammenleggbar blokk nederst, samme stil som forsiden.
+    '.don-block{width:100%;max-width:420px;margin:26px auto 0;padding-top:20px;border-top:1px solid var(--line)}\n' +
+    '.don-details{text-align:left}\n' +
+    '.don-summary{display:flex;align-items:center;justify-content:center;gap:12px;cursor:pointer;\n' +
+    '  list-style:none;user-select:none}\n' +
+    '.don-summary::-webkit-details-marker{display:none}\n' +
+    '.don-summary h2{font-size:20px;margin:0}\n' +
+    '.don-toggle{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;\n' +
+    '  border-radius:8px;border:1px solid var(--line);background:rgba(24,28,52,.6);color:var(--text);\n' +
+    '  font-size:16px;line-height:1;font-weight:700}\n' +
+    '.don-toggle::before{content:"+"}\n' +
+    '.don-details[open] .don-toggle::before{content:"–"}\n' +
+    '.don-summary:hover .don-toggle{border-color:var(--accent)}\n' +
+    '.don-card{margin-top:14px}\n' +
+    '.don-presets{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:12px}\n' +
+    '.don-preset{padding:10px 16px;border-radius:11px;border:1px solid var(--line);\n' +
+    '  background:rgba(24,28,52,.6);color:var(--text);font-weight:700;cursor:pointer}\n' +
+    '.don-preset.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0a0f2a;border:0}\n' +
+    '.don-custom{max-width:220px;margin:0 auto}\n' +
+    '.don-custom label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}\n' +
+    '.don-custom input{width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--line);\n' +
+    '  background:rgba(16,20,38,.72);color:var(--text);font-size:15px}\n' +
+    '.don-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:14px}\n' +
+    '.btn-vipps{background:#ff5b24;color:#fff;border:0}\n' +
+    '.don-qr{margin-top:16px;text-align:center}\n' +
+    '.don-qr img{display:block;margin:0 auto;width:160px;height:160px;border-radius:12px;\n' +
+    '  background:#fff;padding:8px;border:1px solid var(--line)}\n' +
+    '.don-qr-cap{margin:8px 0 0;font-size:13px;color:var(--muted)}\n' +
+    '.don-note{font-size:13px;color:var(--muted);margin-top:12px;text-align:center}\n' +
     '</style>\n</head>\n<body>\n' +
     '<canvas id="starfield"></canvas>\n' +
     '<header class="topbar"><nav class="topnav">' + nav + '</nav></header>\n' +
@@ -299,6 +356,7 @@ module.exports = async (req, res) => {
     '  <div class="labels">' + labels + '</div>\n' +
     '  <a class="back" href="' + esc(origin) + '/">← <span translate="no">Ambient Mann</span></a>\n' +
     '  <section class="logo-strip">' + logoStrip + '</section>\n' +
+    '  ' + donation + '\n' +
     '</main>\n' +
     '<script>\n' +
     '(function(){\n' +
@@ -339,6 +397,30 @@ module.exports = async (req, res) => {
     '    ab.querySelector(".x").addEventListener("click",abClose);\n' +
     '    ab.addEventListener("click",function(e){if(e.target===ab)abClose();});\n' +
     '    document.addEventListener("keydown",function(e){if(e.key==="Escape")abClose();});}\n' +
+    // Donasjon – forhåndsvalg + kortbetaling (Stripe). Vipps er en ren lenke.
+    '  var amt=document.getElementById("don-amount");\n' +
+    '  if(amt){\n' +
+    '    var clampKr=function(k){k=Math.round(k)||0;return Math.max(20,Math.min(10000,k));};\n' +
+    '    var presets=[].slice.call(document.querySelectorAll(".don-preset"));\n' +
+    '    var setAmt=function(k){k=clampKr(k);amt.value=k;presets.forEach(function(b){\n' +
+    '      b.classList.toggle("active",parseInt(b.getAttribute("data-kr"),10)===k);});};\n' +
+    '    presets.forEach(function(b){b.addEventListener("click",function(){\n' +
+    '      setAmt(parseInt(b.getAttribute("data-kr"),10));});});\n' +
+    '    amt.addEventListener("input",function(){presets.forEach(function(b){b.classList.remove("active");});});\n' +
+    '    setAmt(100);\n' +
+    '    var st=document.getElementById("don-stripe");\n' +
+    '    if(st)st.addEventListener("click",async function(){\n' +
+    '      var kr=clampKr(parseInt(amt.value,10)||100);st.disabled=true;\n' +
+    '      try{var r=await fetch("/api/create-checkout",{method:"POST",\n' +
+    '        headers:{"Content-Type":"application/json"},body:JSON.stringify({product:"donation",amountKr:kr})});\n' +
+    '        if(r.status===503){alert("Kortbetaling er ikke satt opp ennå – bruk Vipps så lenge.");return;}\n' +
+    '        var d=await r.json().catch(function(){return{};});\n' +
+    '        if(r.ok&&d.url){window.location.href=d.url;return;}\n' +
+    '        alert(d.error||"Kunne ikke starte betaling.");\n' +
+    '      }catch(e){alert("Kortbetaling er ikke tilgjengelig her – bruk Vipps.");}\n' +
+    '      finally{st.disabled=false;}\n' +
+    '    });\n' +
+    '  }\n' +
     '})();\n' +
     // Bevegelig stjernehimmel – samme effekt som forsiden (js/starfield.js).
     '(function(){\n' +
