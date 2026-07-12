@@ -133,7 +133,7 @@ module.exports = async (req, res) => {
     ['Lenker', '#links', ''],
     ['Plateselskaper', '#plateselskaper', ''],
   ];
-  const nav = '<a href="/" class="topnav-home" target="_blank" rel="noopener">⌂ Hjem</a>' +
+  const nav = '<a href="/" class="topnav-home">⌂ Hjem</a>' +
     navItems.map(function (n) {
       var cls = n[2] ? ' class="' + n[2] + '"' : '';
       return '<a href="' + esc(n[1]) + '"' + cls + '>' + esc(n[0]) + '</a>';
@@ -397,8 +397,14 @@ module.exports = async (req, res) => {
     '  function saveResume(){try{localStorage.setItem("am_track_resume",JSON.stringify(\n' +
     '    {id:tid,slug:tslug,time:a.currentTime||0,playing:!a.paused,ts:Date.now()}));}catch(e){}}\n' +
     '  a.addEventListener("timeupdate",saveResume);a.addEventListener("pause",saveResume);\n' +
+    // «← tilbake»-lenka OG Home-knappen i toppmenyen tar deg til forsiden i
+    // SAMME fane og lar hovedspilleren fortsette dette sporet der du slapp:
+    // vi lagrer posisjon + et «fortsett»-flagg rett før man navigerer bort.
+    '  function goHome(){saveResume();try{localStorage.setItem("am_track_resume_go","1");}catch(e){}}\n' +
     '  var backLink=document.querySelector(".back");\n' +
-    '  if(backLink)backLink.addEventListener("click",function(){saveResume();try{localStorage.setItem("am_track_resume_go","1");}catch(e){}});\n' +
+    '  if(backLink)backLink.addEventListener("click",goHome);\n' +
+    '  var homeBtn=document.querySelector(".topnav-home");\n' +
+    '  if(homeBtn)homeBtn.addEventListener("click",goHome);\n' +
     // Autoplay: prøv med lyd først. Blokkerer nettleseren det (vanlig i en ny
     // fane uten brukertrykk), starter vi LIKEVEL med en gang – men dempet, som
     // alltid er tillatt – og slår på lyden ved første trykk/tast. Da spilles
