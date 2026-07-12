@@ -139,7 +139,7 @@ module.exports = async (req, res) => {
     ['Lenker', '#links', ''],
     ['Plateselskaper', '#plateselskaper', ''],
   ];
-  const nav = '<a href="/" class="topnav-home">⌂ Hjem</a>' +
+  const nav = '<a href="/" class="topnav-home" target="_blank" rel="noopener">⌂ Hjem</a>' +
     '<a href="' + esc(bookingMail) + '" class="topnav-book">' +
       esc('✉ Send booking-forespørsel') + '</a>' +
     '<a href="#" class="topnav-about">Om</a>' +
