@@ -128,15 +128,22 @@ module.exports = async (req, res) => {
   const contactMail = 'mailto:aon_h@mailfence.com' +
     '?subject=' + encodeURIComponent('Kontakt — Ambient Mann') +
     '&body=' + encodeURIComponent('Hei Ambient Mann,\n\n');
+  // Booking (gratis, via e-post) – samme mottaker/tekst som forsiden
+  // (js/config.js bookingEmails/-Subject/-Body), tilgjengelig fra hver spor-side.
+  const bookingMail = 'mailto:yaniv@reply.bigfreq.com' +
+    '?subject=' + encodeURIComponent('Booking — Ambient Mann') +
+    '&body=' + encodeURIComponent('Hei Ambient Mann,\n\nVi ønsker å booke deg. Her er detaljene:\n\nDato/sted:\nType arrangement:\nKontaktperson:\n\nMvh');
   const navItems = [
-    ['Kontakt', contactMail],
-    ['Donasjon', '#donasjon'],
-    ['Lenker', '#links'],
-    ['Plateselskaper', '#plateselskaper'],
+    ['Kontakt', contactMail, ''],
+    ['✉ Send booking-forespørsel', bookingMail, 'topnav-book'],
+    ['Donasjon', '#donasjon', ''],
+    ['Lenker', '#links', ''],
+    ['Plateselskaper', '#plateselskaper', ''],
   ];
   const nav = '<a href="#" class="topnav-about">Om</a>' +
     navItems.map(function (n) {
-      return '<a href="' + esc(n[1]) + '">' + esc(n[0]) + '</a>';
+      var cls = n[2] ? ' class="' + n[2] + '"' : '';
+      return '<a href="' + esc(n[1]) + '"' + cls + '>' + esc(n[0]) + '</a>';
     }).join('');
 
   // Om Ambient Mann – samme innhold som forsidens Om-modal, vist i en overlay
@@ -261,6 +268,10 @@ module.exports = async (req, res) => {
     '.topnav a{color:var(--text);font-weight:700;font-size:14px;text-decoration:none;padding:8px 12px;\n' +
     '  border-radius:10px;text-shadow:0 2px 14px rgba(2,4,12,.85),0 0 4px rgba(2,4,12,.7)}\n' +
     '.topnav a:hover{color:var(--accent);background:rgba(24,28,52,.5)}\n' +
+    // Booking-knapp – tydelig grønn/accent-pille (samme CTA som forsiden).
+    '.topnav a.topnav-book{background:linear-gradient(135deg,var(--accent),var(--accent2));\n' +
+    '  color:#0a0f2a;text-shadow:none}\n' +
+    '.topnav a.topnav-book:hover{color:#0a0f2a;filter:brightness(1.05)}\n' +
     // Språkvelger (Google Translate) – samme som forsiden, festet øverst til høyre.
     '.topbar-lang{position:fixed;top:10px;right:12px;z-index:6}\n' +
     '.lang-picker{background:rgba(16,20,38,.9);color:var(--text);border:1px solid var(--line);\n' +
