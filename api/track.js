@@ -63,10 +63,11 @@ module.exports = async (req, res) => {
 
   let track = null;
   let labelList = DEFAULT_LABELS;
+  let linkList = [];
   try {
     const c = sb();
     if (c) {
-      const { data } = await c.from('site_content').select('key,data').in('key', ['tracks', 'labels']);
+      const { data } = await c.from('site_content').select('key,data').in('key', ['tracks', 'labels', 'links']);
       const rows = {}; (data || []).forEach(r => { rows[r.key] = r.data; });
       const arr = Array.isArray(rows.tracks) ? rows.tracks : [];
       const want = slugify(id);
@@ -77,6 +78,9 @@ module.exports = async (req, res) => {
            || null;
       // Eierens lagrede plateselskaper (hvis satt) – ellers standardlista.
       labelList = normLabels(rows.labels) || DEFAULT_LABELS;
+      // Eierens lagrede lenker (podcast/web-radio o.l.) – vises i egen seksjon
+      // her på spor-siden, så «Lenker» i toppmenyen kan bli på samme side.
+      linkList = normLabels(rows.links) || [];
     }
   } catch (_) {}
 
@@ -117,17 +121,18 @@ module.exports = async (req, res) => {
 
   const coverStyle = cover ? "background-image:url('" + esc(cover) + "')" : '';
 
-  // Toppmeny – samme lenker som forsiden (index.html .nav), så man kommer rett
-  // til Kontakt / Donasjon / Lenker / Plateselskaper fra hver spor-side også.
-  // Kontakt = e-post (samme som js/config.js), de andre = anker på forsiden.
+  // Toppmeny – samme valg som forsiden (index.html .nav). Her på spor-sidene
+  // peker Donasjon / Lenker / Plateselskaper på seksjoner LENGER NEDE på DENNE
+  // siden (anker på samme side), slik at man blir værende på sporets URL i
+  // stedet for å bli sendt til forsiden. Kontakt = e-post (samme som forsiden).
   const contactMail = 'mailto:aon_h@mailfence.com' +
     '?subject=' + encodeURIComponent('Kontakt — Ambient Mann') +
     '&body=' + encodeURIComponent('Hei Ambient Mann,\n\n');
   const navItems = [
     ['Kontakt', contactMail],
-    ['Donasjon', origin + '/#donasjon'],
-    ['Lenker', origin + '/#links'],
-    ['Plateselskaper', origin + '/#plateselskaper'],
+    ['Donasjon', '#donasjon'],
+    ['Lenker', '#links'],
+    ['Plateselskaper', '#plateselskaper'],
   ];
   const nav = '<a href="#" class="topnav-about">Om</a>' +
     navItems.map(function (n) {
@@ -177,6 +182,16 @@ module.exports = async (req, res) => {
     return '<a href="' + esc(l.url) + '" target="_blank" rel="noopener noreferrer">' + esc(l.name || l.url) + ' ↗</a>';
   }).join('');
 
+  // Lenker (podcast / web-radio / SoundCloud o.l.) – eierens lagrede lenker, vist
+  // som navn → URL, slik at «Lenker» i toppmenyen kan peke hit på samme side.
+  const links = linkList.map(function (l) {
+    return '<a href="' + esc(l.url) + '" target="_blank" rel="noopener noreferrer">' + esc(l.name || l.url) + ' ↗</a>';
+  }).join('');
+  const linksSection = links
+    ? '<section class="link-section" id="links"><h2 class="section-h">Lenker</h2>' +
+      '<div class="labels">' + links + '</div></section>'
+    : '';
+
   // Bunn-logoer – samme rekke som forsiden (index.html .logo-strip), så den
   // følger med på alle spor-sider (/track/...). Bildene ligger på samme domene.
   const LOGOS = [
@@ -201,7 +216,7 @@ module.exports = async (req, res) => {
   const vippsNumber = '97253713';
   const vippsHref = 'https://qr.vipps.no/28/2/03/031/' + encodeURIComponent(vippsNumber);
   const donation =
-    '<section class="don-block">' +
+    '<section class="don-block" id="donasjon">' +
     '<details class="don-details">' +
     '<summary class="don-summary"><h2>Donasjon</h2><span class="don-toggle" aria-hidden="true"></span></summary>' +
     '<div class="don-card">' +
@@ -285,6 +300,13 @@ module.exports = async (req, res) => {
     '.labels{display:flex;flex-direction:column;gap:9px;margin-top:20px}\n' +
     '.labels a{color:var(--accent);font-weight:700;font-size:15px;text-decoration:none}\n' +
     '.labels a:hover{text-decoration:underline}\n' +
+    // Lenker-seksjon (egen overskrift, ellers samme lenkestil som plateselskaper).
+    '.link-section{margin-top:20px}\n' +
+    '.link-section .labels{margin-top:12px}\n' +
+    '.section-h{font-size:16px;margin:0;color:var(--text)}\n' +
+    // Anker-mål (toppmeny-valgene) – hopp litt lenger ned så den faste
+    // toppmenyen ikke dekker toppen av seksjonen når man ruller dit.
+    '#donasjon,#links,#plateselskaper{scroll-margin-top:80px}\n' +
     '.cover{width:220px;height:220px;max-width:70vw;max-height:70vw;margin:0 auto 18px;border-radius:16px;\n' +
     '  background:#0a0f2a center/cover no-repeat;display:flex;align-items:center;justify-content:center;font-size:64px;color:rgba(140,160,255,.5)}\n' +
     '.brand{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}\n' +
@@ -353,7 +375,8 @@ module.exports = async (req, res) => {
     '    <button class="btn" id="copy">Kopier lenke</button>\n' +
     '  </div>\n' +
     '  <div class="social">' + social + '</div>\n' +
-    '  <div class="labels">' + labels + '</div>\n' +
+    '  ' + linksSection + '\n' +
+    '  <div class="labels" id="plateselskaper">' + labels + '</div>\n' +
     '  <a class="back" href="' + esc(origin) + '/">← <span translate="no">Ambient Mann</span></a>\n' +
     '  <section class="logo-strip">' + logoStrip + '</section>\n' +
     '  ' + donation + '\n' +
@@ -397,6 +420,11 @@ module.exports = async (req, res) => {
     '    ab.querySelector(".x").addEventListener("click",abClose);\n' +
     '    ab.addEventListener("click",function(e){if(e.target===ab)abClose();});\n' +
     '    document.addEventListener("keydown",function(e){if(e.key==="Escape")abClose();});}\n' +
+    // «Donasjon» i toppmenyen ruller til blokken nederst (samme side) – åpne den
+    // sammenleggbare blokken så man ser skjemaet med en gang.
+    '  var donNav=document.querySelector(\'.topnav a[href="#donasjon"]\'),\n' +
+    '      donDet=document.querySelector("#donasjon .don-details");\n' +
+    '  if(donNav&&donDet)donNav.addEventListener("click",function(){donDet.open=true;});\n' +
     // Donasjon – forhåndsvalg + kortbetaling (Stripe). Vipps er en ren lenke.
     '  var amt=document.getElementById("don-amount");\n' +
     '  if(amt){\n' +
