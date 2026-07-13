@@ -95,6 +95,10 @@ window.AM_CONFIG = {
     { name: 'Merkaba Music', url: 'https://merkabamusic1.bandcamp.com/' },
     { name: 'Zenon Records', url: 'https://zenonrecords.bandcamp.com/' },
     { name: 'Interchill Records', url: 'https://interchill.bandcamp.com/' },
+    { name: 'Chillhop Music', url: 'https://chillhop.bandcamp.com/' },
+    { name: 'Blue Tunes Chillout', url: 'https://bluetuneschillout.bandcamp.com/' },
+    { name: 'Microcosmos', url: 'https://microcosmos.bandcamp.com/' },
+    { name: 'Dungeon Synth & Dark Ambient', url: 'https://dungeonsynthdarkambient.bandcamp.com/' },
   ],
 
   // Kreditter/scene (label & community). MERK: den ene bevisst utelatte
