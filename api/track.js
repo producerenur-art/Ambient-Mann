@@ -200,7 +200,7 @@ module.exports = async (req, res) => {
   // Bunn-logoer – samme rekke som forsiden (index.html .logo-strip), så den
   // følger med på alle spor-sider (/track/...). Bildene ligger på samme domene.
   const LOGOS = [
-    ['https://radioq37.com/artist/ambient-mann/', '/assets/ambient-mann-portrait.jpg', 'Ambient Mann på radioq37', 'Ambient Mann — radioq37'],
+    ['https://www.radioq37.com/', '/assets/radioq37-logo.jpg', 'Radio Q37', 'Radio Q37'],
     ['https://app.bigfreq.com/communities/groups/feedfreq-public/home', '/assets/feedfreq-logo.png', 'FeedFreq', 'FeedFreq'],
     ['https://soundcloud.com/feedfreq', '/assets/soundcloud-logo.svg', 'SoundCloud — feedfreq', 'SoundCloud'],
     ['https://www.psybient.org/', '/assets/psybient-logo.png', 'psybient.org', 'psybient.org'],
