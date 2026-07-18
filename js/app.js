@@ -70,6 +70,7 @@
     set('logo-itathens', A.itAthensLogo, L.itAthens);
     set('logo-newmessageorg', A.newMessageOrgLogo, L.newMessageOrg);
     set('logo-siriusfm', A.siriusfmLogo, L.siriusfm);
+    set('logo-feedfreqmusic', A.feedfreqMusicLogo, L.feedfreqMusic);
   }
 
   // ---- Kreditter-liste ----------------------------------------------------

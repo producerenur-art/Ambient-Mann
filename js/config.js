@@ -76,6 +76,8 @@ window.AM_CONFIG = {
     newMessageOrg: 'https://www.newmessage.org/',
     // Sirius FM (nettradio) → nettstedet
     siriusfm: 'https://www.siriusfm.no',
+    // FeedFreq Music (YouTube-kanal)
+    feedfreqMusic: 'https://www.youtube.com/@FeedFreqMusic',
   },
   // Podcast / web-radio-lenker som vises som spillbare kort. Eieren kan
   // legge til/fjerne flere inne på siden når han er logget inn.
@@ -131,6 +133,7 @@ window.AM_CONFIG = {
     itAthensLogo: 'assets/it-athens-logo.png',         // ra.co/clubs/212119
     newMessageOrgLogo: 'assets/newmessage-logo.png',   // newmessage.org (diamant)
     siriusfmLogo: 'assets/siriusfm-logo.png',          // siriusfm.no
+    feedfreqMusicLogo: 'assets/feedfreqmusic-logo.jpg', // youtube.com/@FeedFreqMusic
     bookingImg: 'assets/booking.png',                  // valgfritt booking-bilde
     vippsQr: 'assets/vipps-qr.png',                    // valgfri Vipps-QR
   },
