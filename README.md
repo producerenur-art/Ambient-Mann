@@ -6,7 +6,7 @@ Frittstående, byggefri nettside (vanilla JS) for booking av **Ambient Mann**
 **Domene:** www.ambientmann.com
 
 ## Hva siden har
-- **Booking** (gratis, kun via e-post): `yaniv@reply.bigfreq.com`.
+- **Booking** (gratis, kun via e-post): `yaniv@bigfreq.com`.
 - **Bio** (over booking-e-posten) + scene/label-kreditter.
 - **Musikk** publikum velger selv: opplastet WAV/MP3 (1–2 t) med eget cover + spiller med **spoling**.
 - **Live direkte fra Traktor** (Icecast/AzuraCast) med «LIVE»-deteksjon + valgfri **live-bakgrunn** (bilde/mp4).

@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/podcast/:id", "destination": "/api/track?id=:id" },
     { "source": "/track/:id", "destination": "/api/track?id=:id" }
   ]
 }

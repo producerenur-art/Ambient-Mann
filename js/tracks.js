@@ -148,7 +148,7 @@ window.Tracks = (function () {
   }
   function trackUrl(t) {
     const slug = slugify(t.title) || encodeURIComponent(t.id);
-    return location.origin + '/track/' + slug;
+    return location.origin + '/podcast/' + slug;
   }
   async function copyToClipboard(url) {
     if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(url); return; }

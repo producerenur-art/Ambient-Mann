@@ -27,7 +27,7 @@ window.AM_CONFIG = {
     'Følg med på sendeplanen under – tidene settes av Ambient Mann selv.',
 
   /* ---- BOOKING (gratis – kun via e-post) ------------------------------ */
-  bookingEmails: ['yaniv@reply.bigfreq.com'],
+  bookingEmails: ['yaniv@bigfreq.com'],
   bookingSubject: 'Booking — Ambient Mann',
   bookingBody: 'Hei Ambient Mann,\n\nVi ønsker å booke deg. Her er detaljene:\n\nDato/sted:\nType arrangement:\nKontaktperson:\n\nMvh',
 
@@ -99,6 +99,7 @@ window.AM_CONFIG = {
     { name: 'Blue Tunes Chillout', url: 'https://bluetuneschillout.bandcamp.com/' },
     { name: 'Microcosmos', url: 'https://microcosmos.bandcamp.com/' },
     { name: 'Dungeon Synth & Dark Ambient', url: 'https://dungeonsynthdarkambient.bandcamp.com/' },
+    { name: 'Mystic Sound', url: 'https://mysticsound.bandcamp.com/' },
   ],
 
   // Kreditter/scene (label & community). MERK: den ene bevisst utelatte
