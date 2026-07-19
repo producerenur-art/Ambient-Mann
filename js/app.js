@@ -61,7 +61,7 @@
     const hero = document.getElementById('hero-logo');
     if (hero && A.logo) hero.setAttribute('src', A.logo);
     // bunn-logoer (klikkbare)
-    set('logo-portrait', A.portrait, L.radioQ37Artist);
+    set('logo-portrait', A.feedfreqSite, L.feedfreqSite);
     set('logo-feedfreq', A.feedfreqLogo, L.feedfreq);
     set('logo-newmessage', A.newMessageLogo, L.newMessageFromGod || null);
     set('logo-psybient', A.psybientLogo, L.psybient);

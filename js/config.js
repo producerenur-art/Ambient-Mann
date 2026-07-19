@@ -58,8 +58,8 @@ window.AM_CONFIG = {
 
   /* ---- LENKER (logoer nederst + podcast/web-radio) -------------------- */
   links: {
-    // Radio Q37-forhåndsvisning → radioq37.com
-    radioQ37Artist: 'https://www.radioq37.com/',
+    // FeedFreq-forhåndsvisning → feedfreq.com
+    feedfreqSite: 'https://feedfreq.com/',
     // FeedFreq-logo → gruppa
     feedfreq: 'https://app.bigfreq.com/communities/groups/feedfreq-public/home',
     // «The New Message From God»-kunst → offisielt nettsted
@@ -124,7 +124,7 @@ window.AM_CONFIG = {
   assets: {
     universeBg: 'assets/universe-bg.jpg',              // bakgrunn (stjerner beveger seg oppå)
     logo: 'assets/ambient-mann-logo.png',              // hovedlogo (mindre, i hero)
-    portrait: 'assets/radioq37-logo.jpg',              // Radio Q37-forhåndsvisning → radioq37.com
+    feedfreqSite: 'assets/feedfreq-site.png',          // FeedFreq-forhåndsvisning → feedfreq.com
     feedfreqLogo: 'assets/feedfreq-logo.png',          // → feedfreq-gruppa
     newMessageLogo: 'assets/new-message-from-god.jpg', // The New Message From God
     psybientLogo: 'assets/psybient-logo.png',          // psybient.org
