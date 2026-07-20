@@ -76,12 +76,28 @@ window.Tracks = (function () {
   audio.addEventListener('ended', next);
 
   function toggle() { if (audio.paused) audio.play().catch(() => {}); else audio.pause(); }
+  // Teller én avspilling (fyr-og-glem, KUN eier ser tallene). Kalles når et NYTT
+  // spor startes i spilleren – ikke ved pause/fortsett eller spoling.
+  function recordPlay(t) {
+    if (!t || !t.id) return;
+    try {
+      const body = JSON.stringify({ id: t.id, title: t.title || '' });
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon('/api/site?action=play', new Blob([body], { type: 'application/json' }));
+      } else {
+        fetch('/api/site?action=play', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body, keepalive: true,
+        }).catch(() => {});
+      }
+    } catch (_) {}
+  }
   function play(i) {
     const tr = list();
     if (!tr[i] || !tr[i].url) return;
     if (i === current) { toggle(); return; }
     audio.src = tr[i].url; current = i;
     audio.play().catch(() => UI.toast('Kunne ikke spille av sporet.'));
+    recordPlay(tr[i]);
     paintPlayer(); renderList();
   }
   function next() { const n = current + 1; if (n < list().length) play(n); else { current = -1; paintPlayer(); renderList(); } }

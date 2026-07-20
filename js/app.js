@@ -172,6 +172,7 @@
     Links.bind(); Links.render();
     Labels.bind(); Labels.render();
     Tracks.bind(); Tracks.render(); Tracks.resume();
+    Plays.bind(); Plays.render();
     Guest.render();
     Owner.applyVisibility();
   }

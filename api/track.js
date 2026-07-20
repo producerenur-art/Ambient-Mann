@@ -425,6 +425,13 @@ module.exports = async (req, res) => {
     '    document.addEventListener("keydown",unmute,{once:true});\n' +
     '  });}\n' +
     '  a.addEventListener("playing",function(){if(!a.muted){hint.textContent="";}});\n' +
+    // Teller én avspilling første gang sporet faktisk spiller (KUN eier ser tallet).
+    '  var counted=false;\n' +
+    '  a.addEventListener("playing",function(){if(counted)return;counted=true;\n' +
+    '    try{var b=JSON.stringify({id:tid,title:title});\n' +
+    '      if(navigator.sendBeacon){navigator.sendBeacon("/api/site?action=play",new Blob([b],{type:"application/json"}));}\n' +
+    '      else{fetch("/api/site?action=play",{method:"POST",headers:{"Content-Type":"application/json"},body:b,keepalive:true}).catch(function(){});}\n' +
+    '    }catch(e){}});\n' +
     '  document.getElementById("share").addEventListener("click",async function(){\n' +
     '    var data={title:"Ambient Mann — "+title,text:"Hør «"+title+"» hos Ambient Mann",url:url};\n' +
     '    if(navigator.share){try{await navigator.share(data);return;}catch(e){if(e&&e.name==="AbortError")return;}}\n' +

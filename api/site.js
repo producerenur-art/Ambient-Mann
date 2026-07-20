@@ -2,6 +2,8 @@
 //
 //   GET  ?action=content-get     (offentlig)  → alt innhold (bio/plan/lenker/stream/spor)
 //   GET  ?action=tracks-list     (offentlig)  → [ spor ]
+//   POST ?action=play            {id,title}   (offentlig) → teller +1 avspilling
+//   GET  ?action=plays           (eier)       → { plays:[{id,title,count}], total }
 //   GET  ?action=owner-status    (offentlig)  → { hasPassword, resetSupported }
 //   POST ?action=login           {password}   → { token }   (12t HMAC)  — KUN Ambient Mann
 //   POST ?action=set-password    {password}   (første gang / innlogget) → oppretter/endrer passord
@@ -167,6 +169,26 @@ module.exports = async (req, res) => {
       if (!c) return res.status(200).json([]);
       const arr = await readKey(c, 'tracks');
       return res.status(200).json(Array.isArray(arr) ? arr : []);
+    }
+    // Teller +1 avspilling for et spor. Offentlig (alle lyttere), fyr-og-glem.
+    // Uten Supabase svarer vi bare ok (ingen lagring). Feil svelges stille.
+    if (action === 'play') {
+      if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+      const id = String(body.id || '').slice(0, 120);
+      if (!id) return res.status(400).json({ error: 'Mangler spor-id' });
+      const title = scrub(String(body.title || '')).slice(0, 200);
+      if (c) { try { await c.rpc('increment_play', { p_id: id, p_title: title }); } catch (_) {} }
+      return res.status(200).json({ ok: true });
+    }
+    // Avspillingstall — KUN eier. Sortert høyest først, med totalsum.
+    if (action === 'plays') {
+      if (!ownerClaim(req)) return res.status(401).json({ error: 'Logg inn som eier.' });
+      if (!c) return res.status(200).json({ plays: [], total: 0 });
+      const { data } = await c.from('track_plays')
+        .select('track_id,title,count').order('count', { ascending: false });
+      const plays = (data || []).map(r => ({ id: r.track_id, title: r.title || '', count: Number(r.count) || 0 }));
+      const total = plays.reduce((a, b) => a + b.count, 0);
+      return res.status(200).json({ plays, total });
     }
     if (action === 'owner-status') {
       let hasPassword = false;

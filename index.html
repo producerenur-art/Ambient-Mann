@@ -104,6 +104,15 @@
         <button class="btn btn-primary" id="track-upload">⬆ Last opp</button>
         <span id="track-upstatus" class="muted"></span>
       </div>
+      <!-- Eier: avspillingstall (kun du ser dette) -->
+      <div class="card owner-only" id="plays-card" style="display:none">
+        <div class="section-head" style="margin:0 0 10px">
+          <h3 class="mini-h" style="margin:0">Avspillinger <span class="hint">— kun du ser dette</span></h3>
+          <button class="btn btn-tiny" id="plays-refresh" type="button">↻ Oppdater</button>
+        </div>
+        <p class="plays-total" id="plays-total">Totalt: –</p>
+        <div id="plays-list" class="plays-list"></div>
+      </div>
     </section>
 
     <!-- LENKER (navn → URL, som SoundCloud) -->
@@ -409,6 +418,7 @@
   <script src="js/links.js"></script>
   <script src="js/labels.js"></script>
   <script src="js/tracks.js"></script>
+  <script src="js/plays.js"></script>
   <script src="js/donation.js"></script>
   <script src="js/app.js"></script>
 
