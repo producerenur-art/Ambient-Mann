@@ -209,6 +209,7 @@ module.exports = async (req, res) => {
     ['https://ra.co/clubs/212119', '/assets/it-athens-logo.png', 'IT Athens — Wake the Beat', 'IT Athens'],
     ['https://www.newmessage.org/', '/assets/newmessage-logo.png', 'The New Message From God', 'The New Message From God'],
     ['https://www.siriusfm.no/', '/assets/siriusfm.jpg', 'SiriusFM', 'SiriusFM'],
+    ['https://www.alliesofhumanity.org/', '/assets/alliesofhumanity-logo.jpg', 'The Allies of Humanity', 'The Allies of Humanity'],
   ];
   const logoStrip = LOGOS.map(function (g) {
     return '<a class="brand-logo" target="_blank" rel="noopener" title="' + esc(g[2]) + '" href="' + esc(g[0]) + '">' +
