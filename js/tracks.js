@@ -111,6 +111,8 @@ window.Tracks = (function () {
     else {
       wrap.innerHTML = tr.map((t, i) => {
         const playing = i === current && !audio.paused;
+        const edit = Owner.isOwner()
+          ? '<button class="btn btn-tiny owner-only" data-edit="' + i + '">Rediger</button>' : '';
         const del = Owner.isOwner()
           ? '<button class="btn btn-tiny owner-only" data-rm="' + i + '">Slett</button>' : '';
         const hasLink = !!(t.id && t.url);
@@ -126,7 +128,7 @@ window.Tracks = (function () {
           cov +
           '<button class="track-play" data-play="' + i + '" title="Spill av her" aria-label="Spill av her">' + (playing ? '⏸' : '▶') + '</button>' +
           '<div class="track-meta"><div class="track-title">' + UI.esc(t.title || ('Spor ' + (i + 1))) + '</div>' +
-          '<div class="track-sub">' + UI.esc(fmtSize(t.size)) + '</div></div>' + copy + share + del +
+          '<div class="track-sub">' + UI.esc(fmtSize(t.size)) + '</div></div>' + copy + share + edit + del +
         '</div>';
       }).join('');
     }
@@ -141,6 +143,8 @@ window.Tracks = (function () {
         if (s) { share(parseInt(s.getAttribute('data-share'), 10)); return; }
         const c = ev.target.closest('[data-copy]');
         if (c) { copyLink(parseInt(c.getAttribute('data-copy'), 10)); return; }
+        const e = ev.target.closest('[data-edit]');
+        if (e) { rename(parseInt(e.getAttribute('data-edit'), 10)); return; }
         const r = ev.target.closest('[data-rm]');
         if (r) { del(parseInt(r.getAttribute('data-rm'), 10)); return; }
         const p = ev.target.closest('[data-play]');
@@ -345,6 +349,74 @@ window.Tracks = (function () {
     } finally {
       if (btn) { btn.disabled = false; if (btn.dataset.label) btn.textContent = btn.dataset.label; }
     }
+  }
+
+  // ---- eier: endre navn (tittel) på et spor -------------------------------
+  // Tittelen lager sporets delbare lenke (/podcast/<slug>), så vi advarer om at
+  // en endring bryter tidligere delte lenker med det gamle navnet. Avspillings-
+  // tallet følger spor-id-en, så det bevares uendret ved omdøping.
+  function rename(i) {
+    const t = list()[i]; if (!t) return;
+    openRenameDialog(t, i);
+  }
+  function openRenameDialog(t, i) {
+    const back = document.createElement('div');
+    back.className = 'share-back';
+    const menu = document.createElement('div');
+    menu.className = 'share-menu';
+    const head = document.createElement('div');
+    head.className = 'share-title';
+    head.textContent = 'Endre navn på sporet';
+    menu.appendChild(head);
+
+    const note = document.createElement('p');
+    note.className = 'muted';
+    note.style.cssText = 'font-size:13px;margin:0 0 10px;text-align:left';
+    note.textContent = 'Navnet lager sporets delbare lenke (/podcast/…). Endrer du navnet, endres lenken – tidligere delte lenker med det gamle navnet slutter å virke. Avspillingstallet beholdes.';
+    menu.appendChild(note);
+
+    const input = document.createElement('input');
+    input.className = 'input'; input.type = 'text';
+    input.value = t.title || ''; input.setAttribute('aria-label', 'Nytt navn');
+    menu.appendChild(input);
+
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;gap:8px;margin-top:12px';
+    const saveBtn = document.createElement('button');
+    saveBtn.className = 'btn btn-primary'; saveBtn.style.flex = '1'; saveBtn.textContent = 'Lagre';
+    const cancel = document.createElement('button');
+    cancel.className = 'btn'; cancel.style.flex = '1'; cancel.textContent = 'Avbryt';
+    row.appendChild(saveBtn); row.appendChild(cancel);
+    menu.appendChild(row);
+
+    function close() { back.remove(); document.removeEventListener('keydown', onKey); }
+    function onKey(ev) { if (ev.key === 'Escape') close(); }
+    async function doSave() {
+      const nv = input.value.trim();
+      if (!nv) { UI.toast('Skriv et navn.'); input.focus(); return; }
+      if (nv === (t.title || '')) { close(); return; }
+      const newSlug = slugify(nv);
+      if (newSlug && list().some((x, j) => j !== i && slugify(x.title) === newSlug)) {
+        UI.toast('Et annet spor har allerede dette navnet (samme lenke). Velg et unikt navn.');
+        input.focus(); return;
+      }
+      saveBtn.disabled = true; cancel.disabled = true;
+      const arr = list();
+      if (!arr[i]) { close(); return; }
+      arr[i].title = nv;
+      await Content.set('tracks', arr);
+      render();
+      close();
+      UI.toast('Navnet er endret.');
+    }
+    saveBtn.addEventListener('click', doSave);
+    cancel.addEventListener('click', close);
+    input.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') doSave(); });
+    back.addEventListener('click', (ev) => { if (ev.target === back) close(); });
+    document.addEventListener('keydown', onKey);
+    back.appendChild(menu);
+    document.body.appendChild(back);
+    input.focus(); input.select();
   }
 
   async function del(i) {
