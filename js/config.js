@@ -78,6 +78,8 @@ window.AM_CONFIG = {
     siriusfm: 'https://www.siriusfm.no',
     // FeedFreq Music (YouTube-kanal)
     feedfreqMusic: 'https://www.youtube.com/@FeedFreqMusic',
+    // The Allies of Humanity → nettstedet
+    alliesOfHumanity: 'https://www.alliesofhumanity.org/',
   },
   // Podcast / web-radio-lenker som vises som spillbare kort. Eieren kan
   // legge til/fjerne flere inne på siden når han er logget inn.
@@ -134,6 +136,7 @@ window.AM_CONFIG = {
     newMessageOrgLogo: 'assets/newmessage-logo.png',   // newmessage.org (diamant)
     siriusfmLogo: 'assets/siriusfm-logo.png',          // siriusfm.no
     feedfreqMusicLogo: 'assets/feedfreqmusic-logo.jpg', // youtube.com/@FeedFreqMusic
+    alliesOfHumanityLogo: 'assets/alliesofhumanity-logo.jpg', // alliesofhumanity.org
     bookingImg: 'assets/booking.png',                  // valgfritt booking-bilde
     vippsQr: 'assets/vipps-qr.png',                    // valgfri Vipps-QR
   },

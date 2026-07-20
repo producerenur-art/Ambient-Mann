@@ -71,6 +71,7 @@
     set('logo-newmessageorg', A.newMessageOrgLogo, L.newMessageOrg);
     set('logo-siriusfm', A.siriusfmLogo, L.siriusfm);
     set('logo-feedfreqmusic', A.feedfreqMusicLogo, L.feedfreqMusic);
+    set('logo-alliesofhumanity', A.alliesOfHumanityLogo, L.alliesOfHumanity);
   }
 
   // ---- Kreditter-liste ----------------------------------------------------
