@@ -79,6 +79,15 @@
     <!-- MUSIKK: lytterne velger selv, med spiller + spoling -->
     <section id="listen" class="block">
       <div class="section-head"><h2>Musikk</h2><span class="hint">Velg selv — spill av og spol (1–2 t sett)</span></div>
+      <!-- Eier: last opp lyd + eget cover-bilde (flyttet øverst, over spillelista, så du slipper å scrolle helt ned) -->
+      <div class="card owner-only" style="display:none">
+        <h3 class="mini-h">Last opp musikk (WAV/MP3) + eget cover</h3>
+        <label>Tittel</label><input id="track-title" class="input" placeholder="f.eks. All The Way From Heaven 060">
+        <label>Cover-bilde (valgfritt)</label><input id="track-cover" class="input" type="file" accept="image/*">
+        <label>Lyd-fil (WAV/MP3)</label><input id="track-file" class="input" type="file" accept="audio/*">
+        <button class="btn btn-primary" id="track-upload">⬆ Last opp</button>
+        <span id="track-upstatus" class="muted"></span>
+      </div>
       <div class="card">
         <div class="track-player">
           <div class="tp-cover empty" id="tp-cover">♪</div>
@@ -94,15 +103,6 @@
           </div>
         </div>
         <div id="tracks-list" class="tracks"></div>
-      </div>
-      <!-- Eier: last opp lyd + eget cover-bilde -->
-      <div class="card owner-only" style="display:none">
-        <h3 class="mini-h">Last opp musikk (WAV/MP3) + eget cover</h3>
-        <label>Tittel</label><input id="track-title" class="input" placeholder="f.eks. All The Way From Heaven 060">
-        <label>Cover-bilde (valgfritt)</label><input id="track-cover" class="input" type="file" accept="image/*">
-        <label>Lyd-fil (WAV/MP3)</label><input id="track-file" class="input" type="file" accept="audio/*">
-        <button class="btn btn-primary" id="track-upload">⬆ Last opp</button>
-        <span id="track-upstatus" class="muted"></span>
       </div>
       <!-- Eier: avspillingstall (kun du ser dette) -->
       <div class="card owner-only" id="plays-card" style="display:none">
