@@ -36,7 +36,7 @@ let createClient = null;
 try { ({ createClient } = require('@supabase/supabase-js')); } catch (_) {}
 
 const BUCKET = process.env.SUPABASE_BUCKET || 'ambient-mann-media';
-const ALLOWED_KEYS = new Set(['bio', 'credits', 'liveDescription', 'schedule', 'links', 'labels', 'stream', 'tracks', 'liveBg']);
+const ALLOWED_KEYS = new Set(['bio', 'credits', 'liveDescription', 'schedule', 'links', 'labels', 'stream', 'tracks', 'liveBg', 'sectionOrder']);
 const BANNED = /kali\s*earth/ig;
 
 function sb() {
