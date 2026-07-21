@@ -109,7 +109,13 @@ window.Tracks = (function () {
     const tr = list();
     if (!tr.length) { wrap.innerHTML = '<p class="muted">Ingen opplastet musikk ennå.</p>'; }
     else {
-      wrap.innerHTML = tr.map((t, i) => {
+      // Kun eier: vis nyeste øverst (nye opplastinger legges bakerst i lista, så
+      // vi reverserer VISNINGSrekkefølgen). Gjester ser lista som før. Vi beholder
+      // den EKTE indeksen «i» slik at spill/rediger/slett/del treffer riktig spor.
+      const order = tr.map((_, i) => i);
+      if (Owner.isOwner()) order.reverse();
+      wrap.innerHTML = order.map((i) => {
+        const t = tr[i];
         const playing = i === current && !audio.paused;
         const edit = Owner.isOwner()
           ? '<button class="btn btn-tiny owner-only" data-edit="' + i + '">Rediger</button>' : '';
