@@ -114,7 +114,7 @@ window.AM_CONFIG = {
 
   /* ---- BIO (verbatim) -------------------------------------------------- */
   bioDefault:
-    'Born in 1982 from Greenland.. With its magical sound of the best ' +
+    'With its magical sound of the best ' +
     'ambient, chill out and clarity psybient can offer, Spiced up with a ' +
     'customized twist, he seduces the audience with excitement and narrative ' +
     'at the same time.. Minimal, Ambient, Deep, Psybient, Psychill, Downtempo, ' +
