@@ -389,37 +389,83 @@ window.Tracks = (function () {
     render();
   }
 
-  // ---- eier: endre navn (tittel) på et spor -------------------------------
-  // Tittelen lager sporets delbare lenke (/podcast/<slug>), så vi advarer om at
-  // en endring bryter tidligere delte lenker med det gamle navnet. Avspillings-
-  // tallet følger spor-id-en, så det bevares uendret ved omdøping.
-  function rename(i) {
+  // ---- eier: rediger et spor (navn + bytt cover-bilde + bytt lydfil) ------
+  // Tittelen lager sporets delbare lenke (/podcast/<slug>), så en navneendring
+  // bryter tidligere delte lenker. Bytter man BARE cover og/eller lyd (uten å
+  // endre navnet), beholdes både lenke og avspillingstall – begge følger spor-
+  // id-en, ikke selve fila. Gamle filer ryddes bort etter bytte (spar lagring).
+  function rename(i) {                 // «Rediger»-knappen på hvert spor
     const t = list()[i]; if (!t) return;
-    openRenameDialog(t, i);
+    openEditDialog(t, i);
   }
-  function openRenameDialog(t, i) {
+  function openEditDialog(t, i) {
     const back = document.createElement('div');
     back.className = 'share-back';
     const menu = document.createElement('div');
     menu.className = 'share-menu';
+    menu.style.cssText = 'text-align:left; max-height:85vh; overflow-y:auto';
+
     const head = document.createElement('div');
     head.className = 'share-title';
-    head.textContent = 'Endre navn på sporet';
+    head.textContent = 'Rediger sporet';
     menu.appendChild(head);
 
-    const note = document.createElement('p');
-    note.className = 'muted';
-    note.style.cssText = 'font-size:13px;margin:0 0 10px;text-align:left';
-    note.textContent = 'Navnet lager sporets delbare lenke (/podcast/…). Endrer du navnet, endres lenken – tidligere delte lenker med det gamle navnet slutter å virke. Avspillingstallet beholdes.';
-    menu.appendChild(note);
+    function label(txt) {
+      const l = document.createElement('label');
+      l.className = 'muted';
+      l.style.cssText = 'font-size:12px; display:block; margin:6px 0 5px';
+      l.textContent = txt;
+      return l;
+    }
 
+    // -- navn --
+    menu.appendChild(label('Navn'));
     const input = document.createElement('input');
     input.className = 'input'; input.type = 'text';
     input.value = t.title || ''; input.setAttribute('aria-label', 'Nytt navn');
     menu.appendChild(input);
+    const note = document.createElement('p');
+    note.className = 'muted';
+    note.style.cssText = 'font-size:12px; margin:6px 0 10px';
+    note.textContent = 'Endrer du navnet, endres den delbare lenken (/podcast/…) og tidligere delte lenker slutter å virke. Avspillingstallet beholdes.';
+    menu.appendChild(note);
 
+    // -- cover-bilde --
+    menu.appendChild(label('Cover-bilde (la stå tomt for å beholde)'));
+    const coverRow = document.createElement('div');
+    coverRow.style.cssText = 'display:flex; align-items:center; gap:10px; margin-bottom:10px';
+    const thumb = document.createElement('span');
+    thumb.className = t.coverUrl ? 'track-cover' : 'track-cover empty';
+    if (t.coverUrl) thumb.style.backgroundImage = "url('" + t.coverUrl + "')"; else thumb.textContent = '♪';
+    const coverInput = document.createElement('input');
+    coverInput.type = 'file'; coverInput.accept = 'image/*'; coverInput.style.flex = '1'; coverInput.style.minWidth = '0';
+    coverInput.addEventListener('change', () => {
+      const f = coverInput.files && coverInput.files[0];
+      if (f) { thumb.classList.remove('empty'); thumb.textContent = ''; thumb.style.backgroundImage = "url('" + URL.createObjectURL(f) + "')"; }
+    });
+    coverRow.appendChild(thumb); coverRow.appendChild(coverInput);
+    menu.appendChild(coverRow);
+
+    // -- lydfil --
+    menu.appendChild(label('Lydfil (la stå tomt for å beholde nåværende)'));
+    const audioInput = document.createElement('input');
+    audioInput.type = 'file'; audioInput.accept = 'audio/*,.wav,.mp3,.m4a,.aac,.ogg';
+    audioInput.style.cssText = 'width:100%; max-width:100%';
+    menu.appendChild(audioInput);
+    const audioNote = document.createElement('p');
+    audioNote.className = 'muted';
+    audioNote.style.cssText = 'font-size:12px; margin:6px 0 4px';
+    audioNote.textContent = 'Bytter du lydfila, beholdes lenke og avspillingstall. Store filer tar tid å laste opp – ikke lukk vinduet mens den laster.';
+    menu.appendChild(audioNote);
+
+    const status = document.createElement('p');
+    status.className = 'muted';
+    status.style.cssText = 'font-size:12px; margin:4px 0 2px; min-height:16px';
+    menu.appendChild(status);
+
+    // -- knapper --
     const row = document.createElement('div');
-    row.style.cssText = 'display:flex;gap:8px;margin-top:12px';
+    row.style.cssText = 'display:flex; gap:8px; margin-top:12px';
     const saveBtn = document.createElement('button');
     saveBtn.className = 'btn btn-primary'; saveBtn.style.flex = '1'; saveBtn.textContent = 'Lagre';
     const cancel = document.createElement('button');
@@ -427,25 +473,79 @@ window.Tracks = (function () {
     row.appendChild(saveBtn); row.appendChild(cancel);
     menu.appendChild(row);
 
-    function close() { back.remove(); document.removeEventListener('keydown', onKey); }
+    function busy() { return saveBtn.disabled; }
+    function close() { if (busy()) return; back.remove(); document.removeEventListener('keydown', onKey); }
     function onKey(ev) { if (ev.key === 'Escape') close(); }
+
     async function doSave() {
+      if (busy()) return;
       const nv = input.value.trim();
       if (!nv) { UI.toast('Skriv et navn.'); input.focus(); return; }
-      if (nv === (t.title || '')) { close(); return; }
       const newSlug = slugify(nv);
       if (newSlug && list().some((x, j) => j !== i && slugify(x.title) === newSlug)) {
         UI.toast('Et annet spor har allerede dette navnet (samme lenke). Velg et unikt navn.');
         input.focus(); return;
       }
+      const cf = coverInput.files && coverInput.files[0];
+      const af = audioInput.files && audioInput.files[0];
+      if ((cf || af) && !SC_Storage.isConfigured()) {
+        UI.toast('Lyd-lagring er ikke satt opp – kan ikke bytte fil.'); return;
+      }
       saveBtn.disabled = true; cancel.disabled = true;
-      const arr = list();
-      if (!arr[i]) { close(); return; }
-      arr[i].title = nv;
-      await Content.set('tracks', arr);
-      render();
-      close();
-      UI.toast('Navnet er endret.');
+      const oldFiles = [];
+      try {
+        const arr = list();
+        if (!arr[i]) { saveBtn.disabled = false; cancel.disabled = false; close(); return; }
+        let audioChanged = false;
+        // 1) ny lydfil (med fremdrift)
+        if (af) {
+          const tot = fmtSize(af.size);
+          status.textContent = 'Laster opp lyd … 0% av ' + tot;
+          const up = await SC_Storage.upload(af, {
+            prefix: 'tracks',
+            onProgress: p => { status.textContent = 'Laster opp lyd … ' + Math.round(p * 100) + '% av ' + tot + (p >= 1 ? ' – lagrer …' : ''); },
+          });
+          if (arr[i].path) oldFiles.push(arr[i].path);
+          arr[i].url = up.url; arr[i].path = up.path; arr[i].size = up.size;
+          audioChanged = true;
+        }
+        // 2) nytt cover-bilde
+        if (cf) {
+          status.textContent = 'Laster opp cover-bilde …';
+          const cu = await SC_Storage.upload(cf, { prefix: 'covers' });
+          if (arr[i].coverPath) oldFiles.push(arr[i].coverPath);
+          arr[i].coverUrl = cu.url; arr[i].coverPath = cu.path;
+        }
+        // 3) navn
+        arr[i].title = nv;
+        // 4) lagre lista (gjelder for alle besøkende)
+        status.textContent = 'Lagrer …';
+        await Content.set('tracks', arr);
+        // 5) rydd bort de gamle filene som ble byttet ut (lydfiler er store)
+        if (oldFiles.length) {
+          try {
+            await Owner.authFetch('/api/site?action=track-file-remove', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ paths: oldFiles }),
+            });
+          } catch (_) {}
+        }
+        // 6) hvis dette sporet er lastet i spilleren og lyden ble byttet – oppdater kilden
+        if (current === i && audioChanged) {
+          const wasPlaying = !audio.paused;
+          audio.src = arr[i].url;
+          if (wasPlaying) audio.play().catch(() => {});
+        }
+        saveBtn.disabled = false; cancel.disabled = false;
+        render();
+        close();
+        UI.toast('Sporet er oppdatert.');
+      } catch (e) {
+        saveBtn.disabled = false; cancel.disabled = false;
+        const msg = (e && e.message) || String(e);
+        status.textContent = 'Feil: ' + msg;
+        UI.toast('Kunne ikke lagre: ' + msg);
+      }
     }
     saveBtn.addEventListener('click', doSave);
     cancel.addEventListener('click', close);

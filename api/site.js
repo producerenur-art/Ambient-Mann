@@ -528,7 +528,7 @@ module.exports = async (req, res) => {
     }
 
     // ---------- EIER-GATED (skriving) ----------
-    if (['content-set', 'track-add', 'track-delete', 'upload-url'].indexOf(action) !== -1) {
+    if (['content-set', 'track-add', 'track-delete', 'track-file-remove', 'upload-url'].indexOf(action) !== -1) {
       if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
       if (!ownerClaim(req)) return res.status(401).json({ error: 'Logg inn som eier.' });
       if (!c) return res.status(503).json({ error: 'Lagring ikke satt opp (mangler Supabase-env).' });
@@ -565,6 +565,13 @@ module.exports = async (req, res) => {
         await writeKey(c, 'tracks', arr);
         const rm = [path, coverPath].filter(Boolean);
         if (rm.length) { try { await c.storage.from(BUCKET).remove(rm); } catch (_) {} }
+        return res.status(200).json({ ok: true });
+      }
+      if (action === 'track-file-remove') {
+        // Sletter enkelt-filer fra storage (brukes når eier BYTTER cover/lyd på et
+        // spor, så gamle – ofte svært store – filer ikke blir liggende igjen).
+        const paths = Array.isArray(body.paths) ? body.paths.map(p => String(p || '')).filter(Boolean) : [];
+        if (paths.length) { try { await c.storage.from(BUCKET).remove(paths); } catch (_) {} }
         return res.status(200).json({ ok: true });
       }
       if (action === 'upload-url') {
