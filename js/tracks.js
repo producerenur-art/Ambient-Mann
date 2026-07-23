@@ -113,12 +113,21 @@ window.Tracks = (function () {
       // lista, så vi reverserer VISNINGSrekkefølgen. Vi beholder den EKTE indeksen
       // «i» slik at spill/rediger/slett/del treffer riktig spor.
       const order = tr.map((_, i) => i).reverse();
-      wrap.innerHTML = order.map((i) => {
+      wrap.innerHTML = order.map((i, k) => {
         const t = tr[i];
         const playing = i === current && !audio.paused;
-        const edit = Owner.isOwner()
+        const isOwner = Owner.isOwner();
+        // Eier kan flytte HVERT spor opp/ned og bestemme rekkefølgen selv –
+        // den lagres i 'tracks' og gjelder for alle besøkende. ▲/▼ deaktiveres
+        // øverst/nederst i visningen. «k» = plass i den viste (reverserte) lista.
+        const move = isOwner
+          ? '<span class="track-moves owner-only">' +
+              '<button class="track-move" data-mvup="' + i + '" title="Flytt opp"' + (k === 0 ? ' disabled' : '') + ' aria-label="Flytt opp">▲</button>' +
+              '<button class="track-move" data-mvdn="' + i + '" title="Flytt ned"' + (k === order.length - 1 ? ' disabled' : '') + ' aria-label="Flytt ned">▼</button>' +
+            '</span>' : '';
+        const edit = isOwner
           ? '<button class="btn btn-tiny owner-only" data-edit="' + i + '">Rediger</button>' : '';
-        const del = Owner.isOwner()
+        const del = isOwner
           ? '<button class="btn btn-tiny owner-only" data-rm="' + i + '">Slett</button>' : '';
         const hasLink = !!(t.id && t.url);
         const copy = hasLink ? '<button class="track-share" data-copy="' + i + '" title="Kopier lenke" aria-label="Kopier lenke">📋</button>' : '';
@@ -133,7 +142,7 @@ window.Tracks = (function () {
           cov +
           '<button class="track-play" data-play="' + i + '" title="Spill av her" aria-label="Spill av her">' + (playing ? '⏸' : '▶') + '</button>' +
           '<div class="track-meta"><div class="track-title">' + UI.esc(t.title || ('Spor ' + (i + 1))) + '</div>' +
-          '<div class="track-sub">' + UI.esc(fmtSize(t.size)) + '</div></div>' + copy + share + edit + del +
+          '<div class="track-sub">' + UI.esc(fmtSize(t.size)) + '</div></div>' + copy + share + move + edit + del +
         '</div>';
       }).join('');
     }
@@ -152,6 +161,10 @@ window.Tracks = (function () {
         if (e) { rename(parseInt(e.getAttribute('data-edit'), 10)); return; }
         const r = ev.target.closest('[data-rm]');
         if (r) { del(parseInt(r.getAttribute('data-rm'), 10)); return; }
+        const mu = ev.target.closest('[data-mvup]');
+        if (mu) { move(parseInt(mu.getAttribute('data-mvup'), 10), 'up'); return; }
+        const md = ev.target.closest('[data-mvdn]');
+        if (md) { move(parseInt(md.getAttribute('data-mvdn'), 10), 'down'); return; }
         const p = ev.target.closest('[data-play]');
         if (p) { play(parseInt(p.getAttribute('data-play'), 10)); return; }
         const o = ev.target.closest('[data-open]');
@@ -354,6 +367,26 @@ window.Tracks = (function () {
     } finally {
       if (btn) { btn.disabled = false; if (btn.dataset.label) btn.textContent = btn.dataset.label; }
     }
+  }
+
+  // ---- eier: bestem rekkefølgen (flytt hvert spor opp/ned) ----------------
+  // Bytter sporet med naboen i VISNINGSrekkefølgen (som er reversert), og lagrer
+  // den nye rekkefølgen i 'tracks'. Slik kan eier plassere hver enkelt opplasting
+  // akkurat der han vil – og rekkefølgen gjelder for ALLE besøkende.
+  async function move(i, dir) {
+    if (!Owner.isOwner()) return;
+    const arr = list();
+    if (!arr[i]) return;
+    const order = arr.map((_, x) => x).reverse();      // samme visning som renderList()
+    const k = order.indexOf(i);
+    const k2 = dir === 'up' ? k - 1 : k + 1;
+    if (k2 < 0 || k2 >= order.length) return;           // allerede øverst/nederst
+    const j = order[k2];                                // ekte array-indeks å bytte med
+    const tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    // Hold spilleren pekende på samme spor etter byttet.
+    if (current === i) current = j; else if (current === j) current = i;
+    await Content.set('tracks', arr);
+    render();
   }
 
   // ---- eier: endre navn (tittel) på et spor -------------------------------
