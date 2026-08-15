@@ -167,8 +167,7 @@ module.exports = async (req, res) => {
     '<li><a translate="no" href="http://bigfreq.com/" target="_blank" rel="noopener">http://bigfreq.com/</a></li>' +
     '<li><a translate="no" href="https://soundcloud.com/feedfreq" target="_blank" rel="noopener">https://soundcloud.com/feedfreq</a></li>' +
     '<li><a translate="no" href="https://www.ambientmann.com/" target="_blank" rel="noopener">https://www.ambientmann.com/</a></li>' +
-    '</ul>' +
-    '<p class="muted">This email is &ldquo;Out Of Bounds&rdquo; &ndash; <a translate="no" href="mailto:noah@radioq37.com">noah@radioq37.com</a></p>';
+    '</ul>';
 
   // Sosiale delelenker (server-beregnet, samme URL som deles).
   const eu = encodeURIComponent(pageUrl);
