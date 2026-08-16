@@ -202,6 +202,10 @@ hr{border:0; border-top:1px solid var(--line); margin:16px 0}
 .links{display:flex; flex-direction:column; gap:10px}
 .link-item{display:flex; align-items:center; gap:8px}
 .link-item .cp-prev{flex:1}
+/* Eier-knapper på hver lenke: ▲/▼ (rekkefølge), Rediger, Fjern. Brytes til
+   flere linjer på små skjermer så de aldri klemmer selve lenka. */
+.link-actions{display:flex; align-items:center; gap:6px; flex-wrap:wrap;
+  justify-content:flex-end; flex:0 0 auto}
 /* Ingen boks/skygge bak teksten – universet skal synes gjennom. Forhåndsvisningen (thumb) beholder sin egen bakgrunn. */
 .cp-prev-card{display:flex; gap:12px; align-items:center; background:transparent;
   border:0; border-radius:12px; overflow:hidden; color:var(--text); box-shadow:none}
