@@ -102,10 +102,10 @@ async function sendEmail(to, subject, html) {
 }
 
 function sendResetEmail(to, link) {
-  return sendEmail(to, 'Tilbakestill passord — Ambient Mann',
-    '<p>Du (eller noen) ba om å tilbakestille passordet til Ambient Mann-siden.</p>' +
-    '<p><a href="' + link + '">Klikk her for å sette nytt passord</a></p>' +
-    '<p>Lenken er gyldig i 1 time. Ignorer denne e-posten hvis det ikke var deg.</p>');
+  return sendEmail(to, 'Reset your password — Ambient Mann',
+    '<p>You (or someone else) asked to reset the password for the Ambient Mann site.</p>' +
+    '<p><a href="' + link + '">Click here to set a new password</a></p>' +
+    '<p>The link is valid for 1 hour. Ignore this email if it was not you.</p>');
 }
 
 // ---- gjeste-kontoer (guest_account) ----
@@ -127,7 +127,7 @@ function issueGuestToken(res, guest) {
   try {
     const token = hmac.sign({ purpose: 'guest', gid: guest.id, name: guest.name || '' }, 7 * 24 * 3600);
     return res.status(200).json({ token, gid: guest.id, name: guest.name || '', approved: !!guest.approved });
-  } catch (e) { return res.status(503).json({ error: 'Token-hemmelighet mangler (AM_TOKEN_SECRET).' }); }
+  } catch (e) { return res.status(503).json({ error: 'Token secret is missing (AM_TOKEN_SECRET).' }); }
 }
 function isValidEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(e || '')); }
 
@@ -143,7 +143,7 @@ function writeKey(c, key, data) {
 
 function issueToken(res) {
   try { return res.status(200).json({ token: hmac.sign({ purpose: 'owner' }, 12 * 3600) }); }
-  catch (e) { return res.status(503).json({ error: 'Token-hemmelighet mangler (AM_TOKEN_SECRET).' }); }
+  catch (e) { return res.status(503).json({ error: 'Token secret is missing (AM_TOKEN_SECRET).' }); }
 }
 
 module.exports = async (req, res) => {
@@ -175,14 +175,14 @@ module.exports = async (req, res) => {
     if (action === 'play') {
       if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
       const id = String(body.id || '').slice(0, 120);
-      if (!id) return res.status(400).json({ error: 'Mangler spor-id' });
+      if (!id) return res.status(400).json({ error: 'Missing track id' });
       const title = scrub(String(body.title || '')).slice(0, 200);
       if (c) { try { await c.rpc('increment_play', { p_id: id, p_title: title }); } catch (_) {} }
       return res.status(200).json({ ok: true });
     }
     // Avspillingstall — KUN eier. Sortert høyest først, med totalsum.
     if (action === 'plays') {
-      if (!ownerClaim(req)) return res.status(401).json({ error: 'Logg inn som eier.' });
+      if (!ownerClaim(req)) return res.status(401).json({ error: 'Log in as owner.' });
       if (!c) return res.status(200).json({ plays: [], total: 0 });
       const { data } = await c.from('track_plays')
         .select('track_id,title,count').order('count', { ascending: false });
@@ -206,27 +206,27 @@ module.exports = async (req, res) => {
       if (c) {
         const o = await getOwner(c);
         if (o && o.pass_hash) {
-          if (!verifyPassword(pw, o.pass_hash)) return res.status(401).json({ error: 'Feil passord.' });
+          if (!verifyPassword(pw, o.pass_hash)) return res.status(401).json({ error: 'Wrong password.' });
           return issueToken(res);
         }
       }
       // Bootstrap-fallback: OWNER_PASSCODE i env (til passord er opprettet i DB)
       const real = process.env.OWNER_PASSCODE;
-      if (!real) return res.status(503).json({ error: 'Innlogging ikke satt opp ennå.' });
+      if (!real) return res.status(503).json({ error: 'Login is not set up yet.' });
       const a = Buffer.from(pw), b = Buffer.from(String(real));
-      if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return res.status(401).json({ error: 'Feil passord.' });
+      if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return res.status(401).json({ error: 'Wrong password.' });
       return issueToken(res);
     }
 
     // Opprett passord (første gang) eller endre (innlogget)
     if (action === 'set-password') {
       if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-      if (!c) return res.status(503).json({ error: 'Passord krever Supabase (se README).' });
+      if (!c) return res.status(503).json({ error: 'Passwords require Supabase (see README).' });
       const pw = String(body.password || '');
-      if (pw.length < 6) return res.status(400).json({ error: 'Passordet må være minst 6 tegn.' });
+      if (pw.length < 6) return res.status(400).json({ error: 'The password must be at least 6 characters.' });
       const o = await getOwner(c);
       const firstTime = !(o && o.pass_hash);
-      if (!firstTime && !ownerClaim(req)) return res.status(401).json({ error: 'Logg inn for å endre passord.' });
+      if (!firstTime && !ownerClaim(req)) return res.status(401).json({ error: 'Log in to change the password.' });
       const patch = { pass_hash: hashPassword(pw), reset_token: null, reset_exp: null };
       const email = String(body.email || '').trim();
       if (firstTime) patch.email = email || process.env.OWNER_EMAIL || '';
@@ -255,13 +255,13 @@ module.exports = async (req, res) => {
     // Sett nytt passord via reset-lenke
     if (action === 'reset') {
       if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-      if (!c) return res.status(503).json({ error: 'Ikke satt opp.' });
+      if (!c) return res.status(503).json({ error: 'Not set up.' });
       const pw = String(body.password || ''), token = String(body.token || '');
-      if (pw.length < 6) return res.status(400).json({ error: 'Passordet må være minst 6 tegn.' });
+      if (pw.length < 6) return res.status(400).json({ error: 'The password must be at least 6 characters.' });
       const o = await getOwner(c);
       if (!o || !o.reset_token || !o.reset_exp || o.reset_exp < Date.now())
-        return res.status(400).json({ error: 'Lenken er ugyldig eller utløpt.' });
-      if (sha256(token) !== o.reset_token) return res.status(400).json({ error: 'Lenken er ugyldig.' });
+        return res.status(400).json({ error: 'The link is invalid or has expired.' });
+      if (sha256(token) !== o.reset_token) return res.status(400).json({ error: 'The link is invalid.' });
       const { error } = await setOwner(c, { pass_hash: hashPassword(pw), reset_token: null, reset_exp: null });
       if (error) return res.status(500).json({ error: error.message });
       return issueToken(res);
@@ -277,15 +277,15 @@ module.exports = async (req, res) => {
 
     if (action === 'guest-signup') {
       if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-      if (!c) return res.status(503).json({ error: 'Registrering krever Supabase (se README).' });
+      if (!c) return res.status(503).json({ error: 'Signing up requires Supabase (see README).' });
       const email = String(body.email || '').trim().toLowerCase();
       const name = scrub(String(body.name || '')).slice(0, 80);
       const pw = String(body.password || '');
-      if (!isValidEmail(email)) return res.status(400).json({ error: 'Ugyldig e-post.' });
-      if (!name) return res.status(400).json({ error: 'Skriv navnet/artistnavnet ditt.' });
-      if (pw.length < 6) return res.status(400).json({ error: 'Passordet må være minst 6 tegn.' });
+      if (!isValidEmail(email)) return res.status(400).json({ error: 'Invalid email.' });
+      if (!name) return res.status(400).json({ error: 'Enter your name / artist name.' });
+      if (pw.length < 6) return res.status(400).json({ error: 'The password must be at least 6 characters.' });
       const existing = await getGuestByEmail(c, email);
-      if (existing && existing.confirmed) return res.status(409).json({ error: 'E-posten er allerede registrert. Prøv å logge inn.' });
+      if (existing && existing.confirmed) return res.status(409).json({ error: 'That email is already registered. Try logging in.' });
       const confirmSupported = !!process.env.RESEND_API_KEY;
       const rawToken = crypto.randomBytes(24).toString('hex');
       const row = {
@@ -302,23 +302,23 @@ module.exports = async (req, res) => {
       if (dberr) return res.status(500).json({ error: dberr.message });
       if (confirmSupported) {
         const siteUrl = process.env.SITE_URL || ('https://' + req.headers.host);
-        await sendEmail(email, 'Bekreft e-post — Gjest hos Ambient Mann',
-          '<p>Hei ' + (name || '') + '!</p>' +
-          '<p>Du har registrert deg som gjest for å hoste live stream på Ambient Mann-siden.</p>' +
-          '<p><a href="' + siteUrl + '/?gconfirm=' + rawToken + '">Klikk her for å bekrefte e-posten din</a></p>' +
-          '<p>Etter bekreftelse kan du logge inn. Ambient Mann godkjenner deretter kontoen din før du kan sette sendetid.</p>' +
-          '<p>Ignorer denne e-posten hvis det ikke var deg.</p>');
+        await sendEmail(email, 'Confirm your email — Guest at Ambient Mann',
+          '<p>Hi ' + (name || '') + '!</p>' +
+          '<p>You have signed up as a guest to host a live stream on the Ambient Mann site.</p>' +
+          '<p><a href="' + siteUrl + '/?gconfirm=' + rawToken + '">Click here to confirm your email address</a></p>' +
+          '<p>After confirming you can log in. Ambient Mann then approves your account before you can set a broadcast time.</p>' +
+          '<p>Ignore this email if it was not you.</p>');
       }
       return res.status(200).json({ ok: true, needsConfirm: confirmSupported });
     }
 
     if (action === 'guest-confirm') {
       if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-      if (!c) return res.status(503).json({ error: 'Ikke satt opp.' });
+      if (!c) return res.status(503).json({ error: 'Not set up.' });
       const token = String(body.token || '');
-      if (!token) return res.status(400).json({ error: 'Mangler bekreftelses-token.' });
+      if (!token) return res.status(400).json({ error: 'Missing confirmation token.' });
       const { data: g } = await c.from('guest_account').select('*').eq('confirm_token', sha256(token)).maybeSingle();
-      if (!g) return res.status(400).json({ error: 'Lenken er ugyldig eller allerede brukt.' });
+      if (!g) return res.status(400).json({ error: 'The link is invalid or has already been used.' });
       const { error } = await c.from('guest_account').update({ confirmed: true, confirm_token: null, updated_at: new Date().toISOString() }).eq('id', g.id);
       if (error) return res.status(500).json({ error: error.message });
       return res.status(200).json({ ok: true });
@@ -326,12 +326,12 @@ module.exports = async (req, res) => {
 
     if (action === 'guest-login') {
       if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-      if (!c) return res.status(503).json({ error: 'Innlogging krever Supabase (se README).' });
+      if (!c) return res.status(503).json({ error: 'Login requires Supabase (see README).' });
       const email = String(body.email || '').trim().toLowerCase();
       const pw = String(body.password || '');
       const g = await getGuestByEmail(c, email);
-      if (!g || !verifyPassword(pw, g.pass_hash)) return res.status(401).json({ error: 'Feil e-post eller passord.' });
-      if (!g.confirmed) return res.status(403).json({ error: 'Bekreft e-posten din først (sjekk innboksen).' });
+      if (!g || !verifyPassword(pw, g.pass_hash)) return res.status(401).json({ error: 'Wrong email or password.' });
+      if (!g.confirmed) return res.status(403).json({ error: 'Confirm your email first (check your inbox).' });
       return issueGuestToken(res, g);
     }
 
@@ -351,11 +351,11 @@ module.exports = async (req, res) => {
 
     if (action === 'guest-reset') {
       if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-      if (!c) return res.status(503).json({ error: 'Ikke satt opp.' });
+      if (!c) return res.status(503).json({ error: 'Not set up.' });
       const pw = String(body.password || ''), token = String(body.token || '');
-      if (pw.length < 6) return res.status(400).json({ error: 'Passordet må være minst 6 tegn.' });
+      if (pw.length < 6) return res.status(400).json({ error: 'The password must be at least 6 characters.' });
       const { data: g } = await c.from('guest_account').select('*').eq('reset_token', sha256(token)).maybeSingle();
-      if (!g || !g.reset_exp || g.reset_exp < Date.now()) return res.status(400).json({ error: 'Lenken er ugyldig eller utløpt.' });
+      if (!g || !g.reset_exp || g.reset_exp < Date.now()) return res.status(400).json({ error: 'The link is invalid or has expired.' });
       const { error } = await c.from('guest_account').update({ pass_hash: hashPassword(pw), reset_token: null, reset_exp: null, confirmed: true, updated_at: new Date().toISOString() }).eq('id', g.id);
       if (error) return res.status(500).json({ error: error.message });
       return issueGuestToken(res, g);
@@ -365,21 +365,21 @@ module.exports = async (req, res) => {
     if (action === 'guest-schedule-add') {
       if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
       const claim = guestClaim(req);
-      if (!claim) return res.status(401).json({ error: 'Logg inn som gjest.' });
-      if (!c) return res.status(503).json({ error: 'Lagring ikke satt opp (mangler Supabase-env).' });
+      if (!claim) return res.status(401).json({ error: 'Log in as guest.' });
+      if (!c) return res.status(503).json({ error: 'Storage is not set up (Supabase env missing).' });
       const g = await getGuestById(c, claim.gid);
-      if (!g) return res.status(401).json({ error: 'Fant ikke kontoen din.' });
-      if (!g.approved) return res.status(403).json({ error: 'Kontoen din venter på godkjenning fra Ambient Mann.' });
+      if (!g) return res.status(401).json({ error: 'Could not find your account.' });
+      if (!g.approved) return res.status(403).json({ error: 'Your account is waiting for approval from Ambient Mann.' });
       const start = String(body.start || '');
-      if (!start || isNaN(new Date(start).getTime())) return res.status(400).json({ error: 'Ugyldig dato/tid.' });
+      if (!start || isNaN(new Date(start).getTime())) return res.status(400).json({ error: 'Invalid date/time.' });
       const link = String(body.link || '').trim();
-      if (link && !/^https?:\/\//i.test(link)) return res.status(400).json({ error: 'Lenken må starte med http(s)://' });
+      if (link && !/^https?:\/\//i.test(link)) return res.status(400).json({ error: 'The link must start with http(s)://' });
       let arr = await readKey(c, 'guestSchedule'); if (!Array.isArray(arr)) arr = [];
       const entry = {
         id: 'g_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-        gid: g.id, guestName: scrub(g.name || 'Gjest').slice(0, 80),
+        gid: g.id, guestName: scrub(g.name || 'Guest').slice(0, 80),
         start, hours: Math.max(1, Math.min(12, parseInt(body.hours, 10) || 2)),
-        title: scrub(String(body.title || 'Live-sett')).slice(0, 200),
+        title: scrub(String(body.title || 'Live set')).slice(0, 200),
         link: link.slice(0, 500),
       };
       arr.push(entry);
@@ -392,8 +392,8 @@ module.exports = async (req, res) => {
       if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
       const claim = guestClaim(req);
       const owner = ownerClaim(req);
-      if (!claim && !owner) return res.status(401).json({ error: 'Ikke innlogget.' });
-      if (!c) return res.status(503).json({ error: 'Ikke satt opp.' });
+      if (!claim && !owner) return res.status(401).json({ error: 'Not logged in.' });
+      if (!c) return res.status(503).json({ error: 'Not set up.' });
       const id = String(body.id || '');
       let arr = await readKey(c, 'guestSchedule'); if (!Array.isArray(arr)) arr = [];
       // gjest kan kun slette egne; eier kan slette alle
@@ -407,13 +407,13 @@ module.exports = async (req, res) => {
     if (action === 'guest-upload-url') {
       if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
       const claim = guestClaim(req);
-      if (!claim) return res.status(401).json({ error: 'Logg inn som gjest.' });
-      if (!c) return res.status(503).json({ error: 'Lagring ikke satt opp (mangler Supabase-env).' });
+      if (!claim) return res.status(401).json({ error: 'Log in as guest.' });
+      if (!c) return res.status(503).json({ error: 'Storage is not set up (Supabase env missing).' });
       const g = await getGuestById(c, claim.gid);
-      if (!g || !g.approved) return res.status(403).json({ error: 'Kontoen din venter på godkjenning.' });
+      if (!g || !g.approved) return res.status(403).json({ error: 'Your account is waiting for approval.' });
       let path = typeof body.path === 'string' ? body.path.trim() : '';
       if (!path || path.includes('..') || path.startsWith('/') || path.length > 256)
-        return res.status(400).json({ error: 'Ugyldig filsti' });
+        return res.status(400).json({ error: 'Invalid file path' });
       // tving alle gjeste-opplastinger inn i egen mappe: guest/<gid>/…
       path = 'guest/' + claim.gid + '/' + path.replace(/^guest\/\d+\//, '');
       const { data, error } = await c.storage.from(BUCKET).createSignedUploadUrl(path);
@@ -426,22 +426,22 @@ module.exports = async (req, res) => {
     if (action === 'guest-track-add') {
       if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
       const claim = guestClaim(req);
-      if (!claim) return res.status(401).json({ error: 'Logg inn som gjest.' });
-      if (!c) return res.status(503).json({ error: 'Lagring ikke satt opp.' });
+      if (!claim) return res.status(401).json({ error: 'Log in as guest.' });
+      if (!c) return res.status(503).json({ error: 'Storage is not set up.' });
       const g = await getGuestById(c, claim.gid);
-      if (!g || !g.approved) return res.status(403).json({ error: 'Kontoen din venter på godkjenning.' });
+      if (!g || !g.approved) return res.status(403).json({ error: 'Your account is waiting for approval.' });
       let arr = await readKey(c, 'guestTracks'); if (!Array.isArray(arr)) arr = [];
       const meta = {
         id: String(body.id || ('gt_' + Date.now())),
-        gid: g.id, guestName: scrub(g.name || 'Gjest').slice(0, 80),
-        title: scrub(String(body.title || 'Spor')).slice(0, 200),
+        gid: g.id, guestName: scrub(g.name || 'Guest').slice(0, 80),
+        title: scrub(String(body.title || 'Track')).slice(0, 200),
         url: String(body.url || ''), path: String(body.path || ''), size: Number(body.size) || 0,
         coverUrl: /^https?:\/\//i.test(String(body.coverUrl || '')) ? String(body.coverUrl) : '',
         coverPath: String(body.coverPath || ''),
       };
-      if (!/^https?:\/\//i.test(meta.url)) return res.status(400).json({ error: 'Ugyldig URL' });
+      if (!/^https?:\/\//i.test(meta.url)) return res.status(400).json({ error: 'Invalid URL' });
       // gjesten kan kun legge til spor med filer i sin egen mappe
-      if (meta.path && meta.path.indexOf('guest/' + g.id + '/') !== 0) return res.status(400).json({ error: 'Ugyldig filsti' });
+      if (meta.path && meta.path.indexOf('guest/' + g.id + '/') !== 0) return res.status(400).json({ error: 'Invalid file path' });
       arr.push(meta);
       const { error } = await writeKey(c, 'guestTracks', arr);
       if (error) return res.status(500).json({ error: error.message });
@@ -452,13 +452,13 @@ module.exports = async (req, res) => {
     if (action === 'guest-track-delete') {
       if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
       const claim = guestClaim(req), owner = ownerClaim(req);
-      if (!claim && !owner) return res.status(401).json({ error: 'Ikke innlogget.' });
-      if (!c) return res.status(503).json({ error: 'Ikke satt opp.' });
+      if (!claim && !owner) return res.status(401).json({ error: 'Not logged in.' });
+      if (!c) return res.status(503).json({ error: 'Not set up.' });
       const id = String(body.id || '');
       let arr = await readKey(c, 'guestTracks'); if (!Array.isArray(arr)) arr = [];
       const t = arr.find(x => x.id === id);
       if (!t) return res.status(200).json({ ok: true });
-      if (!owner && t.gid !== claim.gid) return res.status(403).json({ error: 'Ikke ditt spor.' });
+      if (!owner && t.gid !== claim.gid) return res.status(403).json({ error: 'Not your track.' });
       arr = arr.filter(x => x.id !== id);
       await writeKey(c, 'guestTracks', arr);
       const rm = [t.path, t.coverPath].filter(Boolean);
@@ -470,17 +470,17 @@ module.exports = async (req, res) => {
     if (action === 'guest-stream-set') {
       if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
       const claim = guestClaim(req);
-      if (!claim) return res.status(401).json({ error: 'Logg inn som gjest.' });
-      if (!c) return res.status(503).json({ error: 'Lagring ikke satt opp.' });
+      if (!claim) return res.status(401).json({ error: 'Log in as guest.' });
+      if (!c) return res.status(503).json({ error: 'Storage is not set up.' });
       const g = await getGuestById(c, claim.gid);
-      if (!g || !g.approved) return res.status(403).json({ error: 'Kontoen din venter på godkjenning.' });
+      if (!g || !g.approved) return res.status(403).json({ error: 'Your account is waiting for approval.' });
       const url = String(body.url || '').trim();
       const np = String(body.nowPlayingUrl || '').trim();
-      if (url && !/^https?:\/\//i.test(url)) return res.status(400).json({ error: 'Stream-URL må starte med http(s)://' });
-      if (np && !/^https?:\/\//i.test(np)) return res.status(400).json({ error: 'Now-playing-URL må starte med http(s)://' });
+      if (url && !/^https?:\/\//i.test(url)) return res.status(400).json({ error: 'The stream URL must start with http(s)://' });
+      if (np && !/^https?:\/\//i.test(np)) return res.status(400).json({ error: 'The now-playing URL must start with http(s)://' });
       let obj = await readKey(c, 'guestStreams'); if (!obj || typeof obj !== 'object' || Array.isArray(obj)) obj = {};
       if (!url && !np) delete obj[g.id];
-      else obj[g.id] = { gid: g.id, guestName: scrub(g.name || 'Gjest').slice(0, 80), url, nowPlayingUrl: np };
+      else obj[g.id] = { gid: g.id, guestName: scrub(g.name || 'Guest').slice(0, 80), url, nowPlayingUrl: np };
       const { error } = await writeKey(c, 'guestStreams', obj);
       if (error) return res.status(500).json({ error: error.message });
       return res.status(200).json({ ok: true });
@@ -488,7 +488,7 @@ module.exports = async (req, res) => {
 
     // Eier: liste gjester (for godkjenning) + godkjenn/avvis
     if (action === 'guest-list') {
-      if (!ownerClaim(req)) return res.status(401).json({ error: 'Logg inn som eier.' });
+      if (!ownerClaim(req)) return res.status(401).json({ error: 'Log in as owner.' });
       if (!c) return res.status(200).json({ guests: [] });
       const { data } = await c.from('guest_account')
         .select('id,email,name,confirmed,approved,created_at').order('created_at', { ascending: false });
@@ -496,28 +496,28 @@ module.exports = async (req, res) => {
     }
     if (action === 'guest-approve') {
       if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-      if (!ownerClaim(req)) return res.status(401).json({ error: 'Logg inn som eier.' });
-      if (!c) return res.status(503).json({ error: 'Ikke satt opp.' });
+      if (!ownerClaim(req)) return res.status(401).json({ error: 'Log in as owner.' });
+      if (!c) return res.status(503).json({ error: 'Not set up.' });
       const id = body.id;
       const approved = !!body.approved;
       const g = await getGuestById(c, id);
-      if (!g) return res.status(404).json({ error: 'Fant ikke gjesten.' });
+      if (!g) return res.status(404).json({ error: 'Could not find that guest.' });
       const { error } = await c.from('guest_account').update({ approved, updated_at: new Date().toISOString() }).eq('id', id);
       if (error) return res.status(500).json({ error: error.message });
       // varsle gjesten på e-post når de blir godkjent
       if (approved && !g.approved && g.email) {
         const siteUrl = process.env.SITE_URL || ('https://' + req.headers.host);
-        await sendEmail(g.email, 'Du er godkjent — Gjest hos Ambient Mann',
-          '<p>Hei ' + (g.name || '') + '!</p>' +
-          '<p>Ambient Mann har godkjent gjeste-kontoen din. Du kan nå logge inn og sette opp din egen live stream-tid.</p>' +
-          '<p><a href="' + siteUrl + '/#gjest-live">Åpne Gjest Show Live Stream</a></p>');
+        await sendEmail(g.email, 'You are approved — Guest at Ambient Mann',
+          '<p>Hi ' + (g.name || '') + '!</p>' +
+          '<p>Ambient Mann has approved your guest account. You can now log in and set up your own live stream time.</p>' +
+          '<p><a href="' + siteUrl + '/#guest-live">Open Guest Show Live Stream</a></p>');
       }
       return res.status(200).json({ ok: true });
     }
     if (action === 'guest-delete') {
       if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-      if (!ownerClaim(req)) return res.status(401).json({ error: 'Logg inn som eier.' });
-      if (!c) return res.status(503).json({ error: 'Ikke satt opp.' });
+      if (!ownerClaim(req)) return res.status(401).json({ error: 'Log in as owner.' });
+      if (!c) return res.status(503).json({ error: 'Not set up.' });
       const id = body.id;
       await c.from('guest_account').delete().eq('id', id);
       // fjern gjestens sendetider også
@@ -530,14 +530,14 @@ module.exports = async (req, res) => {
     // ---------- EIER-GATED (skriving) ----------
     if (['content-set', 'track-add', 'track-delete', 'track-file-remove', 'upload-url'].indexOf(action) !== -1) {
       if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-      if (!ownerClaim(req)) return res.status(401).json({ error: 'Logg inn som eier.' });
-      if (!c) return res.status(503).json({ error: 'Lagring ikke satt opp (mangler Supabase-env).' });
+      if (!ownerClaim(req)) return res.status(401).json({ error: 'Log in as owner.' });
+      if (!c) return res.status(503).json({ error: 'Storage is not set up (Supabase env missing).' });
 
       if (action === 'content-set') {
         const key = String(body.key || '');
-        if (!ALLOWED_KEYS.has(key)) return res.status(400).json({ error: 'Ukjent nøkkel' });
+        if (!ALLOWED_KEYS.has(key)) return res.status(400).json({ error: 'Unknown key' });
         const data = scrub(body.data);
-        if (JSON.stringify(data || '').length > 200000) return res.status(413).json({ error: 'For stort innhold' });
+        if (JSON.stringify(data || '').length > 200000) return res.status(413).json({ error: 'Content is too large' });
         const { error } = await writeKey(c, key, data);
         if (error) return res.status(500).json({ error: error.message });
         return res.status(200).json({ ok: true });
@@ -546,12 +546,12 @@ module.exports = async (req, res) => {
         let arr = await readKey(c, 'tracks'); if (!Array.isArray(arr)) arr = [];
         const meta = {
           id: String(body.id || ('t_' + Date.now())),
-          title: scrub(String(body.title || 'Spor')).slice(0, 200),
+          title: scrub(String(body.title || 'Track')).slice(0, 200),
           url: String(body.url || ''), path: String(body.path || ''), size: Number(body.size) || 0,
           coverUrl: /^https?:\/\//i.test(String(body.coverUrl || '')) ? String(body.coverUrl) : '',
           coverPath: String(body.coverPath || ''),
         };
-        if (!/^https?:\/\//i.test(meta.url)) return res.status(400).json({ error: 'Ugyldig URL' });
+        if (!/^https?:\/\//i.test(meta.url)) return res.status(400).json({ error: 'Invalid URL' });
         arr.push(meta);
         const { error } = await writeKey(c, 'tracks', arr);
         if (error) return res.status(500).json({ error: error.message });
@@ -577,7 +577,7 @@ module.exports = async (req, res) => {
       if (action === 'upload-url') {
         const path = typeof body.path === 'string' ? body.path.trim() : '';
         if (!path || path.includes('..') || path.startsWith('/') || path.length > 256)
-          return res.status(400).json({ error: 'Ugyldig filsti' });
+          return res.status(400).json({ error: 'Invalid file path' });
         const { data, error } = await c.storage.from(BUCKET).createSignedUploadUrl(path);
         if (error) return res.status(500).json({ error: error.message });
         const publicUrl = c.storage.from(BUCKET).getPublicUrl(data.path).data.publicUrl;
@@ -585,9 +585,9 @@ module.exports = async (req, res) => {
       }
     }
 
-    return res.status(400).json({ error: 'Ukjent action' });
+    return res.status(400).json({ error: 'Unknown action' });
   } catch (e) {
     console.error('site.js error:', e && e.message);
-    return res.status(500).json({ error: 'Serverfeil' });
+    return res.status(500).json({ error: 'Server error' });
   }
 };

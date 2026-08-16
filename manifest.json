@@ -1,7 +1,7 @@
 {
   "name": "Ambient Mann — Booking",
   "short_name": "Ambient Mann",
-  "description": "Book Ambient Mann. Psybient, psychill og cinematic dark ambient — live via Traktor, opplastet musikk, podcaster og donasjon.",
+  "description": "Book Ambient Mann. Psybient, psychill and cinematic dark ambient — live via Traktor, uploaded music, podcasts and donations.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

@@ -60,7 +60,7 @@ window.Tracks = (function () {
   }
   function paintPlayer() {
     const t = list()[current];
-    if (P.title) P.title.textContent = t ? (t.title || 'Spor') : 'Velg et spor';
+    if (P.title) P.title.textContent = t ? (t.title || 'Track') : 'Pick a track';
     if (P.cover) {
       if (t && t.coverUrl) { P.cover.style.backgroundImage = 'url("' + t.coverUrl + '")'; P.cover.classList.remove('empty'); }
       else { P.cover.style.backgroundImage = ''; P.cover.classList.add('empty'); }
@@ -96,7 +96,7 @@ window.Tracks = (function () {
     if (!tr[i] || !tr[i].url) return;
     if (i === current) { toggle(); return; }
     audio.src = tr[i].url; current = i;
-    audio.play().catch(() => UI.toast('Kunne ikke spille av sporet.'));
+    audio.play().catch(() => UI.toast('Could not play this track.'));
     recordPlay(tr[i]);
     paintPlayer(); renderList();
   }
@@ -107,7 +107,7 @@ window.Tracks = (function () {
     const wrap = document.getElementById('tracks-list');
     if (!wrap) return;
     const tr = list();
-    if (!tr.length) { wrap.innerHTML = '<p class="muted">Ingen opplastet musikk ennå.</p>'; }
+    if (!tr.length) { wrap.innerHTML = '<p class="muted">No music uploaded yet.</p>'; }
     else {
       // Vis nyeste øverst for ALLE besøkende. Nye opplastinger legges bakerst i
       // lista, så vi reverserer VISNINGSrekkefølgen. Vi beholder den EKTE indeksen
@@ -122,16 +122,16 @@ window.Tracks = (function () {
         // øverst/nederst i visningen. «k» = plass i den viste (reverserte) lista.
         const move = isOwner
           ? '<span class="track-moves owner-only">' +
-              '<button class="track-move" data-mvup="' + i + '" title="Flytt opp"' + (k === 0 ? ' disabled' : '') + ' aria-label="Flytt opp">▲</button>' +
-              '<button class="track-move" data-mvdn="' + i + '" title="Flytt ned"' + (k === order.length - 1 ? ' disabled' : '') + ' aria-label="Flytt ned">▼</button>' +
+              '<button class="track-move" data-mvup="' + i + '" title="Move up"' + (k === 0 ? ' disabled' : '') + ' aria-label="Move up">▲</button>' +
+              '<button class="track-move" data-mvdn="' + i + '" title="Move down"' + (k === order.length - 1 ? ' disabled' : '') + ' aria-label="Move down">▼</button>' +
             '</span>' : '';
         const edit = isOwner
-          ? '<button class="btn btn-tiny owner-only" data-edit="' + i + '">Rediger</button>' : '';
+          ? '<button class="btn btn-tiny owner-only" data-edit="' + i + '">Edit</button>' : '';
         const del = isOwner
-          ? '<button class="btn btn-tiny owner-only" data-rm="' + i + '">Slett</button>' : '';
+          ? '<button class="btn btn-tiny owner-only" data-rm="' + i + '">Delete</button>' : '';
         const hasLink = !!(t.id && t.url);
-        const copy = hasLink ? '<button class="track-share" data-copy="' + i + '" title="Kopier lenke" aria-label="Kopier lenke">📋</button>' : '';
-        const share = hasLink ? '<button class="track-share" data-share="' + i + '" title="Del sporet" aria-label="Del sporet">🔗</button>' : '';
+        const copy = hasLink ? '<button class="track-share" data-copy="' + i + '" title="Copy link" aria-label="Copy link">📋</button>' : '';
+        const share = hasLink ? '<button class="track-share" data-share="' + i + '" title="Share track" aria-label="Share track">🔗</button>' : '';
         const cov = t.coverUrl ? '<span class="track-cover" style="background-image:url(\'' + UI.esc(t.coverUrl) + '\')"></span>'
                                : '<span class="track-cover empty">♪</span>';
         // Har sporet egen delbar side? Da åpner klikk på cover/tittel den URL-en
@@ -140,8 +140,8 @@ window.Tracks = (function () {
         const rowAttr = hasLink ? ' data-open="' + UI.esc(trackUrl(t)) + '"' : ' data-play="' + i + '"';
         return '<div class="track-row' + (i === current ? ' playing' : '') + '"' + rowAttr + '>' +
           cov +
-          '<button class="track-play" data-play="' + i + '" title="Spill av her" aria-label="Spill av her">' + (playing ? '⏸' : '▶') + '</button>' +
-          '<div class="track-meta"><div class="track-title">' + UI.esc(t.title || ('Spor ' + (i + 1))) + '</div>' +
+          '<button class="track-play" data-play="' + i + '" title="Play here" aria-label="Play here">' + (playing ? '⏸' : '▶') + '</button>' +
+          '<div class="track-meta"><div class="track-title">' + UI.esc(t.title || ('Track ' + (i + 1))) + '</div>' +
           '<div class="track-sub">' + UI.esc(fmtSize(t.size)) + '</div></div>' + copy + share + move + edit + del +
         '</div>';
       }).join('');
@@ -199,16 +199,16 @@ window.Tracks = (function () {
 
   // Del-meny med Facebook / X / WhatsApp / Telegram / e-post + kopier (+ native del-ark på mobil).
   function openShareMenu(t, i) {
-    const title = t.title || ('Spor ' + (i + 1));
+    const title = t.title || ('Track ' + (i + 1));
     const url = trackUrl(t);
-    const text = 'Hør «' + title + '» hos Ambient Mann';
+    const text = 'Listen to “' + title + '” at Ambient Mann';
     const eu = encodeURIComponent(url), et = encodeURIComponent(text);
     const targets = [
       { label: 'Facebook', href: 'https://www.facebook.com/sharer/sharer.php?u=' + eu },
       { label: 'X / Twitter', href: 'https://twitter.com/intent/tweet?url=' + eu + '&text=' + et },
       { label: 'WhatsApp', href: 'https://wa.me/?text=' + encodeURIComponent(text + ' ' + url) },
       { label: 'Telegram', href: 'https://t.me/share/url?url=' + eu + '&text=' + et },
-      { label: 'E-post', href: 'mailto:?subject=' + encodeURIComponent(title) + '&body=' + encodeURIComponent(text + '\n\n' + url) },
+      { label: 'Email', href: 'mailto:?subject=' + encodeURIComponent(title) + '&body=' + encodeURIComponent(text + '\n\n' + url) },
     ];
     const back = document.createElement('div');
     back.className = 'share-back';
@@ -216,7 +216,7 @@ window.Tracks = (function () {
     menu.className = 'share-menu';
     const head = document.createElement('div');
     head.className = 'share-title';
-    head.textContent = 'Del «' + title + '»';
+    head.textContent = 'Share “' + title + '”';
     menu.appendChild(head);
 
     function close() { back.remove(); document.removeEventListener('keydown', onKey); }
@@ -230,17 +230,17 @@ window.Tracks = (function () {
       menu.appendChild(a);
     });
     const cp = document.createElement('button');
-    cp.className = 'share-item'; cp.textContent = '📋 Kopier lenke';
-    cp.addEventListener('click', async () => { try { await copyToClipboard(url); UI.toast('Lenke kopiert!'); } catch (_) {} close(); });
+    cp.className = 'share-item'; cp.textContent = '📋 Copy link';
+    cp.addEventListener('click', async () => { try { await copyToClipboard(url); UI.toast('Link copied!'); } catch (_) {} close(); });
     menu.appendChild(cp);
     if (navigator.share) {
       const nb = document.createElement('button');
-      nb.className = 'share-item'; nb.textContent = 'Flere apper …';
+      nb.className = 'share-item'; nb.textContent = 'More apps …';
       nb.addEventListener('click', async () => { close(); try { await navigator.share({ title: 'Ambient Mann — ' + title, text, url }); } catch (_) {} });
       menu.appendChild(nb);
     }
     const cancel = document.createElement('button');
-    cancel.className = 'share-item share-cancel'; cancel.textContent = 'Avbryt';
+    cancel.className = 'share-item share-cancel'; cancel.textContent = 'Cancel';
     cancel.addEventListener('click', () => close());
     menu.appendChild(cancel);
 
@@ -251,8 +251,8 @@ window.Tracks = (function () {
   }
   async function copyLink(i) {
     const t = list()[i]; if (!t || !t.id) return;
-    try { await copyToClipboard(trackUrl(t)); UI.toast('Lenke til sporet er kopiert!'); }
-    catch (_) { UI.toast('Kunne ikke kopiere lenken.'); }
+    try { await copyToClipboard(trackUrl(t)); UI.toast('Link to the track copied!'); }
+    catch (_) { UI.toast('Could not copy the link.'); }
   }
 
   function render() { paintPlayer(); renderList(); }
@@ -306,34 +306,34 @@ window.Tracks = (function () {
     const status = document.getElementById('track-upstatus');
     const btn = document.getElementById('track-upload');
     const file = fileEl && fileEl.files && fileEl.files[0];
-    if (!file) { UI.toast('Velg en lyd-fil (WAV/MP3).'); return; }
-    if (!Owner.isOwner()) { UI.toast('Logg inn som eier for å laste opp.'); return; }
-    if (!SC_Storage.isConfigured()) { UI.toast('Lyd-lagring er ikke satt opp ennå (mangler Supabase i config).'); return; }
+    if (!file) { UI.toast('Pick an audio file (WAV/MP3).'); return; }
+    if (!Owner.isOwner()) { UI.toast('Log in as owner to upload.'); return; }
+    if (!SC_Storage.isConfigured()) { UI.toast('Audio storage is not set up yet (Supabase missing in config).'); return; }
     // Hver opplasting skal gi sin egen URL (/track/<navn>). Samme navn = samme
     // URL, som da ville peke til det gamle sporet – stopp og be om et unikt navn.
     const wantTitle = (titleEl && titleEl.value.trim()) || file.name.replace(/\.[a-z0-9]+$/i, '');
     const wantSlug = slugify(wantTitle);
     if (wantSlug && list().some(t => slugify(t.title) === wantSlug)) {
       if (status) status.textContent = '';
-      UI.toast('Det finnes allerede et spor med dette navnet (samme lenke). Gi det et unikt navn.');
+      UI.toast('A track with this name already exists (same link). Give it a unique name.');
       if (titleEl) titleEl.focus();
       return;
     }
-    if (btn) { btn.disabled = true; btn.dataset.label = btn.textContent; btn.textContent = '⏳ Laster opp …'; }
+    if (btn) { btn.disabled = true; btn.dataset.label = btn.textContent; btn.textContent = '⏳ Uploading …'; }
     const total = fmtSize(file.size);
-    if (status) status.textContent = 'Laster opp lyd … 0% av ' + total;
+    if (status) status.textContent = 'Uploading audio … 0% of ' + total;
     try {
       const up = await SC_Storage.upload(file, {
         prefix: 'tracks',
         onProgress: p => {
-          if (status) status.textContent = 'Laster opp lyd … ' + Math.round(p * 100) + '% av ' + total +
-            (p >= 1 ? ' – lagrer …' : '');
+          if (status) status.textContent = 'Uploading audio … ' + Math.round(p * 100) + '% of ' + total +
+            (p >= 1 ? ' – saving …' : '');
         },
       });
       let coverUrl = '', coverPath = '';
       const coverFile = coverEl && coverEl.files && coverEl.files[0];
       if (coverFile) {
-        if (status) status.textContent = 'Laster opp cover-bilde …';
+        if (status) status.textContent = 'Uploading cover image …';
         const cu = await SC_Storage.upload(coverFile, { prefix: 'covers' });
         coverUrl = cu.url; coverPath = cu.path;
       }
@@ -347,23 +347,23 @@ window.Tracks = (function () {
       });
       if (!r.ok) {
         const d = await r.json().catch(() => ({}));
-        UI.toast('Fikk lastet opp lyden, men klarte ikke lagre i lista' + (d.error ? ': ' + d.error : '.'));
+        UI.toast('The audio uploaded, but could not be saved to the list' + (d.error ? ': ' + d.error : '.'));
       }
       const arr = list(); arr.push(meta); await Content.set('tracks', arr);
       // Vis den nye, delbare URL-en som navnet lager (én ny URL per spor).
       const newUrl = trackUrl(meta);
       if (status) {
-        status.innerHTML = '✅ Lagt til! Ny lenke: <a href="' + UI.esc(newUrl) + '" target="_blank" rel="noopener">' +
+        status.innerHTML = '✅ Added! New link: <a href="' + UI.esc(newUrl) + '" target="_blank" rel="noopener">' +
           UI.esc(newUrl.replace(/^https?:\/\//, '')) + '</a>';
       }
-      try { await copyToClipboard(newUrl); UI.toast('Sporet er lagt til – lenken er kopiert.'); }
-      catch (_) { UI.toast('Sporet er lagt til.'); }
+      try { await copyToClipboard(newUrl); UI.toast('The track was added – the link is copied.'); }
+      catch (_) { UI.toast('The track was added.'); }
       if (fileEl) fileEl.value = ''; if (coverEl) coverEl.value = ''; if (titleEl) titleEl.value = '';
       render();
     } catch (e) {
       const msg = (e && e.message) || String(e);
-      if (status) status.textContent = 'Feil: ' + msg;
-      UI.toast(msg === 'not-configured' ? 'Lyd-lagring ikke satt opp.' : ('Opplasting feilet: ' + msg));
+      if (status) status.textContent = 'Error: ' + msg;
+      UI.toast(msg === 'not-configured' ? 'Audio storage is not set up.' : ('Upload failed: ' + msg));
     } finally {
       if (btn) { btn.disabled = false; if (btn.dataset.label) btn.textContent = btn.dataset.label; }
     }
@@ -407,7 +407,7 @@ window.Tracks = (function () {
 
     const head = document.createElement('div');
     head.className = 'share-title';
-    head.textContent = 'Rediger sporet';
+    head.textContent = 'Edit track';
     menu.appendChild(head);
 
     function label(txt) {
@@ -419,19 +419,19 @@ window.Tracks = (function () {
     }
 
     // -- navn --
-    menu.appendChild(label('Navn'));
+    menu.appendChild(label('Name'));
     const input = document.createElement('input');
     input.className = 'input'; input.type = 'text';
-    input.value = t.title || ''; input.setAttribute('aria-label', 'Nytt navn');
+    input.value = t.title || ''; input.setAttribute('aria-label', 'New name');
     menu.appendChild(input);
     const note = document.createElement('p');
     note.className = 'muted';
     note.style.cssText = 'font-size:12px; margin:6px 0 10px';
-    note.textContent = 'Endrer du navnet, endres den delbare lenken (/podcast/…) og tidligere delte lenker slutter å virke. Avspillingstallet beholdes.';
+    note.textContent = 'Changing the name changes the shareable link (/podcast/…) and links shared earlier stop working. The play count is kept.';
     menu.appendChild(note);
 
     // -- cover-bilde --
-    menu.appendChild(label('Cover-bilde (la stå tomt for å beholde)'));
+    menu.appendChild(label('Cover image (leave empty to keep the current one)'));
     const coverRow = document.createElement('div');
     coverRow.style.cssText = 'display:flex; align-items:center; gap:10px; margin-bottom:10px';
     const thumb = document.createElement('span');
@@ -447,7 +447,7 @@ window.Tracks = (function () {
     menu.appendChild(coverRow);
 
     // -- lydfil --
-    menu.appendChild(label('Lydfil (la stå tomt for å beholde nåværende)'));
+    menu.appendChild(label('Audio file (leave empty to keep the current one)'));
     const audioInput = document.createElement('input');
     audioInput.type = 'file'; audioInput.accept = 'audio/*,.wav,.mp3,.m4a,.aac,.ogg';
     audioInput.style.cssText = 'width:100%; max-width:100%';
@@ -455,7 +455,7 @@ window.Tracks = (function () {
     const audioNote = document.createElement('p');
     audioNote.className = 'muted';
     audioNote.style.cssText = 'font-size:12px; margin:6px 0 4px';
-    audioNote.textContent = 'Bytter du lydfila, beholdes lenke og avspillingstall. Store filer tar tid å laste opp – ikke lukk vinduet mens den laster.';
+    audioNote.textContent = 'If you swap the audio file, the link and play count are kept. Large files take time to upload – do not close the window while it is uploading.';
     menu.appendChild(audioNote);
 
     const status = document.createElement('p');
@@ -467,9 +467,9 @@ window.Tracks = (function () {
     const row = document.createElement('div');
     row.style.cssText = 'display:flex; gap:8px; margin-top:12px';
     const saveBtn = document.createElement('button');
-    saveBtn.className = 'btn btn-primary'; saveBtn.style.flex = '1'; saveBtn.textContent = 'Lagre';
+    saveBtn.className = 'btn btn-primary'; saveBtn.style.flex = '1'; saveBtn.textContent = 'Save';
     const cancel = document.createElement('button');
-    cancel.className = 'btn'; cancel.style.flex = '1'; cancel.textContent = 'Avbryt';
+    cancel.className = 'btn'; cancel.style.flex = '1'; cancel.textContent = 'Cancel';
     row.appendChild(saveBtn); row.appendChild(cancel);
     menu.appendChild(row);
 
@@ -480,16 +480,16 @@ window.Tracks = (function () {
     async function doSave() {
       if (busy()) return;
       const nv = input.value.trim();
-      if (!nv) { UI.toast('Skriv et navn.'); input.focus(); return; }
+      if (!nv) { UI.toast('Enter a name.'); input.focus(); return; }
       const newSlug = slugify(nv);
       if (newSlug && list().some((x, j) => j !== i && slugify(x.title) === newSlug)) {
-        UI.toast('Et annet spor har allerede dette navnet (samme lenke). Velg et unikt navn.');
+        UI.toast('Another track already has this name (same link). Choose a unique name.');
         input.focus(); return;
       }
       const cf = coverInput.files && coverInput.files[0];
       const af = audioInput.files && audioInput.files[0];
       if ((cf || af) && !SC_Storage.isConfigured()) {
-        UI.toast('Lyd-lagring er ikke satt opp – kan ikke bytte fil.'); return;
+        UI.toast('Audio storage is not set up – cannot swap the file.'); return;
       }
       saveBtn.disabled = true; cancel.disabled = true;
       const oldFiles = [];
@@ -500,10 +500,10 @@ window.Tracks = (function () {
         // 1) ny lydfil (med fremdrift)
         if (af) {
           const tot = fmtSize(af.size);
-          status.textContent = 'Laster opp lyd … 0% av ' + tot;
+          status.textContent = 'Uploading audio … 0% of ' + tot;
           const up = await SC_Storage.upload(af, {
             prefix: 'tracks',
-            onProgress: p => { status.textContent = 'Laster opp lyd … ' + Math.round(p * 100) + '% av ' + tot + (p >= 1 ? ' – lagrer …' : ''); },
+            onProgress: p => { status.textContent = 'Uploading audio … ' + Math.round(p * 100) + '% of ' + tot + (p >= 1 ? ' – saving …' : ''); },
           });
           if (arr[i].path) oldFiles.push(arr[i].path);
           arr[i].url = up.url; arr[i].path = up.path; arr[i].size = up.size;
@@ -511,7 +511,7 @@ window.Tracks = (function () {
         }
         // 2) nytt cover-bilde
         if (cf) {
-          status.textContent = 'Laster opp cover-bilde …';
+          status.textContent = 'Uploading cover image …';
           const cu = await SC_Storage.upload(cf, { prefix: 'covers' });
           if (arr[i].coverPath) oldFiles.push(arr[i].coverPath);
           arr[i].coverUrl = cu.url; arr[i].coverPath = cu.path;
@@ -519,7 +519,7 @@ window.Tracks = (function () {
         // 3) navn
         arr[i].title = nv;
         // 4) lagre lista (gjelder for alle besøkende)
-        status.textContent = 'Lagrer …';
+        status.textContent = 'Saving …';
         await Content.set('tracks', arr);
         // 5) rydd bort de gamle filene som ble byttet ut (lydfiler er store)
         if (oldFiles.length) {
@@ -539,12 +539,12 @@ window.Tracks = (function () {
         saveBtn.disabled = false; cancel.disabled = false;
         render();
         close();
-        UI.toast('Sporet er oppdatert.');
+        UI.toast('The track has been updated.');
       } catch (e) {
         saveBtn.disabled = false; cancel.disabled = false;
         const msg = (e && e.message) || String(e);
-        status.textContent = 'Feil: ' + msg;
-        UI.toast('Kunne ikke lagre: ' + msg);
+        status.textContent = 'Error: ' + msg;
+        UI.toast('Could not save: ' + msg);
       }
     }
     saveBtn.addEventListener('click', doSave);

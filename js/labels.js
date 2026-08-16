@@ -15,12 +15,12 @@ window.Labels = (function () {
     const wrap = document.getElementById('labels-list');
     if (!wrap) return;
     const list = items();
-    if (!list.length) { wrap.innerHTML = '<p class="muted">Ingen plateselskaper lagt til ennå.</p>'; }
+    if (!list.length) { wrap.innerHTML = '<p class="muted">No record labels added yet.</p>'; }
     else {
       wrap.innerHTML = list.map((it, i) => {
         const name = it.name || it.url;
         const del = Owner.isOwner()
-          ? '<button class="btn btn-tiny owner-only" data-rmlabel="' + i + '">Fjern</button>' : '';
+          ? '<button class="btn btn-tiny owner-only" data-rmlabel="' + i + '">Remove</button>' : '';
         return '<div class="link-item">' +
           '<div class="link-main">' +
             '<a class="link-name" href="' + UI.esc(it.url) + '" target="_blank" rel="noopener noreferrer">' +
@@ -39,7 +39,7 @@ window.Labels = (function () {
     const urlEl = document.getElementById('label-url');
     const url = urlEl && urlEl.value.trim();
     const name = (nameEl && nameEl.value.trim()) || '';
-    if (!/^https?:\/\//i.test(url || '')) { UI.toast('Lim inn en gyldig lenke (https://…).'); return; }
+    if (!/^https?:\/\//i.test(url || '')) { UI.toast('Paste a valid link (https://…).'); return; }
     const arr = items(); arr.push({ name: name, url: url });
     await Content.set('labels', arr);
     if (nameEl) nameEl.value = ''; if (urlEl) urlEl.value = '';

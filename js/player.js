@@ -60,7 +60,7 @@ window.Player = (function () {
 
   function toggle() {
     if (!streamUrl()) {
-      UI.toast('Live er ikke koblet opp ennå. Ambient Mann er offline akkurat nå.');
+      UI.toast('Live is not hooked up yet. Ambient Mann is offline right now.');
       return;
     }
     if (wantPlaying) { wantPlaying = false; clearTimeout(reconnectTimer); audio.pause(); }
@@ -115,16 +115,16 @@ window.Player = (function () {
     if (els.now) els.now.textContent = state.live ? (state.by || 'Ambient Mann') : (hasStream ? 'Ambient Mann' : 'Offline');
     if (els.by) {
       els.by.innerHTML = state.live
-        ? '<span class="pb-live"><span class="dot"></span>LIVE</span> ' + UI.esc(state.title || 'Live fra Traktor')
-        : (hasStream ? '<span class="pb-ai">✦</span> Klar til sending' : '<span class="pb-ai">✦</span> Ikke live nå');
+        ? '<span class="pb-live"><span class="dot"></span>LIVE</span> ' + UI.esc(state.title || 'Live from Traktor')
+        : (hasStream ? '<span class="pb-ai">✦</span> Ready to broadcast' : '<span class="pb-ai">✦</span> Not live right now');
     }
     // Live nå-boks
     if (els.liveBadge) els.liveBadge.style.display = state.live ? '' : 'none';
-    if (els.liveKicker) els.liveKicker.textContent = state.live ? 'LIVE NÅ' : (hasStream ? 'STRØM KLAR' : 'OFFLINE');
+    if (els.liveKicker) els.liveKicker.textContent = state.live ? 'LIVE NOW' : (hasStream ? 'STREAM READY' : 'OFFLINE');
     if (els.liveTitle) els.liveTitle.textContent = state.live ? (state.by || 'Ambient Mann') : 'Ambient Mann';
     if (els.liveSub) els.liveSub.textContent = state.live
-      ? (state.title || 'Live direkte fra Traktor')
-      : (hasStream ? 'Trykk på play når Ambient Mann går live.' : 'Ambient Mann er ikke live akkurat nå – se sendeplanen under.');
+      ? (state.title || 'Live from Traktor')
+      : (hasStream ? 'Hit play when Ambient Mann goes live.' : 'Ambient Mann is not live right now – see the schedule below.');
     if (els.liveListeners) els.liveListeners.textContent = state.listeners;
     updateLiveBg();
   }

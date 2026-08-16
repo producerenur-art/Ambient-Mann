@@ -25,7 +25,7 @@ window.Owner = (function () {
     const on = isOwner();
     UI.$all('.owner-only').forEach(el => { el.style.display = on ? '' : 'none'; });
     const btn = document.getElementById('owner-btn');
-    if (btn) btn.textContent = on ? 'Logg ut' : 'Eier-innlogging';
+    if (btn) btn.textContent = on ? 'Log out' : 'Owner login';
   }
 
   function refresh() {
@@ -66,10 +66,10 @@ window.Owner = (function () {
   function setMode(m, opts) {
     mode = m; opts = opts || {};
     const T = {
-      login:  ['Eier-innlogging', 'Kun for Ambient Mann.', 'Passord', 'Logg inn'],
-      create: ['Opprett passord', 'Første gang – lag ditt eget passord (min. 6 tegn).', 'Nytt passord', 'Opprett & logg inn'],
-      forgot: ['Glemt passord', 'Skriv e-posten din, så sender vi en tilbakestillingslenke.', '', 'Send lenke'],
-      reset:  ['Sett nytt passord', 'Velg et nytt passord (min. 6 tegn).', 'Nytt passord', 'Lagre & logg inn'],
+      login:  ['Owner login', 'For Ambient Mann only.', 'Password', 'Log in'],
+      create: ['Create password', 'First time – create your own password (min. 6 characters).', 'New password', 'Create & log in'],
+      forgot: ['Forgot password', 'Enter your email and we will send you a reset link.', '', 'Send link'],
+      reset:  ['Set new password', 'Choose a new password (min. 6 characters).', 'New password', 'Save & log in'],
     }[m];
     if (M.title) M.title.textContent = T[0];
     if (M.sub) M.sub.textContent = T[1];
@@ -94,30 +94,30 @@ window.Owner = (function () {
     const email = (M.email && M.email.value.trim()) || '';
     if (mode === 'login') {
       const { r, d } = await post('login', { password: pass });
-      if (r.status === 503) return UI.toast(d.error || 'Innlogging ikke satt opp ennå.');
-      if (r.ok && d.token) { save(d.token); show(false); refresh(); UI.toast('Logget inn.'); }
-      else UI.toast(d.error || 'Feil passord.');
+      if (r.status === 503) return UI.toast(d.error || 'Login is not set up yet.');
+      if (r.ok && d.token) { save(d.token); show(false); refresh(); UI.toast('Logged in.'); }
+      else UI.toast(d.error || 'Wrong password.');
     } else if (mode === 'create') {
-      if (pass.length < 6) return UI.toast('Minst 6 tegn.');
+      if (pass.length < 6) return UI.toast('At least 6 characters.');
       const { r, d } = await post('set-password', { password: pass, email: email });
-      if (r.ok && d.token) { save(d.token); show(false); refresh(); UI.toast('Passord opprettet – du er logget inn.'); }
-      else UI.toast(d.error || 'Kunne ikke opprette passord.');
+      if (r.ok && d.token) { save(d.token); show(false); refresh(); UI.toast('Password created – you are logged in.'); }
+      else UI.toast(d.error || 'Could not create password.');
     } else if (mode === 'forgot') {
-      if (!email) return UI.toast('Skriv e-posten din.');
+      if (!email) return UI.toast('Enter your email.');
       await post('forgot', { email: email });
       show(false);
-      UI.toast('Hvis e-posten stemmer, er en tilbakestillingslenke sendt.');
+      UI.toast('If the email matches, a reset link has been sent.');
     } else if (mode === 'reset') {
-      if (pass.length < 6) return UI.toast('Minst 6 tegn.');
+      if (pass.length < 6) return UI.toast('At least 6 characters.');
       const { r, d } = await post('reset', { token: resetToken, password: pass });
       if (r.ok && d.token) {
-        save(d.token); show(false); refresh(); UI.toast('Nytt passord lagret – du er logget inn.');
+        save(d.token); show(false); refresh(); UI.toast('New password saved – you are logged in.');
         history.replaceState({}, '', location.pathname);
-      } else UI.toast(d.error || 'Lenken er ugyldig eller utløpt.');
+      } else UI.toast(d.error || 'The link is invalid or has expired.');
     }
   }
 
-  function logout() { try { sessionStorage.removeItem(KEY); } catch (_) {} refresh(); UI.toast('Logget ut.'); }
+  function logout() { try { sessionStorage.removeItem(KEY); } catch (_) {} refresh(); UI.toast('Logged out.'); }
 
   function bind() {
     grab();

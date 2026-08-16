@@ -10,25 +10,25 @@ window.Plays = (function () {
     if (!card || !Owner.isOwner()) return;   // panelet er uansett .owner-only-skjult
     const listEl = document.getElementById('plays-list');
     const totalEl = document.getElementById('plays-total');
-    if (listEl) listEl.innerHTML = '<p class="muted">Laster …</p>';
+    if (listEl) listEl.innerHTML = '<p class="muted">Loading …</p>';
 
     let d = null;
     try {
       const r = await Owner.authFetch('/api/site?action=plays');
       d = await r.json().catch(() => null);
-      if (!r.ok) throw new Error((d && d.error) || 'Feil');
+      if (!r.ok) throw new Error((d && d.error) || 'Error');
     } catch (_) {
       if (totalEl) totalEl.textContent = '';
-      if (listEl) listEl.innerHTML = '<p class="muted">Kunne ikke hente avspillinger.</p>';
+      if (listEl) listEl.innerHTML = '<p class="muted">Could not load play counts.</p>';
       return;
     }
 
     const plays = (d && d.plays) || [];
     const total = (d && d.total) || 0;
-    if (totalEl) totalEl.textContent = 'Totalt: ' + total + ' avspilling' + (total === 1 ? '' : 'er');
+    if (totalEl) totalEl.textContent = 'Total: ' + total + ' play' + (total === 1 ? '' : 's');
     if (!listEl) return;
     if (!plays.length) {
-      listEl.innerHTML = '<p class="muted">Ingen avspillinger registrert ennå.</p>';
+      listEl.innerHTML = '<p class="muted">No plays recorded yet.</p>';
       return;
     }
     listEl.innerHTML = plays.map(p =>

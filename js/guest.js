@@ -48,7 +48,7 @@ window.Guest = (function () {
 
   function fmt(iso) {
     const d = new Date(iso); if (isNaN(d)) return '—';
-    return d.toLocaleString('no-NO', { weekday: 'short', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+    return d.toLocaleString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
   }
   function statusOf(e) {
     if (window.Schedule && Schedule.statusOf) return Schedule.statusOf(e);
@@ -75,9 +75,9 @@ window.Guest = (function () {
       const isLive = !!live[s.gid];
       const badge = isLive
         ? '<span class="badge badge-live"><span class="dot"></span>LIVE</span>'
-        : '<span class="badge">Strøm</span>';
+        : '<span class="badge">Stream</span>';
       return '<div class="card guest-stream-card">' +
-        '<div class="gs-head"><b translate="no" class="notranslate">' + UI.esc(s.guestName || 'Gjest') + '</b> ' + badge + '</div>' +
+        '<div class="gs-head"><b translate="no" class="notranslate">' + UI.esc(s.guestName || 'Guest') + '</b> ' + badge + '</div>' +
         '<audio class="gs-audio" controls controlsList="nodownload noplaybackrate" disablePictureInPicture preload="none" src="' + UI.esc(s.url) + '"></audio>' +
       '</div>';
     }).join('');
@@ -88,20 +88,20 @@ window.Guest = (function () {
     const all = schedule().slice().sort((a, b) => new Date(a.start) - new Date(b.start));
     const upcoming = all.filter(e => statusOf(e) !== 'past');
     if (!upcoming.length) {
-      wrap.innerHTML = '<p class="muted">Ingen planlagte gjeste-sendinger ennå.</p>';
+      wrap.innerHTML = '<p class="muted">No guest broadcasts scheduled yet.</p>';
     } else {
       wrap.innerHTML = upcoming.map(e => {
         const st = statusOf(e);
         const badge = st === 'live'
           ? '<span class="badge badge-live"><span class="dot"></span>LIVE</span>'
-          : '<span class="badge">Kommer</span>';
+          : '<span class="badge">Upcoming</span>';
         const link = e.link
-          ? ' <a class="gs-link" href="' + UI.esc(e.link) + '" target="_blank" rel="noopener">↗ Åpne</a>' : '';
+          ? ' <a class="gs-link" href="' + UI.esc(e.link) + '" target="_blank" rel="noopener">↗ Open</a>' : '';
         const del = canDelete(e)
-          ? '<button class="btn btn-tiny" data-gdel-sched="' + UI.esc(e.id) + '">Slett</button>' : '';
+          ? '<button class="btn btn-tiny" data-gdel-sched="' + UI.esc(e.id) + '">Delete</button>' : '';
         return '<div class="sched-row">' +
-          '<div class="sched-when">' + UI.esc(fmt(e.start)) + ' · ' + (Number(e.hours) || 1) + ' t</div>' +
-          '<div class="sched-title"><span translate="no" class="notranslate">' + UI.esc(e.guestName || 'Gjest') + '</span> — ' + UI.esc(e.title || 'Live-sett') + link + '</div>' +
+          '<div class="sched-when">' + UI.esc(fmt(e.start)) + ' · ' + (Number(e.hours) || 1) + ' h</div>' +
+          '<div class="sched-title"><span translate="no" class="notranslate">' + UI.esc(e.guestName || 'Guest') + '</span> — ' + UI.esc(e.title || 'Live set') + link + '</div>' +
           badge + del +
         '</div>';
       }).join('');
@@ -113,16 +113,16 @@ window.Guest = (function () {
   function renderTracks() {
     const wrap = document.getElementById('guest-tracks'); if (!wrap) return;
     const arr = tracks();
-    if (!arr.length) { wrap.innerHTML = '<p class="muted">Ingen gjest-musikk ennå.</p>'; return; }
+    if (!arr.length) { wrap.innerHTML = '<p class="muted">No guest music yet.</p>'; return; }
     wrap.innerHTML = arr.map(t => {
       const cov = t.coverUrl
         ? '<span class="track-cover" style="background-image:url(\'' + UI.esc(t.coverUrl) + '\')"></span>'
         : '<span class="track-cover empty">♪</span>';
       const del = canDelete(t)
-        ? '<button class="btn btn-tiny" data-gdel-track="' + UI.esc(t.id) + '">Slett</button>' : '';
+        ? '<button class="btn btn-tiny" data-gdel-track="' + UI.esc(t.id) + '">Delete</button>' : '';
       return '<div class="track-row guest-track-row">' + cov +
-        '<div class="track-meta"><div class="track-title">' + UI.esc(t.title || 'Spor') + '</div>' +
-        '<div class="track-sub"><span translate="no" class="notranslate">' + UI.esc(t.guestName || 'Gjest') + '</span></div></div>' +
+        '<div class="track-meta"><div class="track-title">' + UI.esc(t.title || 'Track') + '</div>' +
+        '<div class="track-sub"><span translate="no" class="notranslate">' + UI.esc(t.guestName || 'Guest') + '</span></div></div>' +
         '<audio class="gt-audio" controls controlsList="nodownload noplaybackrate" disablePictureInPicture preload="none" src="' + UI.esc(t.url) + '"></audio>' + del +
       '</div>';
     }).join('');
@@ -138,7 +138,7 @@ window.Guest = (function () {
 
     // Hele gjest-seksjonen er skjult for publikum; vises kun for innlogget gjest/eier.
     // Innlogging skjer fra «Gjest-innlogging»-knappen i toppbaren.
-    const section = document.getElementById('gjest-live');
+    const section = document.getElementById('guest-live');
     if (section) section.style.display = canSee ? '' : 'none';
     const priv = document.getElementById('guest-private-content');
     if (priv) priv.style.display = '';
@@ -152,7 +152,7 @@ window.Guest = (function () {
     const hbtn = document.getElementById('guest-login-btn');
     if (hbtn) {
       hbtn.style.display = ownerOn ? 'none' : '';
-      hbtn.textContent = on ? 'Logg ut gjest' : 'Gjest-innlogging';
+      hbtn.textContent = on ? 'Log out guest' : 'Guest login';
     }
 
     // Nav-lenken «Gjest» peker inn i seksjonen — kun nyttig når den er synlig.
@@ -160,13 +160,13 @@ window.Guest = (function () {
     if (navLink) navLink.style.display = canSee ? '' : 'none';
 
     // Gammel innloggings-CTA inne i seksjonen er erstattet av toppbar-knappen.
-    const cta = document.querySelector('#gjest-live .guest-auth-cta');
+    const cta = document.querySelector('#guest-live .guest-auth-cta');
     if (cta) cta.style.display = 'none';
 
     const btn = document.getElementById('guest-btn');
-    if (btn) btn.textContent = on ? 'Logg ut som gjest' : 'Logg inn som gjest';
+    if (btn) btn.textContent = on ? 'Log out as guest' : 'Log in as guest';
     const stx = document.getElementById('guest-status-text');
-    if (stx) stx.textContent = on ? (approved ? ('Innlogget som ' + myName()) : 'Innlogget – venter på godkjenning') : '';
+    if (stx) stx.textContent = on ? (approved ? ('Logged in as ' + myName()) : 'Logged in – waiting for approval') : '';
 
     const nav = document.getElementById('guest-nav-name');
     if (nav) nav.textContent = (on && myName()) ? ('· ' + myName()) : '';
@@ -210,10 +210,10 @@ window.Guest = (function () {
   function setMode(m) {
     mode = m;
     const T = {
-      login:  ['Logg inn som gjest', 'For godkjente gjester.', 'Passord', 'Logg inn'],
-      signup: ['Registrer deg som gjest', 'Lag konto (min. 6 tegn passord). Du må bekrefte e-posten.', 'Passord', 'Registrer'],
-      forgot: ['Glemt passord', 'Skriv e-posten din, så sender vi en tilbakestillingslenke.', '', 'Send lenke'],
-      reset:  ['Sett nytt passord', 'Velg et nytt passord (min. 6 tegn).', 'Nytt passord', 'Lagre & logg inn'],
+      login:  ['Log in as guest', 'For approved guests.', 'Password', 'Log in'],
+      signup: ['Sign up as guest', 'Create an account (password min. 6 characters). You have to confirm your email.', 'Password', 'Sign up'],
+      forgot: ['Forgot password', 'Enter your email and we will send you a reset link.', '', 'Send link'],
+      reset:  ['Set new password', 'Choose a new password (min. 6 characters).', 'New password', 'Save & log in'],
     }[m];
     if (M.title) M.title.textContent = T[0];
     if (M.sub) M.sub.textContent = T[1];
@@ -224,7 +224,7 @@ window.Guest = (function () {
     if (M.passField) M.passField.style.display = (m === 'forgot') ? 'none' : '';
     if (M.toggle) {
       M.toggle.style.display = (m === 'login' || m === 'signup') && flags.signupSupported ? '' : 'none';
-      M.toggle.textContent = (m === 'signup') ? 'Har du konto? Logg inn' : 'Ny gjest? Registrer deg';
+      M.toggle.textContent = (m === 'signup') ? 'Already have an account? Log in' : 'New guest? Sign up';
     }
     if (M.forgot) M.forgot.style.display = (m === 'login' && flags.resetSupported) ? '' : 'none';
     if (M.back) M.back.style.display = (m === 'forgot') ? '' : 'none';
@@ -247,35 +247,35 @@ window.Guest = (function () {
       const { r, d } = await post('guest-login', { email, password: pass });
       if (r.ok && d.token) {
         save(d.token, { name: d.name, approved: d.approved, gid: d.gid || decodeGid(d.token) });
-        show(false); UI.toast('Logget inn.'); reloadAndRender();
-      } else UI.toast(d.error || 'Feil e-post eller passord.');
+        show(false); UI.toast('Logged in.'); reloadAndRender();
+      } else UI.toast(d.error || 'Wrong email or password.');
 
     } else if (mode === 'signup') {
-      if (!name) return UI.toast('Skriv navnet/artistnavnet ditt.');
-      if (pass.length < 6) return UI.toast('Minst 6 tegn passord.');
+      if (!name) return UI.toast('Enter your name / artist name.');
+      if (pass.length < 6) return UI.toast('Password must be at least 6 characters.');
       const { r, d } = await post('guest-signup', { name, email, password: pass });
       if (r.ok) {
         show(false);
         UI.toast(d.needsConfirm
-          ? 'Konto opprettet – sjekk e-posten din for en bekreftelseslenke.'
-          : 'Konto opprettet. Du kan nå logge inn (venter på godkjenning).');
-      } else UI.toast(d.error || 'Kunne ikke opprette konto.');
+          ? 'Account created – check your email for a confirmation link.'
+          : 'Account created. You can log in now (waiting for approval).');
+      } else UI.toast(d.error || 'Could not create the account.');
 
     } else if (mode === 'forgot') {
-      if (!email) return UI.toast('Skriv e-posten din.');
+      if (!email) return UI.toast('Enter your email.');
       await post('guest-forgot', { email });
       show(false);
-      UI.toast('Hvis e-posten stemmer, er en tilbakestillingslenke sendt.');
+      UI.toast('If the email matches, a reset link has been sent.');
 
     } else if (mode === 'reset') {
-      if (pass.length < 6) return UI.toast('Minst 6 tegn.');
+      if (pass.length < 6) return UI.toast('At least 6 characters.');
       const { r, d } = await post('guest-reset', { token: resetToken, password: pass });
       if (r.ok && d.token) {
         save(d.token, { name: d.name, approved: d.approved, gid: d.gid || decodeGid(d.token) });
-        show(false); UI.toast('Nytt passord lagret – du er logget inn.');
+        show(false); UI.toast('New password saved – you are logged in.');
         history.replaceState({}, '', location.pathname);
         reloadAndRender();
-      } else UI.toast(d.error || 'Lenken er ugyldig eller utløpt.');
+      } else UI.toast(d.error || 'The link is invalid or has expired.');
     }
   }
 
@@ -288,7 +288,7 @@ window.Guest = (function () {
     } catch (_) { return null; }
   }
 
-  function logout() { clearSession(); UI.toast('Logget ut.'); render(); }
+  function logout() { clearSession(); UI.toast('Logged out.'); render(); }
 
   // ---- gjest-konsoll: sendetid / opplasting / strøm ------------------------
   async function addSchedule() {
@@ -296,23 +296,23 @@ window.Guest = (function () {
     const hours = document.getElementById('gsched-hours');
     const title = document.getElementById('gsched-title');
     const link = document.getElementById('gsched-link');
-    if (!when || !when.value) return UI.toast('Velg dato og tid.');
+    if (!when || !when.value) return UI.toast('Pick a date and time.');
     const { r, d } = await postAuth('guest-schedule-add', {
       start: when.value,
       hours: parseInt(hours && hours.value, 10) || 2,
-      title: (title && title.value.trim()) || 'Live-sett',
+      title: (title && title.value.trim()) || 'Live set',
       link: (link && link.value.trim()) || '',
     });
     if (r.ok) {
-      UI.toast('Sendetid lagt til.');
+      UI.toast('Broadcast time added.');
       if (title) title.value = ''; if (link) link.value = '';
       reloadAndRender();
-    } else UI.toast(d.error || 'Kunne ikke lagre sendetid.');
+    } else UI.toast(d.error || 'Could not save the broadcast time.');
   }
 
   async function delSchedule(id) {
     const { r, d } = await postAuth('guest-schedule-delete', { id });
-    if (r.ok) reloadAndRender(); else UI.toast(d.error || 'Kunne ikke slette.');
+    if (r.ok) reloadAndRender(); else UI.toast(d.error || 'Could not delete.');
   }
 
   async function postAuth(action, body) {
@@ -337,7 +337,7 @@ window.Guest = (function () {
     const { error } = await SC_Storage.client()
       .storage.from(info.bucket)
       .uploadToSignedUrl(info.path, info.token, file, { contentType: file.type || 'application/octet-stream', upsert: true });
-    if (error) throw new Error(error.message || 'Opplasting feilet');
+    if (error) throw new Error(error.message || 'Upload failed');
     return { url: info.publicUrl, path: info.path, size: file.size };
   }
 
@@ -347,34 +347,34 @@ window.Guest = (function () {
     const titleEl = document.getElementById('gtrack-title');
     const st = document.getElementById('gtrack-status');
     const file = fileEl && fileEl.files && fileEl.files[0];
-    if (!file) return UI.toast('Velg en lyd-fil (WAV/MP3).');
-    if (!SC_Storage.isConfigured()) return UI.toast('Lyd-lagring er ikke satt opp (mangler Supabase i config).');
-    if (st) st.textContent = 'Laster opp lyd … (store filer kan ta litt tid)';
+    if (!file) return UI.toast('Pick an audio file (WAV/MP3).');
+    if (!SC_Storage.isConfigured()) return UI.toast('Audio storage is not set up (Supabase missing in config).');
+    if (st) st.textContent = 'Uploading audio … (large files may take a while)';
     try {
       const up = await guestUpload(file, 'tracks');
       let coverUrl = '', coverPath = '';
       const cf = coverEl && coverEl.files && coverEl.files[0];
-      if (cf) { if (st) st.textContent = 'Laster opp cover …'; const cu = await guestUpload(cf, 'covers'); coverUrl = cu.url; coverPath = cu.path; }
+      if (cf) { if (st) st.textContent = 'Uploading cover …'; const cu = await guestUpload(cf, 'covers'); coverUrl = cu.url; coverPath = cu.path; }
       const meta = {
         id: 'gt_' + Date.now().toString(36),
         title: (titleEl && titleEl.value.trim()) || file.name.replace(/\.[a-z0-9]+$/i, ''),
         url: up.url, path: up.path, size: up.size, coverUrl, coverPath,
       };
       const { r, d } = await postAuth('guest-track-add', meta);
-      if (!r.ok) { if (st) st.textContent = 'Feil: ' + (d.error || ''); return UI.toast(d.error || 'Klarte ikke lagre sporet.'); }
-      if (st) st.textContent = 'Lagt til!';
+      if (!r.ok) { if (st) st.textContent = 'Error: ' + (d.error || ''); return UI.toast(d.error || 'Could not save the track.'); }
+      if (st) st.textContent = 'Added!';
       if (fileEl) fileEl.value = ''; if (coverEl) coverEl.value = ''; if (titleEl) titleEl.value = '';
       reloadAndRender();
     } catch (e) {
       const msg = (e && e.message) || String(e);
-      if (st) st.textContent = 'Feil: ' + msg;
-      UI.toast(msg === 'not-configured' ? 'Lyd-lagring ikke satt opp.' : ('Opplasting feilet: ' + msg));
+      if (st) st.textContent = 'Error: ' + msg;
+      UI.toast(msg === 'not-configured' ? 'Audio storage is not set up.' : ('Upload failed: ' + msg));
     }
   }
 
   async function delTrack(id) {
     const { r, d } = await postAuth('guest-track-delete', { id });
-    if (r.ok) reloadAndRender(); else UI.toast(d.error || 'Kunne ikke slette.');
+    if (r.ok) reloadAndRender(); else UI.toast(d.error || 'Could not delete.');
   }
 
   async function saveStream() {
@@ -382,8 +382,8 @@ window.Guest = (function () {
     const np = (document.getElementById('gstream-np') || {}).value || '';
     const st = document.getElementById('gstream-status');
     const { r, d } = await postAuth('guest-stream-set', { url: url.trim(), nowPlayingUrl: np.trim() });
-    if (r.ok) { if (st) st.textContent = 'Lagret.'; UI.toast('Live-strøm lagret.'); reloadAndRender(); }
-    else { if (st) st.textContent = ''; UI.toast(d.error || 'Kunne ikke lagre strøm.'); }
+    if (r.ok) { if (st) st.textContent = 'Saved.'; UI.toast('Live stream saved.'); reloadAndRender(); }
+    else { if (st) st.textContent = ''; UI.toast(d.error || 'Could not save the stream.'); }
   }
 
   function fillPanel() {
@@ -399,37 +399,37 @@ window.Guest = (function () {
       const r = await Owner.authFetch('/api/site?action=guest-list');
       const d = await r.json().catch(() => ({}));
       const list = (d && d.guests) || [];
-      if (!list.length) { wrap.innerHTML = '<p class="muted">Ingen gjester ennå.</p>'; return; }
+      if (!list.length) { wrap.innerHTML = '<p class="muted">No guests yet.</p>'; return; }
       wrap.innerHTML = list.map(g => {
-        const state = !g.confirmed ? '<span class="badge">Ubekreftet</span>'
-          : (g.approved ? '<span class="badge badge-live">Godkjent</span>' : '<span class="badge">Venter</span>');
+        const state = !g.confirmed ? '<span class="badge">Unconfirmed</span>'
+          : (g.approved ? '<span class="badge badge-live">Approved</span>' : '<span class="badge">Pending</span>');
         const approveBtn = g.approved
-          ? '<button class="btn btn-tiny" data-gunapprove="' + g.id + '">Trekk tilbake</button>'
-          : '<button class="btn btn-tiny" data-gapprove="' + g.id + '">Godkjenn</button>';
+          ? '<button class="btn btn-tiny" data-gunapprove="' + g.id + '">Revoke</button>'
+          : '<button class="btn btn-tiny" data-gapprove="' + g.id + '">Approve</button>';
         return '<div class="sched-row">' +
-          '<div class="sched-when"><span translate="no" class="notranslate">' + UI.esc(g.name || '(uten navn)') + '</span></div>' +
+          '<div class="sched-when"><span translate="no" class="notranslate">' + UI.esc(g.name || '(no name)') + '</span></div>' +
           '<div class="sched-title">' + UI.esc(g.email || '') + '</div>' + state +
-          approveBtn + '<button class="btn btn-tiny" data-gdelete="' + g.id + '">Fjern</button>' +
+          approveBtn + '<button class="btn btn-tiny" data-gdelete="' + g.id + '">Remove</button>' +
         '</div>';
       }).join('');
       UI.$all('[data-gapprove]', wrap).forEach(b => b.addEventListener('click', () => approve(b.getAttribute('data-gapprove'), true)));
       UI.$all('[data-gunapprove]', wrap).forEach(b => b.addEventListener('click', () => approve(b.getAttribute('data-gunapprove'), false)));
       UI.$all('[data-gdelete]', wrap).forEach(b => b.addEventListener('click', () => removeGuest(b.getAttribute('data-gdelete'))));
-    } catch (_) { wrap.innerHTML = '<p class="muted">Kunne ikke laste gjeste-lista.</p>'; }
+    } catch (_) { wrap.innerHTML = '<p class="muted">Could not load the guest list.</p>'; }
   }
   async function approve(id, val) {
     const r = await Owner.authFetch('/api/site?action=guest-approve', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: Number(id), approved: val }),
     });
-    if (r.ok) { UI.toast(val ? 'Godkjent.' : 'Godkjenning trukket tilbake.'); loadAdmin(); }
-    else UI.toast('Kunne ikke oppdatere.');
+    if (r.ok) { UI.toast(val ? 'Approved.' : 'Approval revoked.'); loadAdmin(); }
+    else UI.toast('Could not update.');
   }
   async function removeGuest(id) {
     const r = await Owner.authFetch('/api/site?action=guest-delete', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: Number(id) }),
     });
-    if (r.ok) { UI.toast('Gjest fjernet.'); loadAdmin(); reloadAndRender(); }
-    else UI.toast('Kunne ikke fjerne.');
+    if (r.ok) { UI.toast('Guest removed.'); loadAdmin(); reloadAndRender(); }
+    else UI.toast('Could not remove.');
   }
 
   // ---- oppkobling ----------------------------------------------------------
@@ -459,7 +459,7 @@ window.Guest = (function () {
     const gc = p.get('gconfirm');
     if (gc) {
       post('guest-confirm', { token: gc }).then(({ r, d }) => {
-        UI.toast(r.ok ? 'E-post bekreftet! Du kan nå logge inn.' : (d.error || 'Bekreftelseslenken er ugyldig.'));
+        UI.toast(r.ok ? 'Email confirmed! You can log in now.' : (d.error || 'The confirmation link is invalid.'));
         history.replaceState({}, '', location.pathname);
         if (r.ok) setTimeout(() => open(), 400);
       });

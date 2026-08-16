@@ -70,7 +70,7 @@ module.exports = async (req, res) => {
 
   const url = String((req.query && req.query.url) || '').trim();
   if (!/^https?:\/\//i.test(url) || url.length > 2048) {
-    return res.status(400).json({ error: 'Ugyldig URL' });
+    return res.status(400).json({ error: 'Invalid URL' });
   }
 
   try {

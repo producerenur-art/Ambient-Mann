@@ -100,14 +100,14 @@ module.exports = async (req, res) => {
       '<title>Ambient Mann</title>');
   }
 
-  const rawTitle = track.title || 'Spor';
+  const rawTitle = track.title || 'Track';
   const title = esc(rawTitle);
   const cover = safeHttps(track.coverUrl);
   const audioUrl = safeHttps(track.url);
   // Kanonisk URL = pen tittel-slug (faller tilbake til id hvis tittelen ikke gir slug).
   const slug = slugify(track.title) || String(track.id);
   const pageUrl = origin + '/podcast/' + slug;
-  const desc = 'Hør «' + rawTitle + '» hos Ambient Mann.';
+  const desc = 'Listen to \u201c' + rawTitle + '\u201d at Ambient Mann.';
 
   const meta = [
     '<meta property="og:type" content="music.song">',
@@ -134,11 +134,11 @@ module.exports = async (req, res) => {
   // på seksjoner lenger nede på DENNE siden). Om, Kontakt og «Send booking» hører
   // kun hjemme på forsiden, så de er bevisst utelatt her.
   const navItems = [
-    ['Donasjon', '#donasjon', ''],
-    ['Lenker', '#links', ''],
-    ['Plateselskaper', '#plateselskaper', ''],
+    ['Donate', '#donate', ''],
+    ['Links', '#links', ''],
+    ['Record labels', '#labels', ''],
   ];
-  const nav = '<a href="/" class="topnav-home">⌂ Hjem</a>' +
+  const nav = '<a href="/" class="topnav-home">⌂ Home</a>' +
     navItems.map(function (n) {
       var cls = n[2] ? ' class="' + n[2] + '"' : '';
       return '<a href="' + esc(n[1]) + '"' + cls + '>' + esc(n[0]) + '</a>';
@@ -148,8 +148,8 @@ module.exports = async (req, res) => {
   // her på hver spor-side også (spor-sidene har ingen oversetter-widget, så
   // teksten vises som skrevet).
   const aboutInner =
-    '<button class="x" aria-label="Lukk">×</button>' +
-    '<h3>Om<span>&nbsp;Ambient Mann</span></h3>' +
+    '<button class="x" aria-label="Close">×</button>' +
+    '<h3>About<span>&nbsp;Ambient Mann</span></h3>' +
     '<p>Noah Kristiansen has been working professionally with podcasts for over 15 years. Born in Greenland in 1982, he later moved to Norway.</p>' +
     '<p>Following a revelation regarding music and podcast production at the age of 14 (Back Then it Only Was A Dream), Noah <span translate="no">FeedFreq</span> reached out to channels such as <a translate="no" href="https://diceradio.gr/" target="_blank" rel="noopener">diceradio.gr</a> and <a translate="no" href="https://radioq37.com/" target="_blank" rel="noopener">Radioq37.com</a> in 2014. Shortly thereafter, he began meditating and producing podcasts. He subsequently experienced a new revelation on a level of spiritual consciousness and suddenly became part of Tree of Life / BM Bookings—an agency now known as <span translate="no">FeedFreq &amp; BigFreq</span>. Since 2014, he has established collaborations with numerous entities, including Mikelabella Records, Cryo Chamber, Cosmicleaf Records, Trancentral, Psybient.org, IT Athens, and others.</p>' +
     '<p>Through the series &ldquo;All The Way From Heaven,&rdquo; he aims to unite musical frequencies with spiritual frequencies, thereby creating and spreading good vibrations to us all.</p>' +
@@ -171,14 +171,14 @@ module.exports = async (req, res) => {
 
   // Sosiale delelenker (server-beregnet, samme URL som deles).
   const eu = encodeURIComponent(pageUrl);
-  const shareText = 'Hør «' + rawTitle + '» hos Ambient Mann';
+  const shareText = 'Listen to \u201c' + rawTitle + '\u201d at Ambient Mann';
   const et = encodeURIComponent(shareText);
   const social = [
     ['Facebook', 'https://www.facebook.com/sharer/sharer.php?u=' + eu],
     ['X', 'https://twitter.com/intent/tweet?url=' + eu + '&text=' + et],
     ['WhatsApp', 'https://wa.me/?text=' + encodeURIComponent(shareText + ' ' + pageUrl)],
     ['Telegram', 'https://t.me/share/url?url=' + eu + '&text=' + et],
-    ['E-post', 'mailto:?subject=' + encodeURIComponent(rawTitle) + '&body=' + encodeURIComponent(shareText + '\n\n' + pageUrl)],
+    ['Email', 'mailto:?subject=' + encodeURIComponent(rawTitle) + '&body=' + encodeURIComponent(shareText + '\n\n' + pageUrl)],
   ].map(function (s) { return '<a class="soc" target="_blank" rel="noopener" href="' + esc(s[1]) + '">' + esc(s[0]) + '</a>'; }).join('');
 
   // Plateselskaper (kun navn, direkte lenke – ingen overskrift), som på forsiden.
@@ -192,7 +192,7 @@ module.exports = async (req, res) => {
     return '<a href="' + esc(l.url) + '" target="_blank" rel="noopener noreferrer">' + esc(l.name || l.url) + ' ↗</a>';
   }).join('');
   const linksSection = links
-    ? '<section class="link-section" id="links"><h2 class="section-h">Lenker</h2>' +
+    ? '<section class="link-section" id="links"><h2 class="section-h">Links</h2>' +
       '<div class="labels">' + links + '</div></section>'
     : '';
 
@@ -222,31 +222,31 @@ module.exports = async (req, res) => {
   const vippsNumber = '97253713';
   const vippsHref = 'https://qr.vipps.no/28/2/03/031/' + encodeURIComponent(vippsNumber);
   const donation =
-    '<section class="don-block" id="donasjon">' +
+    '<section class="don-block" id="donate">' +
     '<details class="don-details">' +
-    '<summary class="don-summary"><h2>Donasjon</h2><span class="don-toggle" aria-hidden="true"></span></summary>' +
+    '<summary class="don-summary"><h2>Donate</h2><span class="don-toggle" aria-hidden="true"></span></summary>' +
     '<div class="don-card">' +
     '<div class="don-presets">' +
     '<button class="don-preset" type="button" data-kr="100">100 kr</button>' +
     '<button class="don-preset" type="button" data-kr="200">200 kr</button>' +
     '<button class="don-preset" type="button" data-kr="500">500 kr</button>' +
     '</div>' +
-    '<div class="don-custom"><label for="don-amount">Beløp (kr)</label>' +
+    '<div class="don-custom"><label for="don-amount">Amount (NOK)</label>' +
     '<input id="don-amount" type="number" min="20" max="10000" value="100"></div>' +
     '<div class="don-actions">' +
-    '<button class="btn btn-primary" type="button" id="don-stripe">💳 Doner med kort</button>' +
-    '<a class="btn btn-vipps" id="don-vipps" href="' + esc(vippsHref) + '" target="_blank" rel="noopener">Doner med Vipps</a>' +
+    '<button class="btn btn-primary" type="button" id="don-stripe">💳 Donate by card</button>' +
+    '<a class="btn btn-vipps" id="don-vipps" href="' + esc(vippsHref) + '" target="_blank" rel="noopener">Donate with Vipps</a>' +
     '</div>' +
     '<div class="don-qr"><a href="' + esc(vippsHref) + '" target="_blank" rel="noopener">' +
-    '<img src="/assets/vipps-qr.png" alt="Vipps-QR – doner til Ambient Mann" width="160" height="160" loading="lazy"></a>' +
-    '<p class="don-qr-cap">Skann med mobilen for å donere via Vipps</p></div>' +
-    '<p class="don-note">Vipps åpnes automatisk med riktig mottaker (<span translate="no">Ambient Mann</span>).</p>' +
+    '<img src="/assets/vipps-qr.png" alt="Vipps QR – donate to Ambient Mann" width="160" height="160" loading="lazy"></a>' +
+    '<p class="don-qr-cap">Scan with your phone to donate via Vipps</p></div>' +
+    '<p class="don-note">Vipps opens automatically with the right recipient (<span translate="no">Ambient Mann</span>).</p>' +
     '</div></details></section>';
 
-  const html = '<!doctype html>\n<html lang="no" translate="no">\n<head>\n' +
+  const html = '<!doctype html>\n<html lang="en" translate="no">\n<head>\n' +
     '<meta charset="utf-8">\n' +
     '<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
-    // Skru av Chrome/Google sitt AUTOMATISKE oversettelses-tilbud (samme som forsiden).
+    // Sida er kun på engelsk – be Chrome/Google la være å tilby oversettelse.
     '<meta name="google" content="notranslate">\n' +
     '<title>' + title + ' · Ambient Mann</title>\n' +
     '<meta name="description" content="' + esc(desc) + '">\n' +
@@ -271,20 +271,6 @@ module.exports = async (req, res) => {
     '.topnav a.topnav-book{background:linear-gradient(135deg,var(--accent),var(--accent2));\n' +
     '  color:#0a0f2a;text-shadow:none}\n' +
     '.topnav a.topnav-book:hover{color:#0a0f2a;filter:brightness(1.05)}\n' +
-    // Språkvelger (Google Translate) – samme som forsiden, festet øverst til høyre.
-    '.topbar-lang{position:fixed;top:10px;right:12px;z-index:6}\n' +
-    '.lang-picker{background:rgba(16,20,38,.9);color:var(--text);border:1px solid var(--line);\n' +
-    '  border-radius:12px;padding:9px 12px;font-weight:600;font-size:14px;cursor:pointer;\n' +
-    '  max-width:160px;appearance:none;-webkit-appearance:none}\n' +
-    '.lang-picker:hover{border-color:var(--accent)}\n' +
-    '.lang-picker option{background:#0a0f2a;color:var(--text)}\n' +
-    // Skjul Googles egen widget-UI (banner/tooltip/uthevning) – vi bruker vår egen.
-    '#google_translate_element{display:none}\n' +
-    '.goog-te-banner-frame,.goog-te-gadget-icon,#goog-gt-tt,.goog-tooltip,.goog-tooltip *{display:none !important}\n' +
-    '.VIpgJd-ZVi9od-ORHb-OEVmcd,body>.skiptranslate{display:none !important}\n' +
-    '.goog-te-gadget{height:0;overflow:hidden}\n' +
-    'body{top:0 !important}\n' +
-    '.goog-text-highlight{background:none !important;box-shadow:none !important}\n' +
     // Om Ambient Mann – overlay-modal (samme innhold som forsiden).
     '.about-ov{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;\n' +
     '  background:rgba(2,4,12,.82);backdrop-filter:blur(6px);padding:18px}\n' +
@@ -316,7 +302,7 @@ module.exports = async (req, res) => {
     '.section-h{font-size:16px;margin:0;color:var(--text)}\n' +
     // Anker-mål (toppmeny-valgene) – hopp litt lenger ned så den faste
     // toppmenyen ikke dekker toppen av seksjonen når man ruller dit.
-    '#donasjon,#links,#plateselskaper{scroll-margin-top:80px}\n' +
+    '#donate,#links,#labels{scroll-margin-top:80px}\n' +
     '.cover{width:220px;height:220px;max-width:70vw;max-height:70vw;margin:0 auto 18px;border-radius:16px;\n' +
     '  background:#0a0f2a center/cover no-repeat;display:flex;align-items:center;justify-content:center;font-size:64px;color:rgba(140,160,255,.5)}\n' +
     '.brand{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}\n' +
@@ -370,9 +356,6 @@ module.exports = async (req, res) => {
     '</style>\n</head>\n<body>\n' +
     '<canvas id="starfield"></canvas>\n' +
     '<header class="topbar"><nav class="topnav">' + nav + '</nav></header>\n' +
-    // Språkvelger – oversetter hele siden (standard: engelsk), samme som forsiden.
-    '<div class="topbar-lang"><select id="lang-picker" class="lang-picker notranslate" translate="no" aria-label="Velg språk / Choose language"></select></div>\n' +
-    '<div id="google_translate_element" aria-hidden="true"></div>\n' +
     '<div class="about-ov" id="about-ov"><div class="about-box" translate="no">' + aboutInner + '</div></div>\n' +
     '<main class="card">\n' +
     '  <div class="cover" style="' + coverStyle + '">' + (cover ? '' : '♪') + '</div>\n' +
@@ -381,12 +364,12 @@ module.exports = async (req, res) => {
     '  <audio id="a" controls controlsList="nodownload noplaybackrate" disablePictureInPicture autoplay playsinline preload="auto" src="' + esc(audioUrl) + '"></audio>\n' +
     '  <p class="hint" id="hint"></p>\n' +
     '  <div class="row">\n' +
-    '    <button class="btn btn-primary" id="share">Del</button>\n' +
-    '    <button class="btn" id="copy">Kopier lenke</button>\n' +
+    '    <button class="btn btn-primary" id="share">Share</button>\n' +
+    '    <button class="btn" id="copy">Copy link</button>\n' +
     '  </div>\n' +
     '  <div class="social">' + social + '</div>\n' +
     '  ' + linksSection + '\n' +
-    '  <div class="labels" id="plateselskaper">' + labels + '</div>\n' +
+    '  <div class="labels" id="labels">' + labels + '</div>\n' +
     '  <a class="back" href="' + esc(origin) + '/">← <span translate="no">Ambient Mann</span></a>\n' +
     '  <section class="logo-strip">' + logoStrip + '</section>\n' +
     '  ' + donation + '\n' +
@@ -418,7 +401,7 @@ module.exports = async (req, res) => {
     '  if(p&&p.catch){p.catch(function(){\n' +
     '    a.muted=true;\n' +
     '    a.play().catch(function(){});\n' +
-    '    hint.textContent="🔊 Trykk hvor som helst for lyd";\n' +
+    '    hint.textContent="🔊 Tap anywhere for sound";\n' +
     '    var unmute=function(){a.muted=false;if(a.paused){a.play().catch(function(){});}hint.textContent="";\n' +
     '      document.removeEventListener("pointerdown",unmute);document.removeEventListener("keydown",unmute);};\n' +
     '    document.addEventListener("pointerdown",unmute,{once:true});\n' +
@@ -433,13 +416,13 @@ module.exports = async (req, res) => {
     '      else{fetch("/api/site?action=play",{method:"POST",headers:{"Content-Type":"application/json"},body:b,keepalive:true}).catch(function(){});}\n' +
     '    }catch(e){}});\n' +
     '  document.getElementById("share").addEventListener("click",async function(){\n' +
-    '    var data={title:"Ambient Mann — "+title,text:"Hør «"+title+"» hos Ambient Mann",url:url};\n' +
+    '    var data={title:"Ambient Mann — "+title,text:"Listen to \u201c"+title+"\u201d at Ambient Mann",url:url};\n' +
     '    if(navigator.share){try{await navigator.share(data);return;}catch(e){if(e&&e.name==="AbortError")return;}}\n' +
     '    copy();\n' +
     '  });\n' +
     '  function copy(){try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url);}\n' +
     '    else{var t=document.createElement("textarea");t.value=url;document.body.appendChild(t);t.select();document.execCommand("copy");t.remove();}\n' +
-    '    hint.textContent="Lenke kopiert!";}catch(e){}}\n' +
+    '    hint.textContent="Link copied!";}catch(e){}}\n' +
     '  document.getElementById("copy").addEventListener("click",copy);\n' +
     // Om Ambient Mann – åpne/lukke overlay.
     '  var ab=document.getElementById("about-ov"),abBtn=document.querySelector(".topnav-about");\n' +
@@ -450,8 +433,8 @@ module.exports = async (req, res) => {
     '    document.addEventListener("keydown",function(e){if(e.key==="Escape")abClose();});}\n' +
     // «Donasjon» i toppmenyen ruller til blokken nederst (samme side) – åpne den
     // sammenleggbare blokken så man ser skjemaet med en gang.
-    '  var donNav=document.querySelector(\'.topnav a[href="#donasjon"]\'),\n' +
-    '      donDet=document.querySelector("#donasjon .don-details");\n' +
+    '  var donNav=document.querySelector(\'.topnav a[href="#donate"]\'),\n' +
+    '      donDet=document.querySelector("#donate .don-details");\n' +
     '  if(donNav&&donDet)donNav.addEventListener("click",function(){donDet.open=true;});\n' +
     // Donasjon – forhåndsvalg + kortbetaling (Stripe). Vipps er en ren lenke.
     '  var amt=document.getElementById("don-amount");\n' +
@@ -469,11 +452,11 @@ module.exports = async (req, res) => {
     '      var kr=clampKr(parseInt(amt.value,10)||100);st.disabled=true;\n' +
     '      try{var r=await fetch("/api/create-checkout",{method:"POST",\n' +
     '        headers:{"Content-Type":"application/json"},body:JSON.stringify({product:"donation",amountKr:kr})});\n' +
-    '        if(r.status===503){alert("Kortbetaling er ikke satt opp ennå – bruk Vipps så lenge.");return;}\n' +
+    '        if(r.status===503){alert("Card payment is not set up yet - please use Vipps for now.");return;}\n' +
     '        var d=await r.json().catch(function(){return{};});\n' +
     '        if(r.ok&&d.url){window.location.href=d.url;return;}\n' +
-    '        alert(d.error||"Kunne ikke starte betaling.");\n' +
-    '      }catch(e){alert("Kortbetaling er ikke tilgjengelig her – bruk Vipps.");}\n' +
+    '        alert(d.error||"Could not start the payment.");\n' +
+    '      }catch(e){alert("Card payment is not available here - please use Vipps.");}\n' +
     '      finally{st.disabled=false;}\n' +
     '    });\n' +
     '  }\n' +
@@ -524,10 +507,6 @@ module.exports = async (req, res) => {
     '  addEventListener("resize",resize);resize();frame();\n' +
     '})();\n' +
     '</script>\n' +
-    // Språkvelger + Google Translate – samme oppsett/oppførsel som forsiden
-    // (standard engelsk, valg lagret i cookie, merkenavn-vern «Ambient Mann»).
-    '<script src="/js/lang.js"></script>\n' +
-    '<script src="https://translate.google.com/translate_a/element.js?cb=amGoogleTranslateInit"></script>\n' +
     '</body>\n</html>';
 
   res.statusCode = 200;

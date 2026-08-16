@@ -98,7 +98,7 @@
     if (embed) _embeds[key] = embed;
 
     const playBtn = embed
-      ? '<button class="cp-prev-play" type="button" aria-label="Spill av" ' +
+      ? '<button class="cp-prev-play" type="button" aria-label="Play" ' +
         'onclick="event.preventDefault();event.stopPropagation();LinkPreview.play(\'' +
         esc(key) + '\')">' + PLAY_SVG + '</button>'
       : '';

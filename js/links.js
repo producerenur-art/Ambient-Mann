@@ -15,7 +15,7 @@ window.Links = (function () {
     const wrap = document.getElementById('links-list');
     if (!wrap) return;
     const list = items();
-    if (!list.length) { wrap.innerHTML = '<p class="muted">Ingen lenker lagt til ennå.</p>'; }
+    if (!list.length) { wrap.innerHTML = '<p class="muted">No links added yet.</p>'; }
     else {
       wrap.innerHTML = list.map((it, i) => {
         const name = it.name || it.url;
@@ -24,13 +24,13 @@ window.Links = (function () {
         // 'links' og gjelder for alle besøkende. Knappene er av øverst/nederst.
         const move = isOwner
           ? '<span class="track-moves owner-only">' +
-              '<button class="track-move" data-mvuplink="' + i + '" title="Flytt opp"' + (i === 0 ? ' disabled' : '') + ' aria-label="Flytt opp">▲</button>' +
-              '<button class="track-move" data-mvdnlink="' + i + '" title="Flytt ned"' + (i === list.length - 1 ? ' disabled' : '') + ' aria-label="Flytt ned">▼</button>' +
+              '<button class="track-move" data-mvuplink="' + i + '" title="Move up"' + (i === 0 ? ' disabled' : '') + ' aria-label="Move up">▲</button>' +
+              '<button class="track-move" data-mvdnlink="' + i + '" title="Move down"' + (i === list.length - 1 ? ' disabled' : '') + ' aria-label="Move down">▼</button>' +
             '</span>' : '';
         const edit = isOwner
-          ? '<button class="btn btn-tiny owner-only" data-editlink="' + i + '">Rediger</button>' : '';
+          ? '<button class="btn btn-tiny owner-only" data-editlink="' + i + '">Edit</button>' : '';
         const del = isOwner
-          ? '<button class="btn btn-tiny owner-only" data-rmlink="' + i + '">Fjern</button>' : '';
+          ? '<button class="btn btn-tiny owner-only" data-rmlink="' + i + '">Remove</button>' : '';
         return '<div class="link-item">' +
           '<div class="link-main">' +
             '<a class="link-name" href="' + UI.esc(it.url) + '" target="_blank" rel="noopener noreferrer">' +
@@ -58,7 +58,7 @@ window.Links = (function () {
     const urlEl = document.getElementById('link-url');
     const url = urlEl && urlEl.value.trim();
     const name = (nameEl && nameEl.value.trim()) || '';
-    if (!/^https?:\/\//i.test(url || '')) { UI.toast('Lim inn en gyldig lenke (https://…).'); return; }
+    if (!/^https?:\/\//i.test(url || '')) { UI.toast('Paste a valid link (https://…).'); return; }
     const arr = items(); arr.push({ name: name, url: url });
     await Content.set('links', arr);
     if (nameEl) nameEl.value = ''; if (urlEl) urlEl.value = '';
@@ -97,7 +97,7 @@ window.Links = (function () {
 
     const head = document.createElement('div');
     head.className = 'share-title';
-    head.textContent = 'Rediger lenken';
+    head.textContent = 'Edit link';
     menu.appendChild(head);
 
     function label(txt) {
@@ -108,10 +108,10 @@ window.Links = (function () {
       return l;
     }
 
-    menu.appendChild(label('Navn (vises som klikkbar lenke)'));
+    menu.appendChild(label('Name (shown as a clickable link)'));
     const nameEl = document.createElement('input');
     nameEl.className = 'input'; nameEl.type = 'text';
-    nameEl.value = it.name || ''; nameEl.setAttribute('aria-label', 'Navn');
+    nameEl.value = it.name || ''; nameEl.setAttribute('aria-label', 'Name');
     menu.appendChild(nameEl);
 
     menu.appendChild(label('URL'));
@@ -123,9 +123,9 @@ window.Links = (function () {
     const row = document.createElement('div');
     row.style.cssText = 'display:flex; gap:8px; margin-top:12px';
     const saveBtn = document.createElement('button');
-    saveBtn.className = 'btn btn-primary'; saveBtn.style.flex = '1'; saveBtn.textContent = 'Lagre';
+    saveBtn.className = 'btn btn-primary'; saveBtn.style.flex = '1'; saveBtn.textContent = 'Save';
     const cancel = document.createElement('button');
-    cancel.className = 'btn'; cancel.style.flex = '1'; cancel.textContent = 'Avbryt';
+    cancel.className = 'btn'; cancel.style.flex = '1'; cancel.textContent = 'Cancel';
     row.appendChild(saveBtn); row.appendChild(cancel);
     menu.appendChild(row);
 
@@ -135,7 +135,7 @@ window.Links = (function () {
     async function doSave() {
       if (saveBtn.disabled) return;
       const url = urlEl.value.trim();
-      if (!/^https?:\/\//i.test(url)) { UI.toast('Lim inn en gyldig lenke (https://…).'); urlEl.focus(); return; }
+      if (!/^https?:\/\//i.test(url)) { UI.toast('Paste a valid link (https://…).'); urlEl.focus(); return; }
       saveBtn.disabled = true; cancel.disabled = true;
       try {
         const arr = items();
@@ -144,10 +144,10 @@ window.Links = (function () {
         await Content.set('links', arr);
         saveBtn.disabled = false; cancel.disabled = false;
         render(); close();
-        UI.toast('Lenken er oppdatert.');
+        UI.toast('The link has been updated.');
       } catch (e) {
         saveBtn.disabled = false; cancel.disabled = false;
-        UI.toast('Kunne ikke lagre: ' + ((e && e.message) || e));
+        UI.toast('Could not save: ' + ((e && e.message) || e));
       }
     }
     saveBtn.addEventListener('click', doSave);

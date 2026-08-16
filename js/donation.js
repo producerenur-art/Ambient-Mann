@@ -23,18 +23,18 @@ window.Donation = (function () {
   async function payStripe() {
     const inp = document.getElementById('don-amount');
     const kr = clamp(parseInt(inp && inp.value, 10) || amountKr);
-    if (!kr) { UI.toast('Velg et beløp.'); return; }
+    if (!kr) { UI.toast('Pick an amount.'); return; }
     try {
       const r = await fetch('/api/create-checkout', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ product: 'donation', amountKr: kr }),
       });
-      if (r.status === 503) { UI.toast('Kortbetaling er ikke satt opp ennå – bruk Vipps så lenge.'); return; }
+      if (r.status === 503) { UI.toast('Card payment is not set up yet – please use Vipps for now.'); return; }
       const d = await r.json().catch(() => ({}));
       if (r.ok && d.url) { window.location.href = d.url; return; }
-      UI.toast(d.error || 'Kunne ikke starte betaling.');
+      UI.toast(d.error || 'Could not start the payment.');
     } catch (_) {
-      UI.toast('Kortbetaling er ikke tilgjengelig her – bruk Vipps.');
+      UI.toast('Card payment is not available here – please use Vipps.');
     }
   }
 
@@ -54,7 +54,7 @@ window.Donation = (function () {
       const d = await r.json().catch(() => ({}));
       if (d && d.success) {
         const kr = d.amountTotal ? Math.round(d.amountTotal / 100) : '';
-        UI.toast('Tusen takk for støtten' + (kr ? ' (' + kr + ' kr)' : '') + ' 💜');
+        UI.toast('Thank you so much for the support' + (kr ? ' (' + kr + ' kr)' : '') + ' 💜');
       }
     } catch (_) {}
     // Rydd URL-en

@@ -25,7 +25,7 @@ window.Schedule = (function () {
   function fmt(iso) {
     const d = new Date(iso);
     if (isNaN(d)) return '—';
-    return d.toLocaleString('no-NO', { weekday: 'short', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+    return d.toLocaleString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
   }
 
   function render() {
@@ -35,19 +35,19 @@ window.Schedule = (function () {
     const upcoming = all.filter(e => statusOf(e) !== 'past');
 
     if (!upcoming.length) {
-      wrap.innerHTML = '<p class="muted">Ingen planlagte sendinger akkurat nå. Følg med – Ambient Mann setter nye tider her.</p>';
+      wrap.innerHTML = '<p class="muted">No broadcasts scheduled right now. Stay tuned – Ambient Mann sets new times here.</p>';
     } else {
       wrap.innerHTML = upcoming.map(e => {
         const st = statusOf(e);
         const badge = st === 'live'
           ? '<span class="badge badge-live"><span class="dot"></span>LIVE</span>'
-          : '<span class="badge">Kommer</span>';
+          : '<span class="badge">Upcoming</span>';
         const owner = Owner.isOwner()
-          ? '<button class="btn btn-tiny owner-only" data-del="' + UI.esc(e.id) + '">Slett</button>'
+          ? '<button class="btn btn-tiny owner-only" data-del="' + UI.esc(e.id) + '">Delete</button>'
           : '';
         return '<div class="sched-row">' +
-          '<div class="sched-when">' + UI.esc(fmt(e.start)) + ' · ' + (Number(e.hours) || 1) + ' t</div>' +
-          '<div class="sched-title">' + UI.esc(e.title || 'Live-sett') + '</div>' +
+          '<div class="sched-when">' + UI.esc(fmt(e.start)) + ' · ' + (Number(e.hours) || 1) + ' h</div>' +
+          '<div class="sched-title">' + UI.esc(e.title || 'Live set') + '</div>' +
           badge + owner +
         '</div>';
       }).join('');
@@ -61,13 +61,13 @@ window.Schedule = (function () {
     const when = document.getElementById('sched-when');
     const hours = document.getElementById('sched-hours');
     const title = document.getElementById('sched-title-in');
-    if (!when || !when.value) { UI.toast('Velg dato og tid.'); return; }
+    if (!when || !when.value) { UI.toast('Pick a date and time.'); return; }
     const arr = ((window.Content && Content.get('schedule')) || []).slice();
     arr.push({
       id: 's_' + Date.now().toString(36),
       start: when.value,
       hours: Math.max(1, Math.min(12, parseInt(hours && hours.value, 10) || 2)),
-      title: (title && title.value.trim()) || 'Live-sett',
+      title: (title && title.value.trim()) || 'Live set',
     });
     await Content.set('schedule', arr);
     if (title) title.value = '';

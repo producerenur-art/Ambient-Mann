@@ -67,15 +67,15 @@ window.Content = (function () {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ key: key, data: data }),
       });
-      if (r.ok) { UI.toast('Lagret.'); return true; }
-      if (r.status === 401) { UI.toast('Logg inn som eier først.'); return false; }
+      if (r.ok) { UI.toast('Saved.'); return true; }
+      if (r.status === 401) { UI.toast('Log in as owner first.'); return false; }
       // 503 e.l. → lagre lokalt så eieren kan forhåndsvise
       const draft = readDraft(); draft[key] = data; writeDraft(draft);
-      UI.toast('Publisering er ikke satt opp ennå – lagret lokalt (kun synlig for deg).');
+      UI.toast('Publishing is not set up yet – saved locally (only visible to you).');
       return false;
     } catch (_) {
       const draft = readDraft(); draft[key] = data; writeDraft(draft);
-      UI.toast('Ingen server – lagret lokalt (kun synlig for deg).');
+      UI.toast('No server – saved locally (only visible to you).');
       return false;
     }
   }

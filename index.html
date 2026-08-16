@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="no" translate="no">
+<html lang="en" translate="no">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <!-- Skru av Chrome/Google sitt AUTOMATISKE oversettelses-tilbud (den hvite topplinja).
-       Verifisert (headless Chrome) at vår EGEN språkvelger fortsatt oversetter som normalt –
-       denne metaen demper bare nettleserens uoppfordrede tilbud, ikke widgeten. -->
+  <!-- Siden er KUN på engelsk. Ingen oversetter-widget, og vi ber Chrome/Google
+       la være å tilby automatisk oversettelse (den hvite topplinja). Sammen med
+       translate="no" på <html> holder det merkenavnet «Ambient Mann» intakt. -->
   <meta name="google" content="notranslate">
   <title>Ambient Mann — Booking · Psybient / Psychill</title>
-  <meta name="description" content="Book Ambient Mann — psybient, psychill, cinematic dark ambient. Live direkte via Traktor, opplastet musikk, podcaster og donasjon.">
+  <meta name="description" content="Book Ambient Mann — psybient, psychill, cinematic dark ambient. Live from Traktor, uploaded music, podcasts and donations.">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#04060f">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -27,23 +27,20 @@
 
   <!-- Topbar -->
   <header class="topbar">
-    <button class="nav-toggle" id="nav-toggle" aria-label="Åpne meny">☰</button>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Open menu">☰</button>
     <nav class="nav" id="nav">
       <a href="#live" class="owner-only" style="display:none">Live</a>
-      <a href="#gjest-live" id="guest-nav" style="display:none">Gjest <span id="guest-nav-name" class="guest-nav-name"></span></a>
-      <a href="#listen">Musikk</a>
-      <a href="#" class="about-btn">Om</a>
-      <a href="#" class="contact-btn">Kontakt</a>
-      <a href="#donasjon">Donasjon</a>
-      <a href="#links">Lenker</a>
-      <a href="#plateselskaper">Plateselskaper</a>
-      <button class="btn btn-ghost" id="guest-login-btn">Gjest-innlogging</button>
-      <button class="btn btn-ghost" id="owner-btn">Eier-innlogging</button>
+      <a href="#guest-live" id="guest-nav" style="display:none">Guest <span id="guest-nav-name" class="guest-nav-name"></span></a>
+      <a href="#listen">Music</a>
+      <a href="#" class="about-btn">About</a>
+      <a href="#" class="contact-btn">Contact</a>
+      <a href="#donate">Donate</a>
+      <a href="#links">Links</a>
+      <a href="#labels">Record labels</a>
+      <button class="btn btn-ghost" id="guest-login-btn">Guest login</button>
+      <button class="btn btn-ghost" id="owner-btn">Owner login</button>
     </nav>
-    <select id="lang-picker" class="lang-picker notranslate" translate="no" aria-label="Velg språk / Choose language"></select>
   </header>
-  <!-- Skjult Google Translate-motor (drives av vår egen språkvelger over) -->
-  <div id="google_translate_element" aria-hidden="true"></div>
 
   <main class="wrap">
     <!-- HERO: mindre logo m/ bevegelige skyer over stjernehimmelen -->
@@ -63,42 +60,42 @@
         <p class="bio">With its magical sound of the best ambient, chill out and clarity psybient can offer, Spiced up with a customized twist, he seduces the audience with excitement.</p>
         <p id="bio-credits" class="bio muted"></p>
         <div class="booking-cta">
-          <p><span translate="no" class="notranslate">Ambient Mann&nbsp;</span>bookes via e-post:</p>
-          <a class="btn btn-primary book-btn" href="#">✉ Send booking-forespørsel</a>
+          <p><span translate="no" class="notranslate">Ambient Mann&nbsp;</span>is booked by email:</p>
+          <a class="btn btn-primary book-btn" href="#">✉ Send booking request</a>
         </div>
       </div>
       <div class="card owner-only" style="display:none">
-        <h3 class="mini-h">Rediger tekst (kun deg)</h3>
+        <h3 class="mini-h">Edit text (only you)</h3>
         <label>Bio</label><textarea id="edit-bio" class="input" rows="4"></textarea>
-        <button class="btn btn-tiny" id="save-bio">Lagre bio</button>
-        <label>Kreditter</label><textarea id="edit-credits" class="input" rows="3"></textarea>
-        <button class="btn btn-tiny" id="save-credits">Lagre kreditter</button>
+        <button class="btn btn-tiny" id="save-bio">Save bio</button>
+        <label>Credits</label><textarea id="edit-credits" class="input" rows="3"></textarea>
+        <button class="btn btn-tiny" id="save-credits">Save credits</button>
       </div>
     </section>
 
     <!-- MUSIKK: lytterne velger selv, med spiller + spoling -->
     <section id="listen" class="block">
-      <div class="section-head"><h2>Musikk</h2><span class="hint">Velg selv — spill av og spol (1–2 t podcast)</span></div>
+      <div class="section-head"><h2>Music</h2><span class="hint">Pick your own — play and scrub (1–2 h podcast)</span></div>
       <!-- Eier: last opp lyd + eget cover-bilde (flyttet øverst, over spillelista, så du slipper å scrolle helt ned) -->
       <div class="card owner-only" style="display:none">
-        <h3 class="mini-h">Last opp musikk (WAV/MP3) + eget cover</h3>
-        <label>Tittel</label><input id="track-title" class="input" placeholder="f.eks. All The Way From Heaven 060">
-        <label>Cover-bilde (valgfritt)</label><input id="track-cover" class="input" type="file" accept="image/*">
-        <label>Lyd-fil (WAV/MP3)</label><input id="track-file" class="input" type="file" accept="audio/*">
-        <button class="btn btn-primary" id="track-upload">⬆ Last opp</button>
+        <h3 class="mini-h">Upload music (WAV/MP3) + your own cover</h3>
+        <label>Title</label><input id="track-title" class="input" placeholder="e.g. All The Way From Heaven 060">
+        <label>Cover image (optional)</label><input id="track-cover" class="input" type="file" accept="image/*">
+        <label>Audio file (WAV/MP3)</label><input id="track-file" class="input" type="file" accept="audio/*">
+        <button class="btn btn-primary" id="track-upload">⬆ Upload</button>
         <span id="track-upstatus" class="muted"></span>
       </div>
       <div class="card">
         <div class="track-player">
           <div class="tp-cover empty" id="tp-cover">♪</div>
           <div class="tp-body">
-            <div class="tp-title" id="tp-title">Velg et spor</div>
+            <div class="tp-title" id="tp-title">Pick a track</div>
             <div class="tp-controls">
               <button class="tp-play" id="tp-play">▶</button>
-              <input class="tp-seek" id="tp-seek" type="range" min="0" max="100" value="0" step="0.1" aria-label="Spol">
+              <input class="tp-seek" id="tp-seek" type="range" min="0" max="100" value="0" step="0.1" aria-label="Seek">
               <span class="tp-time" id="tp-time">0:00 / 0:00</span>
-              <button class="tp-mute" id="tp-mute" type="button" aria-label="Demp">🔊</button>
-              <input class="tp-vol" id="tp-vol" type="range" min="0" max="100" value="100" step="1" aria-label="Volum">
+              <button class="tp-mute" id="tp-mute" type="button" aria-label="Mute">🔊</button>
+              <input class="tp-vol" id="tp-vol" type="range" min="0" max="100" value="100" step="1" aria-label="Volume">
             </div>
           </div>
         </div>
@@ -107,155 +104,155 @@
       <!-- Eier: avspillingstall (kun du ser dette) -->
       <div class="card owner-only" id="plays-card" style="display:none">
         <div class="section-head" style="margin:0 0 10px">
-          <h3 class="mini-h" style="margin:0">Avspillinger <span class="hint">— kun du ser dette</span></h3>
-          <button class="btn btn-tiny" id="plays-refresh" type="button">↻ Oppdater</button>
+          <h3 class="mini-h" style="margin:0">Plays <span class="hint">— only you see this</span></h3>
+          <button class="btn btn-tiny" id="plays-refresh" type="button">↻ Refresh</button>
         </div>
-        <p class="plays-total" id="plays-total">Totalt: –</p>
+        <p class="plays-total" id="plays-total">Total: –</p>
         <div id="plays-list" class="plays-list"></div>
       </div>
     </section>
 
     <!-- LENKER (navn → URL, som SoundCloud) -->
     <section id="links" class="block">
-      <div class="section-head"><h2>Lenker &amp; podcaster</h2></div>
+      <div class="section-head"><h2>Links &amp; podcasts</h2></div>
       <div id="links-list" class="links"></div>
       <div class="card owner-only" style="display:none">
-        <h3 class="mini-h">Legg til lenke (navn → URL, som SoundCloud)</h3>
-        <label>Navn (vises som klikkbar lenke)</label><input id="link-name" class="input" placeholder="f.eks. SoundCloud – Ambient Mann">
+        <h3 class="mini-h">Add link (name → URL, like SoundCloud)</h3>
+        <label>Name (shown as a clickable link)</label><input id="link-name" class="input" placeholder="e.g. SoundCloud – Ambient Mann">
         <label>URL</label><input id="link-url" class="input" placeholder="https://soundcloud.com/…">
-        <button class="btn btn-primary" id="link-add">+ Legg til</button>
+        <button class="btn btn-primary" id="link-add">+ Add</button>
       </div>
     </section>
 
     <!-- PLATESELSKAPER (navn → URL; samme liste vises på hver spor-side) -->
-    <section id="plateselskaper" class="block">
-      <div class="section-head"><h2>Plateselskaper</h2></div>
+    <section id="labels" class="block">
+      <div class="section-head"><h2>Record labels</h2></div>
       <div id="labels-list" class="links"></div>
       <div class="card owner-only" style="display:none">
-        <h3 class="mini-h">Legg til plateselskap (navn → URL)</h3>
-        <label>Navn (vises som klikkbar lenke)</label><input id="label-name" class="input" placeholder="f.eks. Cosmic Leaf Records">
+        <h3 class="mini-h">Add record label (name → URL)</h3>
+        <label>Name (shown as a clickable link)</label><input id="label-name" class="input" placeholder="e.g. Cosmic Leaf Records">
         <label>URL</label><input id="label-url" class="input" placeholder="https://…bandcamp.com/">
-        <button class="btn btn-primary" id="label-add">+ Legg til</button>
+        <button class="btn btn-primary" id="label-add">+ Add</button>
       </div>
     </section>
 
     <!-- LIVE via Traktor — kun synlig for eier (innlogget) -->
     <section id="live" class="block owner-only" style="display:none">
-      <div class="section-head"><h2>Live direkte <span id="live-badge" class="badge badge-live" style="display:none"><span class="dot"></span>LIVE</span></h2></div>
+      <div class="section-head"><h2>Live now <span id="live-badge" class="badge badge-live" style="display:none"><span class="dot"></span>LIVE</span></h2></div>
       <div class="card live-box">
         <div class="live-meta">
           <div class="kicker" id="live-kicker">OFFLINE</div>
           <div class="title" id="live-title"><span translate="no" class="notranslate">Ambient Mann</span></div>
-          <div class="sub" id="live-sub"><span translate="no" class="notranslate">Ambient Mann</span> er ikke live akkurat nå – se sendeplanen under.</div>
+          <div class="sub" id="live-sub"><span translate="no" class="notranslate">Ambient Mann</span> is not live right now – see the schedule below.</div>
         </div>
-        <div class="live-stats"><b id="live-listeners">0</b>lyttere</div>
+        <div class="live-stats"><b id="live-listeners">0</b>listeners</div>
       </div>
       <p id="live-desc" class="live-desc"></p>
 
-      <h3 class="mini-h">Sendeplan</h3>
+      <h3 class="mini-h">Schedule</h3>
       <div id="schedule" class="schedule"></div>
 
       <!-- Eier: live-sending (bak innlogging) -->
       <div class="card owner-only" style="display:none">
-        <h3 class="mini-h">Sett sendetid (kun deg)</h3>
+        <h3 class="mini-h">Set broadcast time (only you)</h3>
         <div class="row">
-          <div><label>Dato &amp; tid</label><input id="sched-when" class="input" type="datetime-local"></div>
-          <div><label>Timer</label><input id="sched-hours" class="input" type="number" min="1" max="12" value="2"></div>
+          <div><label>Date &amp; time</label><input id="sched-when" class="input" type="datetime-local"></div>
+          <div><label>Hours</label><input id="sched-hours" class="input" type="number" min="1" max="12" value="2"></div>
         </div>
-        <label>Tittel</label><input id="sched-title-in" class="input" placeholder="f.eks. Deep Psybient Journey">
-        <button class="btn btn-primary" id="sched-add">+ Legg til sendetid</button>
+        <label>Title</label><input id="sched-title-in" class="input" placeholder="e.g. Deep Psybient Journey">
+        <button class="btn btn-primary" id="sched-add">+ Add broadcast time</button>
         <hr>
-        <h3 class="mini-h">Live-strøm fra Traktor (Icecast/AzuraCast)</h3>
-        <label>Stream-URL (Traktor sender hit)</label><input id="stream-url" class="input" placeholder="https://din-server.no/listen/ambientmann/radio.mp3">
-        <label>Now-playing-URL (valgfri – gir «LIVE» + lyttertall)</label><input id="stream-np" class="input" placeholder="https://din-server.no/api/nowplaying/1">
-        <button class="btn btn-tiny" id="save-stream">Lagre strøm</button>
-        <p class="note">Se docs/AZURACAST-TRAKTOR.md for å koble Traktor på (Preferences → Broadcasting).</p>
+        <h3 class="mini-h">Live stream from Traktor (Icecast/AzuraCast)</h3>
+        <label>Stream URL (Traktor broadcasts here)</label><input id="stream-url" class="input" placeholder="https://your-server.com/listen/ambientmann/radio.mp3">
+        <label>Now-playing URL (optional – gives “LIVE” + listener count)</label><input id="stream-np" class="input" placeholder="https://your-server.com/api/nowplaying/1">
+        <button class="btn btn-tiny" id="save-stream">Save stream</button>
+        <p class="note">See docs/AZURACAST-TRAKTOR.md to hook up Traktor (Preferences → Broadcasting).</p>
         <hr>
-        <h3 class="mini-h">Bakgrunn ved live (bilde eller mp4-video)</h3>
+        <h3 class="mini-h">Background while live (image or mp4 video)</h3>
         <div class="row">
-          <div><label>Type</label><select id="livebg-type" class="input"><option value="image">Bilde</option><option value="video">Video (mp4)</option></select></div>
-          <div><label>Eller last opp</label><input id="livebg-file" class="input" type="file" accept="image/*,video/mp4"></div>
+          <div><label>Type</label><select id="livebg-type" class="input"><option value="image">Image</option><option value="video">Video (mp4)</option></select></div>
+          <div><label>Or upload</label><input id="livebg-file" class="input" type="file" accept="image/*,video/mp4"></div>
         </div>
-        <label>URL</label><input id="livebg-url" class="input" placeholder="https://… (bilde eller mp4)">
-        <button class="btn btn-tiny" id="save-livebg">Lagre live-bakgrunn</button>
+        <label>URL</label><input id="livebg-url" class="input" placeholder="https://… (image or mp4)">
+        <button class="btn btn-tiny" id="save-livebg">Save live background</button>
         <span id="livebg-status" class="muted"></span>
         <hr>
-        <label>Live-beskrivelse (vises til publikum)</label>
+        <label>Live description (shown to the audience)</label>
         <textarea id="edit-livedesc" class="input" rows="3"></textarea>
-        <button class="btn btn-tiny" id="save-livedesc">Lagre beskrivelse</button>
+        <button class="btn btn-tiny" id="save-livedesc">Save description</button>
       </div>
     </section>
 
-    <!-- GJEST SHOW LIVE STREAM — innholdet vises KUN for innloggede gjester / eier;
-         publikum ser bare «Logg inn som gjest»-knappen. -->
+    <!-- GUEST SHOW LIVE STREAM — innholdet vises KUN for innloggede gjester / eier;
+         publikum ser bare «Guest login»-knappen i toppbaren. -->
     <!-- Hele seksjonen er skjult for publikum — vises kun for innlogget gjest/eier -->
-    <section id="gjest-live" class="block" style="display:none">
+    <section id="guest-live" class="block" style="display:none">
       <div id="guest-private-content">
         <div class="section-head">
-          <h2>Gjest Show Live Stream</h2>
-          <span class="hint">Godkjente gjester hoster egne live-sett og deler egen musikk</span>
+          <h2>Guest Show Live Stream</h2>
+          <span class="hint">Approved guests host their own live sets and share their own music</span>
         </div>
-        <p class="live-desc" id="guest-desc">Her sender inviterte gjester live og deler egen musikk. Er du gjest? Logg inn under – eller registrer deg, bekreft e-posten, og vent på at Ambient Mann godkjenner kontoen din.</p>
+        <p class="live-desc" id="guest-desc">This is where invited guests broadcast live and share their own music. Are you a guest? Log in below – or sign up, confirm your email, and wait for Ambient Mann to approve your account.</p>
 
         <!-- Gjest-strømmer som er live nå -->
         <div id="guest-streams" class="guest-streams"></div>
 
         <!-- Kommende / pågående gjeste-sendinger -->
-        <h3 class="mini-h">Gjest-sendeplan</h3>
+        <h3 class="mini-h">Guest schedule</h3>
         <div id="guest-schedule" class="schedule"></div>
 
         <!-- Musikk lastet opp av gjester -->
-        <h3 class="mini-h">Gjest-musikk</h3>
+        <h3 class="mini-h">Guest music</h3>
         <div id="guest-tracks" class="tracks"></div>
       </div>
 
       <!-- Innlogging / registrering for gjest (alltid synlig for alle) -->
       <div class="guest-auth-cta">
-        <button class="btn btn-primary" id="guest-btn">Logg inn som gjest</button>
+        <button class="btn btn-primary" id="guest-btn">Log in as guest</button>
         <span id="guest-status-text" class="muted"></span>
       </div>
 
       <!-- Venter-på-godkjenning (innlogget, men ikke godkjent ennå) -->
       <div class="card" id="guest-pending" style="display:none">
-        <p class="muted">Takk! E-posten din er bekreftet, men kontoen venter på godkjenning fra <span translate="no" class="notranslate">Ambient Mann</span> før du kan hoste. Du får e-post når du er godkjent.</p>
+        <p class="muted">Thank you! Your email is confirmed, but the account is waiting for approval from <span translate="no" class="notranslate">Ambient Mann</span> before you can host. You will get an email once you are approved.</p>
       </div>
 
       <!-- GJEST-KONSOLL: samme oppsett som admin, men per gjest (kun innlogget + godkjent) -->
       <div class="card" id="guest-panel" style="display:none">
-        <h3 class="mini-h">Din gjest-konsoll — <span id="guest-panel-name" translate="no" class="notranslate"></span></h3>
+        <h3 class="mini-h">Your guest console — <span id="guest-panel-name" translate="no" class="notranslate"></span></h3>
 
-        <h4 class="mini-h">Sett din sendetid</h4>
+        <h4 class="mini-h">Set your broadcast time</h4>
         <div class="row">
-          <div><label>Dato &amp; tid</label><input id="gsched-when" class="input" type="datetime-local"></div>
-          <div><label>Timer</label><input id="gsched-hours" class="input" type="number" min="1" max="12" value="2"></div>
+          <div><label>Date &amp; time</label><input id="gsched-when" class="input" type="datetime-local"></div>
+          <div><label>Hours</label><input id="gsched-hours" class="input" type="number" min="1" max="12" value="2"></div>
         </div>
-        <label>Tittel</label><input id="gsched-title" class="input" placeholder="f.eks. Deep Psybient Journey">
-        <label>Lenke (valgfri – der du sender: YouTube/Twitch/egen strøm)</label>
+        <label>Title</label><input id="gsched-title" class="input" placeholder="e.g. Deep Psybient Journey">
+        <label>Link (optional – where you broadcast: YouTube/Twitch/your own stream)</label>
         <input id="gsched-link" class="input" placeholder="https://…">
-        <button class="btn btn-primary" id="gsched-add">+ Legg til sendetid</button>
+        <button class="btn btn-primary" id="gsched-add">+ Add broadcast time</button>
         <hr>
 
-        <h4 class="mini-h">Last opp musikk (WAV/MP3) + eget cover</h4>
-        <label>Tittel</label><input id="gtrack-title" class="input" placeholder="Spor-tittel">
-        <label>Cover-bilde (valgfritt)</label><input id="gtrack-cover" class="input" type="file" accept="image/*">
-        <label>Lyd-fil (WAV/MP3)</label><input id="gtrack-file" class="input" type="file" accept="audio/*">
-        <button class="btn btn-primary" id="gtrack-upload">⬆ Last opp</button>
+        <h4 class="mini-h">Upload music (WAV/MP3) + your own cover</h4>
+        <label>Title</label><input id="gtrack-title" class="input" placeholder="Track title">
+        <label>Cover image (optional)</label><input id="gtrack-cover" class="input" type="file" accept="image/*">
+        <label>Audio file (WAV/MP3)</label><input id="gtrack-file" class="input" type="file" accept="audio/*">
+        <button class="btn btn-primary" id="gtrack-upload">⬆ Upload</button>
         <span id="gtrack-status" class="muted"></span>
         <hr>
 
-        <h4 class="mini-h">Din live-strøm (Icecast / egen server)</h4>
-        <label>Stream-URL (du sender hit)</label>
-        <input id="gstream-url" class="input" placeholder="https://din-server.no/listen/…/radio.mp3">
-        <label>Now-playing-URL (valgfri – gir «LIVE» + lyttertall)</label>
-        <input id="gstream-np" class="input" placeholder="https://din-server.no/api/nowplaying/1">
-        <button class="btn btn-tiny" id="gstream-save">Lagre strøm</button>
+        <h4 class="mini-h">Your live stream (Icecast / your own server)</h4>
+        <label>Stream URL (you broadcast here)</label>
+        <input id="gstream-url" class="input" placeholder="https://your-server.com/listen/…/radio.mp3">
+        <label>Now-playing URL (optional – gives “LIVE” + listener count)</label>
+        <input id="gstream-np" class="input" placeholder="https://your-server.com/api/nowplaying/1">
+        <button class="btn btn-tiny" id="gstream-save">Save stream</button>
         <span id="gstream-status" class="muted"></span>
       </div>
 
       <!-- EIER: godkjenn / avvis gjester -->
       <div class="card owner-only" id="guest-admin" style="display:none">
-        <h3 class="mini-h">Gjester — godkjenn / avvis (kun deg)</h3>
-        <div id="guest-admin-list" class="guest-admin-list"><p class="muted">Laster …</p></div>
+        <h3 class="mini-h">Guests — approve / reject (only you)</h3>
+        <div id="guest-admin-list" class="guest-admin-list"><p class="muted">Loading …</p></div>
       </div>
     </section>
 
@@ -275,10 +272,10 @@
     </section>
 
     <!-- DONASJON (frivillig) — sammenleggbar, nederst -->
-    <section id="donasjon" class="block don-block">
+    <section id="donate" class="block don-block">
       <details class="don-details">
         <summary class="don-summary">
-          <h2>Donasjon</h2>
+          <h2>Donate</h2>
           <span class="don-toggle" aria-hidden="true"></span>
         </summary>
         <div class="card don-card">
@@ -288,20 +285,20 @@
             <button class="don-preset" data-kr="500">500 kr</button>
           </div>
           <div class="don-custom">
-            <label>Beløp (kr)</label>
+            <label>Amount (NOK)</label>
             <input id="don-amount" class="input" type="number" min="20" max="10000" value="100">
           </div>
           <div class="don-actions">
-            <button class="btn btn-primary" id="don-stripe">💳 Doner med kort</button>
-            <a class="btn btn-vipps" id="don-vipps" href="#" target="_blank" rel="noopener">Doner med Vipps</a>
+            <button class="btn btn-primary" id="don-stripe">💳 Donate by card</button>
+            <a class="btn btn-vipps" id="don-vipps" href="#" target="_blank" rel="noopener">Donate with Vipps</a>
           </div>
           <div class="don-qr" id="don-qr">
             <a id="don-qr-link" href="#" target="_blank" rel="noopener">
-              <img id="don-qr-img" src="assets/vipps-qr.png" alt="Vipps-QR – doner til Ambient Mann" width="160" height="160" loading="lazy">
+              <img id="don-qr-img" src="assets/vipps-qr.png" alt="Vipps QR – donate to Ambient Mann" width="160" height="160" loading="lazy">
             </a>
-            <p class="don-qr-cap">Skann med mobilen for å donere via Vipps</p>
+            <p class="don-qr-cap">Scan with your phone to donate via Vipps</p>
           </div>
-          <p class="note">Vipps åpnes automatisk med riktig mottaker (<span translate="no" class="notranslate">Ambient Mann</span>). Booking av <span translate="no" class="notranslate">Ambient Mann</span> avtales via e-post.</p>
+          <p class="note">Vipps opens automatically with the right recipient (<span translate="no" class="notranslate">Ambient Mann</span>). Booking <span translate="no" class="notranslate">Ambient Mann</span> is arranged by email.</p>
         </div>
       </details>
     </section>
@@ -316,7 +313,7 @@
     <button class="pb-play" id="pb-play">▶</button>
     <div class="pb-info">
       <div class="now" id="pb-now">Offline</div>
-      <div class="by" id="pb-by"><span class="pb-ai">✦</span> Ikke live nå</div>
+      <div class="by" id="pb-by"><span class="pb-ai">✦</span> Not live right now</div>
     </div>
     <div class="pb-right">
       <span style="font-size:15px">🔊</span>
@@ -328,7 +325,7 @@
   <div class="modal-overlay" id="about-modal">
     <div class="card modal about-modal">
       <button class="x" id="about-modal-close">×</button>
-      <h3>Om<span translate="no" class="notranslate">&nbsp;Ambient Mann</span></h3>
+      <h3>About<span translate="no" class="notranslate">&nbsp;Ambient Mann</span></h3>
       <div class="about-body" translate="no">
         <p>Noah Kristiansen has been working professionally with podcasts for over 15 years. Born in Greenland in 1982, he later moved to Norway.</p>
         <p>Following a revelation regarding music and podcast production at the age of 14 (Back Then it Only Was A Dream), Noah <span translate="no" class="notranslate">FeedFreq</span> reached out to channels such as <a translate="no" class="notranslate" href="https://diceradio.gr/" target="_blank" rel="noopener">diceradio.gr</a> and <a translate="no" class="notranslate" href="https://radioq37.com/" target="_blank" rel="noopener">Radioq37.com</a> in 2014. Shortly thereafter, he began meditating and producing podcasts. He subsequently experienced a new revelation on a level of spiritual consciousness and suddenly became part of Tree of Life / BM Bookings—an agency now known as <span translate="no" class="notranslate">FeedFreq &amp; BigFreq</span>. Since 2014, he has established collaborations with numerous entities, including Mikelabella Records, Cryo Chamber, Cosmicleaf Records, Trancentral, Psybient.org, IT Athens, and others.</p>
@@ -341,7 +338,7 @@
           You will not go down with the ship.</p>
         <p>With the right preparation, there is no shock reaction; there is only affirmation. Even events that might otherwise seem shocking will not overwhelm you. They may catch you off guard or cause a moment of unease, but they will not overwhelm you. You will not be paralyzed by the situation or frozen in fear, unable to figure out what to do.</p>
         <p>(<a translate="no" class="notranslate" href="https://www.stepstoknowledge.com/" target="_blank" rel="noopener">www.stepstoknowledge.com</a>)</p>
-        <p>When the ship starts to list and take on water, you will be ready. You will not freeze up. You will not go down with the ship.</p>
+        <p>When the ship starts to list and take on water, you will be ready. You will not freeze up. You will not go down with the ship. Contact <span translate="no" class="notranslate">Ambient Mann</span> at: <a translate="no" class="notranslate" href="mailto:aon_h@mailfence.com">aon_h@mailfence.com</a></p>
         <p>Booking: <a translate="no" class="notranslate" href="mailto:yaniv@bigfreq.com">yaniv@bigfreq.com</a></p>
         <p>Our websites:</p>
         <ul class="about-links">
@@ -351,7 +348,7 @@
           <li><a translate="no" class="notranslate" href="https://www.ambientmann.com/" target="_blank" rel="noopener">https://www.ambientmann.com/</a></li>
           <li><a translate="no" class="notranslate" href="https://siriusfm.no/#/radio" target="_blank" rel="noopener">https://siriusfm.no/#/radio</a></li>
         </ul>
-        <p>Contact <span translate="no" class="notranslate">Ambient Mann</span> at: <a translate="no" class="notranslate" href="mailto:aon_h@mailfence.com">aon_h@mailfence.com</a></p>
+        <p class="muted">This email is “Out Of Bounds” – <a translate="no" class="notranslate" href="mailto:noah@radioq37.com">noah@radioq37.com</a></p>
       </div>
     </div>
   </div>
@@ -360,18 +357,18 @@
   <div class="modal-overlay" id="owner-modal">
     <div class="card modal">
       <button class="x" id="owner-modal-close">×</button>
-      <h3 id="owner-modal-title">Eier-innlogging</h3>
-      <p class="muted" id="owner-modal-sub">Kun for Ambient Mann.</p>
+      <h3 id="owner-modal-title">Owner login</h3>
+      <p class="muted" id="owner-modal-sub">For Ambient Mann only.</p>
       <div class="field" id="owner-email-field" style="display:none">
-        <label>E-post</label><input class="input" id="owner-email" type="email" placeholder="din@epost.no" autocomplete="email">
+        <label>Email</label><input class="input" id="owner-email" type="email" placeholder="you@email.com" autocomplete="email">
       </div>
       <div class="field" id="owner-pass-field">
-        <label id="owner-pass-label">Passord</label>
+        <label id="owner-pass-label">Password</label>
         <input class="input" id="owner-pass" type="password" placeholder="••••••••" autocomplete="current-password">
       </div>
-      <button class="btn btn-primary" id="owner-submit" style="width:100%">Logg inn</button>
-      <button class="btn btn-ghost" id="owner-forgot" style="width:100%;margin-top:8px">Glemt passord?</button>
-      <button class="btn btn-ghost" id="owner-back" style="width:100%;margin-top:8px;display:none">← Tilbake til innlogging</button>
+      <button class="btn btn-primary" id="owner-submit" style="width:100%">Log in</button>
+      <button class="btn btn-ghost" id="owner-forgot" style="width:100%;margin-top:8px">Forgot password?</button>
+      <button class="btn btn-ghost" id="owner-back" style="width:100%;margin-top:8px;display:none">← Back to login</button>
     </div>
   </div>
 
@@ -379,24 +376,24 @@
   <div class="modal-overlay" id="guest-modal">
     <div class="card modal">
       <button class="x" id="guest-modal-close">×</button>
-      <h3 id="guest-modal-title">Logg inn som gjest</h3>
-      <p class="muted" id="guest-modal-sub">For godkjente gjester hos <span translate="no" class="notranslate">Ambient Mann</span>.</p>
+      <h3 id="guest-modal-title">Log in as guest</h3>
+      <p class="muted" id="guest-modal-sub">For approved guests of <span translate="no" class="notranslate">Ambient Mann</span>.</p>
       <div class="field" id="guest-name-field" style="display:none">
-        <label>Navn / artistnavn (vises til publikum)</label>
-        <input class="input" id="guest-name" type="text" placeholder="f.eks. DJ Nebula" autocomplete="name">
+        <label>Name / artist name (shown to the audience)</label>
+        <input class="input" id="guest-name" type="text" placeholder="e.g. DJ Nebula" autocomplete="name">
       </div>
       <div class="field" id="guest-email-field">
-        <label>E-post</label>
-        <input class="input" id="guest-email" type="email" placeholder="din@epost.no" autocomplete="email">
+        <label>Email</label>
+        <input class="input" id="guest-email" type="email" placeholder="you@email.com" autocomplete="email">
       </div>
       <div class="field" id="guest-pass-field">
-        <label id="guest-pass-label">Passord</label>
+        <label id="guest-pass-label">Password</label>
         <input class="input" id="guest-pass" type="password" placeholder="••••••••" autocomplete="current-password">
       </div>
-      <button class="btn btn-primary" id="guest-submit" style="width:100%">Logg inn</button>
-      <button class="btn btn-ghost" id="guest-toggle-mode" style="width:100%;margin-top:8px">Ny gjest? Registrer deg</button>
-      <button class="btn btn-ghost" id="guest-forgot" style="width:100%;margin-top:8px">Glemt passord?</button>
-      <button class="btn btn-ghost" id="guest-back" style="width:100%;margin-top:8px;display:none">← Tilbake til innlogging</button>
+      <button class="btn btn-primary" id="guest-submit" style="width:100%">Log in</button>
+      <button class="btn btn-ghost" id="guest-toggle-mode" style="width:100%;margin-top:8px">New guest? Sign up</button>
+      <button class="btn btn-ghost" id="guest-forgot" style="width:100%;margin-top:8px">Forgot password?</button>
+      <button class="btn btn-ghost" id="guest-back" style="width:100%;margin-top:8px;display:none">← Back to login</button>
     </div>
   </div>
 
@@ -423,9 +420,5 @@
   <script src="js/plays.js"></script>
   <script src="js/donation.js"></script>
   <script src="js/app.js"></script>
-
-  <!-- Språkvelger (Google Translate) — brukeren velger språk selv -->
-  <script src="js/lang.js"></script>
-  <script src="https://translate.google.com/translate_a/element.js?cb=amGoogleTranslateInit"></script>
 </body>
 </html>

@@ -9,9 +9,13 @@ window.Sections = (function () {
   'use strict';
 
   // De sammenhengende innholdsblokkene rett under hero (i standard rekkefølge).
-  // Disse er søsken i <main class="wrap">; #live/#gjest-live/logo-strip/#donasjon
+  // Disse er søsken i <main class="wrap">; #live/#guest-live/logo-strip/#donate
   // holdes utenfor så de ikke flyttes utilsiktet.
-  const ORDERABLE = ['bio', 'listen', 'links', 'plateselskaper'];
+  const ORDERABLE = ['bio', 'listen', 'links', 'labels'];
+
+  // Seksjons-IDene ble engelske (URL-ankrene også). Rekkefølger som allerede er
+  // lagret i Supabase bruker de gamle norske IDene, så vi oversetter dem ved lesing.
+  const LEGACY_IDS = { plateselskaper: 'labels' };
 
   function wrap() { return document.querySelector('main.wrap'); }
 
@@ -71,8 +75,8 @@ window.Sections = (function () {
     box.style.marginLeft = 'auto';
     box.style.gap = '6px';
     box.innerHTML =
-      '<button type="button" class="btn btn-tiny" data-sec-up title="Flytt Musikk-seksjonen opp" aria-label="Flytt opp">▲ Opp</button>' +
-      '<button type="button" class="btn btn-tiny" data-sec-down title="Flytt Musikk-seksjonen ned" aria-label="Flytt ned">▼ Ned</button>';
+      '<button type="button" class="btn btn-tiny" data-sec-up title="Move the Music section up" aria-label="Move up">▲ Up</button>' +
+      '<button type="button" class="btn btn-tiny" data-sec-down title="Move the Music section down" aria-label="Move down">▼ Down</button>';
     head.appendChild(box);
     box.querySelector('[data-sec-up]').addEventListener('click', function () { move('listen', -1); });
     box.querySelector('[data-sec-down]').addEventListener('click', function () { move('listen', 1); });
@@ -83,7 +87,8 @@ window.Sections = (function () {
     const saved = Content.get('sectionOrder');
     if (Array.isArray(saved) && saved.length) {
       // Kun kjente IDer; manglende blokker legges til bakerst i standardrekkefølge.
-      const valid = saved.filter(function (id) { return ORDERABLE.indexOf(id) !== -1; });
+      const valid = saved.map(function (id) { return LEGACY_IDS[id] || id; })
+                         .filter(function (id) { return ORDERABLE.indexOf(id) !== -1; });
       ORDERABLE.forEach(function (id) { if (valid.indexOf(id) === -1) valid.push(id); });
       apply(valid);
     }

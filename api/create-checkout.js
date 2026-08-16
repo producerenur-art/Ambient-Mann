@@ -15,11 +15,11 @@ module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   if (!process.env.STRIPE_SECRET_KEY) {
-    return res.status(503).json({ error: 'Kortbetaling er ikke satt opp (mangler STRIPE_SECRET_KEY).' });
+    return res.status(503).json({ error: 'Card payment is not set up (STRIPE_SECRET_KEY missing).' });
   }
 
   const body = req.body || {};
-  if (body.product !== 'donation') return res.status(400).json({ error: 'Ukjent produkt' });
+  if (body.product !== 'donation') return res.status(400).json({ error: 'Unknown product' });
 
   // Klienten sender ønsket beløp i kr; serveren klemmer det.
   const kr = parseInt(body.amountKr, 10);
@@ -34,8 +34,8 @@ module.exports = async (req, res) => {
         price_data: {
           currency: 'nok',
           product_data: {
-            name: 'Donasjon til Ambient Mann',
-            description: 'Frivillig støtte. Tusen takk! 💜',
+            name: 'Donation to Ambient Mann',
+            description: 'Voluntary support. Thank you so much! 💜',
           },
           unit_amount: ore,
         },

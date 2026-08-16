@@ -25,7 +25,7 @@
   // ---- Kontakt (går direkte til Ambient Manns e-post) --------------------
   function contactHref() {
     const to = C.contactEmail || '';
-    const q = 'subject=' + encodeURIComponent(C.contactSubject || 'Kontakt') +
+    const q = 'subject=' + encodeURIComponent(C.contactSubject || 'Contact') +
               '&body=' + encodeURIComponent(C.contactBody || '');
     return 'mailto:' + to + '?' + q;
   }
@@ -40,8 +40,8 @@
       try {
         if (navigator.clipboard) await navigator.clipboard.writeText(email);
         else { const t = document.createElement('textarea'); t.value = email; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); }
-        UI.toast('E-postadresse kopiert: ' + email);
-      } catch (_) { UI.toast('Kopier manuelt: ' + email); }
+        UI.toast('Email address copied: ' + email);
+      } catch (_) { UI.toast('Copy it manually: ' + email); }
     });
   }
 
@@ -121,13 +121,13 @@
       const type = (lbType && lbType.value) || 'image';
       const f = fileEl && fileEl.files && fileEl.files[0];
       if (f) {
-        if (!SC_Storage.isConfigured()) { UI.toast('Opplasting krever Supabase (se README).'); return; }
-        if (status) status.textContent = 'Laster opp …';
+        if (!SC_Storage.isConfigured()) { UI.toast('Uploading requires Supabase (see README).'); return; }
+        if (status) status.textContent = 'Uploading …';
         try { const up = await SC_Storage.upload(f, { prefix: 'livebg' }); url = up.url; if (lbUrl) lbUrl.value = url; }
-        catch (_) { UI.toast('Opplasting feilet.'); if (status) status.textContent = ''; return; }
+        catch (_) { UI.toast('Upload failed.'); if (status) status.textContent = ''; return; }
       }
       await Content.set('liveBg', { type: type, url: url });
-      if (status) status.textContent = 'Lagret.';
+      if (status) status.textContent = 'Saved.';
       Player.render();
     });
   }

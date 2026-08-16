@@ -23,18 +23,18 @@ window.AM_CONFIG = {
   nowPlayingUrl: 'https://radio.ambientmann.com/api/nowplaying/ambient_mann',
   nowPlayingInterval: 15000,
   liveDescriptionDefault:
-    'Ambient Mann sender live direkte her www.ambientmann.com ' +
-    'Følg med på sendeplanen under – tidene settes av Ambient Mann selv.',
+    'Ambient Mann broadcasts live right here at www.ambientmann.com ' +
+    'Keep an eye on the schedule below – the times are set by Ambient Mann himself.',
 
   /* ---- BOOKING (gratis – kun via e-post) ------------------------------ */
   bookingEmails: ['yaniv@bigfreq.com'],
   bookingSubject: 'Booking — Ambient Mann',
-  bookingBody: 'Hei Ambient Mann,\n\nVi ønsker å booke deg. Her er detaljene:\n\nDato/sted:\nType arrangement:\nKontaktperson:\n\nMvh',
+  bookingBody: 'Hi Ambient Mann,\n\nWe would like to book you. Here are the details:\n\nDate/venue:\nType of event:\nContact person:\n\nBest regards',
 
   /* ---- KONTAKT (går direkte til Ambient Manns e-post) ----------------- */
   contactEmail: 'aon_h@mailfence.com',
-  contactSubject: 'Kontakt — Ambient Mann',
-  contactBody: 'Hei Ambient Mann,\n\n',
+  contactSubject: 'Contact — Ambient Mann',
+  contactBody: 'Hi Ambient Mann,\n\n',
 
   /* ---- DONASJON (frivillig) ------------------------------------------- */
   donation: {
