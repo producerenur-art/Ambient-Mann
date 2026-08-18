@@ -27,12 +27,12 @@ window.AM_CONFIG = {
     'Keep an eye on the schedule below – the times are set by Ambient Mann himself.',
 
   /* ---- BOOKING (gratis – kun via e-post) ------------------------------ */
-  bookingEmails: ['booking@ambientmann.com'],
+  bookingEmails: ['aon_h@mailfence.com'],
   bookingSubject: 'Booking — Ambient Mann',
   bookingBody: 'Hi Ambient Mann,\n\nWe would like to book you. Here are the details:\n\nDate/venue:\nType of event:\nContact person:\n\nBest regards',
 
   /* ---- KONTAKT (går direkte til Ambient Manns e-post) ----------------- */
-  contactEmail: 'booking@ambientmann.com',
+  contactEmail: 'aon_h@mailfence.com',
   contactSubject: 'Contact — Ambient Mann',
   contactBody: 'Hi Ambient Mann,\n\n',
 
