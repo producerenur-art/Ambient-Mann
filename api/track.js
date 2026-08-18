@@ -159,7 +159,7 @@ module.exports = async (req, res) => {
     '<p class="about-verse">A journey with Noah&rsquo;s Ark—<br>&ldquo;All The Way From Heaven&rdquo; by <span translate="no">Ambient Mann</span><br>You will not go down with the ship.</p>' +
     '<p>With the right preparation, there is no shock reaction; there is only affirmation. Even events that might otherwise seem shocking will not overwhelm you. They may catch you off guard or cause a moment of unease, but they will not overwhelm you. You will not be paralyzed by the situation or frozen in fear, unable to figure out what to do.</p>' +
     '<p>(<a translate="no" href="https://www.stepstoknowledge.com/" target="_blank" rel="noopener">www.stepstoknowledge.com</a>)</p>' +
-    '<p>When the ship starts to list and take on water, you will be ready. You will not freeze up. You will not go down with the ship. Contact <span translate="no">Ambient Mann</span> at: <a translate="no" href="mailto:aon_h@mailfence.com">aon_h@mailfence.com</a></p>' +
+    '<p>When the ship starts to list and take on water, you will be ready. You will not freeze up. You will not go down with the ship. Contact <span translate="no">Ambient Mann</span> at: <a translate="no" href="mailto:booking@ambientmann.com">booking@ambientmann.com</a></p>' +
     '<p>Booking: <a translate="no" href="mailto:yaniv@bigfreq.com">yaniv@bigfreq.com</a></p>' +
     '<p>Our websites:</p>' +
     '<ul class="about-links">' +

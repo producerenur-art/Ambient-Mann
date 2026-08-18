@@ -32,7 +32,7 @@ window.AM_CONFIG = {
   bookingBody: 'Hi Ambient Mann,\n\nWe would like to book you. Here are the details:\n\nDate/venue:\nType of event:\nContact person:\n\nBest regards',
 
   /* ---- KONTAKT (går direkte til Ambient Manns e-post) ----------------- */
-  contactEmail: 'aon_h@mailfence.com',
+  contactEmail: 'booking@ambientmann.com',
   contactSubject: 'Contact — Ambient Mann',
   contactBody: 'Hi Ambient Mann,\n\n',
 
