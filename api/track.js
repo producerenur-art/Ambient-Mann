@@ -166,7 +166,7 @@ module.exports = async (req, res) => {
     '<li><a translate="no" href="http://bigfreq.com/" target="_blank" rel="noopener">http://bigfreq.com/</a></li>' +
     '<li><a translate="no" href="https://soundcloud.com/feedfreq" target="_blank" rel="noopener">https://soundcloud.com/feedfreq</a></li>' +
     '<li><a translate="no" href="https://www.ambientmann.com/" target="_blank" rel="noopener">https://www.ambientmann.com/</a></li>' +
-    '<li><a translate="no" href="https://siriusfm.no/#/radio" target="_blank" rel="noopener">https://siriusfm.no/#/radio</a></li>' +
+    '<li><a translate="no" href="https://siriusfm.no/#/shows" target="_blank" rel="noopener">https://siriusfm.no/#/shows</a></li>' +
     '</ul>' +
     '<p>Contact <span translate="no">Ambient Mann</span> at: <a translate="no" href="mailto:aon_h@mailfence.com">aon_h@mailfence.com</a></p>' +
     '<p>Booking: <a translate="no" href="mailto:booking@ambientmann.com">booking@ambientmann.com</a></p>' +
@@ -210,7 +210,7 @@ module.exports = async (req, res) => {
     ['https://trancentral.tv/', '/assets/trancentral-logo.png', 'Trancentral', 'Trancentral'],
     ['https://ra.co/clubs/212119', '/assets/it-athens-logo.png', 'IT Athens — Wake the Beat', 'IT Athens'],
     ['https://www.newmessage.org/', '/assets/newmessage-logo.png', 'The New Message From God', 'The New Message From God'],
-    ['https://www.siriusfm.no/', '/assets/siriusfm.jpg', 'SiriusFM', 'SiriusFM'],
+    ['https://siriusfm.no/#/shows', '/assets/siriusfm.jpg', 'SiriusFM', 'SiriusFM'],
     ['https://www.alliesofhumanity.org/', '/assets/alliesofhumanity-logo.jpg', 'The Allies of Humanity', 'The Allies of Humanity'],
   ];
   const logoStrip = LOGOS.map(function (g) {

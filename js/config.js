@@ -75,7 +75,7 @@ window.AM_CONFIG = {
     // The New Message From God (offisiell logo) → nettstedet
     newMessageOrg: 'https://www.newmessage.org/',
     // Sirius FM (nettradio) → nettstedet
-    siriusfm: 'https://www.siriusfm.no',
+    siriusfm: 'https://siriusfm.no/#/shows',
     // FeedFreq Music (YouTube-kanal)
     feedfreqMusic: 'https://www.youtube.com/@FeedFreqMusic',
     // The Allies of Humanity → nettstedet
