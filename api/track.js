@@ -210,7 +210,7 @@ module.exports = async (req, res) => {
     ['https://trancentral.tv/', '/assets/trancentral-logo.png', 'Trancentral', 'Trancentral'],
     ['https://ra.co/clubs/212119', '/assets/it-athens-logo.png', 'IT Athens — Wake the Beat', 'IT Athens'],
     ['https://www.newmessage.org/', '/assets/newmessage-logo.png', 'The New Message From God', 'The New Message From God'],
-    ['https://siriusfm.no/#/shows', '/assets/siriusfm.jpg', 'SiriusFM', 'SiriusFM'],
+    ['https://siriusfm.no/#/shows', '/assets/siriusfm-logo.png?v=20260818', 'SiriusFM', 'SiriusFM'],
     ['https://www.alliesofhumanity.org/', '/assets/alliesofhumanity-logo.jpg', 'The Allies of Humanity', 'The Allies of Humanity'],
   ];
   const logoStrip = LOGOS.map(function (g) {

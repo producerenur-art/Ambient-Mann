@@ -134,7 +134,7 @@ window.AM_CONFIG = {
     trancentralLogo: 'assets/trancentral-logo.png',    // trancentral.tv
     itAthensLogo: 'assets/it-athens-logo.png',         // ra.co/clubs/212119
     newMessageOrgLogo: 'assets/newmessage-logo.png',   // newmessage.org (diamant)
-    siriusfmLogo: 'assets/siriusfm-logo.png',          // siriusfm.no
+    siriusfmLogo: 'assets/siriusfm-logo.png?v=20260818',          // siriusfm.no
     feedfreqMusicLogo: 'assets/feedfreqmusic-logo.jpg', // youtube.com/@FeedFreqMusic
     alliesOfHumanityLogo: 'assets/alliesofhumanity-logo.jpg', // alliesofhumanity.org
     bookingImg: 'assets/booking.png',                  // valgfritt booking-bilde
