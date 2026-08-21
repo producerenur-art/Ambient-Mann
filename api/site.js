@@ -4,6 +4,8 @@
 //   GET  ?action=tracks-list     (offentlig)  → [ spor ]
 //   POST ?action=play            {id,title}   (offentlig) → teller +1 avspilling
 //   GET  ?action=plays           (eier)       → { plays:[{id,title,count}], total }
+//   POST ?action=visit          {fresh}      (offentlig) → teller +1 besøk
+//   GET  ?action=visits          (eier)       → { today, week, month, total, days:[...] }
 //   GET  ?action=owner-status    (offentlig)  → { hasPassword, resetSupported }
 //   POST ?action=login           {password}   → { token }   (12t HMAC)  — KUN Ambient Mann
 //   POST ?action=set-password    {password}   (første gang / innlogget) → oppretter/endrer passord
@@ -189,6 +191,40 @@ module.exports = async (req, res) => {
       const plays = (data || []).map(r => ({ id: r.track_id, title: r.title || '', count: Number(r.count) || 0 }));
       const total = plays.reduce((a, b) => a + b.count, 0);
       return res.status(200).json({ plays, total });
+    }
+    // Teller +1 besøk. Offentlig (alle som åpner siden), fyr-og-glem.
+    // fresh=true første gang enheten er innom i løpet av dagen (unik besøkende).
+    // Ingen IP, ingen informasjonskapsler — bare to tall per dato.
+    if (action === 'visit') {
+      if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+      const fresh = body.fresh === true || body.fresh === 'true';
+      if (c) { try { await c.rpc('increment_visit', { p_fresh: fresh }); } catch (_) {} }
+      return res.status(200).json({ ok: true });
+    }
+    // Besøkstall — KUN eier. Nyeste dag først, med summer for dag/uke/måned/totalt.
+    if (action === 'visits') {
+      if (!ownerClaim(req)) return res.status(401).json({ error: 'Log in as owner.' });
+      if (!c) return res.status(200).json({ days: [], today: null, week: null, month: null, total: null });
+      const { data, error } = await c.from('site_visits')
+        .select('day,views,visitors').order('day', { ascending: false });
+      // Tabellen mangler → si fra at SQL-en (0004_visits.sql) ikke er kjørt ennå.
+      if (error) return res.status(200).json({ ready: false, days: [] });
+      const days = (data || []).map(r => ({
+        day: String(r.day || '').slice(0, 10),
+        views: Number(r.views) || 0,
+        visitors: Number(r.visitors) || 0,
+      }));
+      const todayKey = new Date().toISOString().slice(0, 10);
+      // Summer over faktiske kalenderdager (ikke bare dager med registrerte besøk).
+      const cutoff = (n) => new Date(Date.now() - (n - 1) * 86400000).toISOString().slice(0, 10);
+      const sum = (n) => {
+        const from = n ? cutoff(n) : '';
+        return days.filter(d => d.day >= from).reduce(
+          (a, d) => ({ views: a.views + d.views, visitors: a.visitors + d.visitors }),
+          { views: 0, visitors: 0 });
+      };
+      const today = days.find(d => d.day === todayKey) || { day: todayKey, views: 0, visitors: 0 };
+      return res.status(200).json({ ready: true, days: days.slice(0, 30), today, week: sum(7), month: sum(30), total: sum(0) });
     }
     if (action === 'owner-status') {
       let hasPassword = false;

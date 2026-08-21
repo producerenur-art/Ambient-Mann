@@ -110,6 +110,15 @@
         <p class="plays-total" id="plays-total">Total: –</p>
         <div id="plays-list" class="plays-list"></div>
       </div>
+      <!-- Eier: besøkstall (kun du ser dette) -->
+      <div class="card owner-only" id="visits-card" style="display:none">
+        <div class="section-head" style="margin:0 0 10px">
+          <h3 class="mini-h" style="margin:0">Visitors <span class="hint">— only you see this</span></h3>
+          <button class="btn btn-tiny" id="visits-refresh" type="button">↻ Refresh</button>
+        </div>
+        <div id="visits-summary" class="visits-summary"></div>
+        <div id="visits-list" class="plays-list"></div>
+      </div>
     </section>
 
     <!-- LENKER (navn → URL, som SoundCloud) -->
@@ -419,6 +428,7 @@
   <script src="js/tracks.js"></script>
   <script src="js/sections.js"></script>
   <script src="js/plays.js"></script>
+  <script src="js/visits.js"></script>
   <script src="js/donation.js"></script>
   <script src="js/app.js"></script>
 </body>

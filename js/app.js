@@ -174,6 +174,7 @@
     Labels.bind(); Labels.render();
     Tracks.bind(); Tracks.render(); Tracks.resume();
     Plays.bind(); Plays.render();
+    Visits.bind(); Visits.ping(); Visits.render();
     Sections.render();
     Guest.render();
     Owner.applyVisibility();
