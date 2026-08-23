@@ -125,7 +125,7 @@ window.AM_CONFIG = {
   /* ---- BILDE-STIER (last opp filene til assets/ – se assets/README.md) - */
   assets: {
     universeBg: 'assets/universe-bg.jpg',              // bakgrunn (stjerner beveger seg oppå)
-    logo: 'assets/am-logo.svg',              // hovedlogo (mindre, i hero)
+    logo: 'assets/am-wordmark.svg',              // hovedlogo (mindre, i hero)
     feedfreqSite: 'assets/feedfreq-site.png',          // FeedFreq-forhåndsvisning → feedfreq.com
     feedfreqLogo: 'assets/feedfreq-logo.png',          // → feedfreq-gruppa
     newMessageLogo: 'assets/new-message-from-god.jpg', // The New Message From God
