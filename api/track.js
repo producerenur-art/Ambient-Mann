@@ -168,9 +168,8 @@ module.exports = async (req, res) => {
     '<li><a translate="no" href="https://www.ambientmann.com/" target="_blank" rel="noopener">https://www.ambientmann.com/</a></li>' +
     '<li><a translate="no" href="https://siriusfm.no/#/shows" target="_blank" rel="noopener">https://siriusfm.no/#/shows</a></li>' +
     '</ul>' +
-    '<p>Contact <span translate="no">Ambient Mann</span> at: <a translate="no" href="mailto:aon_h@mailfence.com">aon_h@mailfence.com</a></p>' +
-    '<p>Booking: <a translate="no" href="mailto:booking@ambientmann.com">booking@ambientmann.com</a></p>' +
-    '<p>Booking: <a translate="no" href="mailto:yaniv@bigfreq.com">yaniv@bigfreq.com</a></p>';
+    '<p>Contact &amp; booking: <a translate="no" href="mailto:booking@ambientmann.com">booking@ambientmann.com</a></p>' +
+    '<p>Agency (<span translate="no">BigFreq</span>): <a translate="no" href="mailto:yaniv@bigfreq.com">yaniv@bigfreq.com</a></p>';
 
   // Sosiale delelenker (server-beregnet, samme URL som deles).
   const eu = encodeURIComponent(pageUrl);
