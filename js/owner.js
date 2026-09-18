@@ -8,12 +8,24 @@
  * ========================================================================= */
 window.Owner = (function () {
   const KEY = 'am_owner_token';
+  const SEEN_KEY = 'am_owner_seen';
   let mode = 'login';     // 'login' | 'create' | 'forgot' | 'reset'
   let resetToken = '';
 
   function token() { try { return sessionStorage.getItem(KEY) || ''; } catch (_) { return ''; } }
   function isOwner() { return !!token(); }
-  function save(t) { try { sessionStorage.setItem(KEY, t); } catch (_) {} }
+  function save(t) { try { sessionStorage.setItem(KEY, t); } catch (_) {} unlockButton(); }
+
+  // Knappen er skjult for besøkende. Den vises kun i denne nettleseren når du
+  // har logget inn her før (am_owner_seen i localStorage), eller når du åpner
+  // siden med ?owner=1 – f.eks. første gang på en ny enhet/nettleser.
+  function unlockButton() { try { localStorage.setItem(SEEN_KEY, '1'); } catch (_) {} }
+  function buttonUnlocked() {
+    try { if (localStorage.getItem(SEEN_KEY) === '1') return true; } catch (_) {}
+    if (isOwner()) return true;
+    try { if (new URLSearchParams(location.search).get('owner') === '1') { unlockButton(); return true; } } catch (_) {}
+    return false;
+  }
 
   function authFetch(url, opts) {
     opts = opts || {};
@@ -25,7 +37,10 @@ window.Owner = (function () {
     const on = isOwner();
     UI.$all('.owner-only').forEach(el => { el.style.display = on ? '' : 'none'; });
     const btn = document.getElementById('owner-btn');
-    if (btn) btn.textContent = on ? 'Log out' : 'Owner login';
+    if (btn) {
+      btn.textContent = on ? 'Log out' : 'Owner login';
+      btn.style.display = buttonUnlocked() ? '' : 'none';
+    }
   }
 
   function refresh() {
