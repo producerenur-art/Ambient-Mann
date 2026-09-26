@@ -103,6 +103,17 @@ module.exports = async (req, res) => {
   const rawTitle = track.title || 'Track';
   const title = esc(rawTitle);
   const cover = safeHttps(track.coverUrl);
+  // Facebook dropper og:image over ~8 MB (animert GIF-cover er ofte 9+ MB): Supabase-bilde går via
+  // Vercel-bildeoptimalisering (vercel.json → images) → maks 1200 px, få hundre KB.
+  const ogCover = (function () {
+    try {
+      const u = new URL(cover);
+      if (/\.supabase\.co$/i.test(u.hostname) && u.pathname.startsWith('/storage/v1/object/public/') && /\.(png|jpe?g|gif|webp)$/i.test(u.pathname)) {
+        return origin + '/_vercel/image?url=' + encodeURIComponent(cover) + '&w=1200&q=80';
+      }
+    } catch (e) { /* behald original */ }
+    return cover;
+  })();
   const audioUrl = safeHttps(track.url);
   // Kanonisk URL = pen tittel-slug (faller tilbake til id hvis tittelen ikke gir slug).
   const slug = slugify(track.title) || String(track.id);
@@ -115,13 +126,14 @@ module.exports = async (req, res) => {
     '<meta property="og:title" content="' + title + '">',
     '<meta property="og:description" content="' + esc(desc) + '">',
     '<meta property="og:url" content="' + esc(pageUrl) + '">',
-    cover ? '<meta property="og:image" content="' + esc(cover) + '">' : '',
+    cover ? '<meta property="og:image" content="' + esc(ogCover) + '">' : '',
+    cover ? '<meta property="og:image:secure_url" content="' + esc(ogCover) + '">' : '',
     '<meta property="og:audio" content="' + esc(audioUrl) + '">',
     '<meta property="og:audio:type" content="audio/mpeg">',
     '<meta name="twitter:card" content="' + (cover ? 'summary_large_image' : 'summary') + '">',
     '<meta name="twitter:title" content="' + title + '">',
     '<meta name="twitter:description" content="' + esc(desc) + '">',
-    cover ? '<meta name="twitter:image" content="' + esc(cover) + '">' : '',
+    cover ? '<meta name="twitter:image" content="' + esc(ogCover) + '">' : '',
   ].filter(Boolean).join('\n');
 
   const coverStyle = cover ? "background-image:url('" + esc(cover) + "')" : '';
