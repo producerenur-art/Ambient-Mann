@@ -103,13 +103,13 @@ module.exports = async (req, res) => {
   const rawTitle = track.title || 'Track';
   const title = esc(rawTitle);
   const cover = safeHttps(track.coverUrl);
-  // Facebook dropper og:image over ~8 MB (animert GIF-cover er ofte 9+ MB): Supabase-bilde går via
-  // Vercel-bildeoptimalisering (vercel.json → images) → maks 1200 px, få hundre KB.
+  // Facebook dropper og:image over ~8 MB (animert GIF-cover er ofte 9+ MB): bildet går via /api/cover
+  // (sharp → statisk JPEG, første ramme, maks 1200 px).
   const ogCover = (function () {
     try {
       const u = new URL(cover);
       if (/\.supabase\.co$/i.test(u.hostname) && u.pathname.startsWith('/storage/v1/object/public/') && /\.(png|jpe?g|gif|webp)$/i.test(u.pathname)) {
-        return origin + '/_vercel/image?url=' + encodeURIComponent(cover) + '&w=1200&q=80';
+        return origin + '/api/cover?u=' + encodeURIComponent(cover);
       }
     } catch (e) { /* behald original */ }
     return cover;
