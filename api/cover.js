@@ -16,11 +16,12 @@ module.exports = async (req, res) => {
     if (!r.ok) { res.statusCode = 404; return res.end('not found'); }
     const buf = Buffer.from(await r.arrayBuffer());
     if (buf.length > 40 * 1024 * 1024) { res.statusCode = 413; return res.end('too large'); }
-    const out = await sharp(buf, { pages: 1 })
-      .resize({ width: 1200, height: 1200, fit: 'inside', withoutEnlargement: true })
-      .flatten({ background: '#0a0f2a' })
-      .jpeg({ quality: 82 })
-      .toBuffer();
+    // 1200x630 (Facebook/X-bredformat): hele coveret (kvadrat) midt i bildet, utvida med uskarp
+    // og mørkna versjon av seg sjølv på sidene — så ingenting blir beskore.
+    const W = 1200, H = 630;
+    const bg = await sharp(buf, { pages: 1 }).resize(W, H, { fit: 'cover' }).blur(40).modulate({ brightness: 0.55 }).jpeg({ quality: 80 }).toBuffer();
+    const fg = await sharp(buf, { pages: 1 }).resize(H, H, { fit: 'inside', withoutEnlargement: false }).flatten({ background: '#0a0f2a' }).png().toBuffer();
+    const out = await sharp(bg).composite([{ input: fg, gravity: 'center' }]).jpeg({ quality: 84 }).toBuffer();
     res.setHeader('Content-Type', 'image/jpeg');
     res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=604800, stale-while-revalidate=86400');
     res.statusCode = 200;
