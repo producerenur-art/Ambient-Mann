@@ -169,6 +169,7 @@
     Content.applyText();
     wireOwnerEditors();
     Player.init();
+    LiveCastUI.bind();
     Schedule.bind(); Schedule.render();
     Links.bind(); Links.render();
     Labels.bind(); Labels.render();

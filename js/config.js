@@ -56,6 +56,11 @@ window.AM_CONFIG = {
   SUPABASE_ANON_KEY: 'sb_publishable_vTCGDnn574IUQPkAnmBwdw_EpB8GWD6',
   SUPABASE_BUCKET: 'ambient-mann-media',
 
+  /* ---- LIVECAST (valgfri egen TURN-server for WebRTC-live, js/livecast.js)
+   * Tomt = gratis delt Open Relay-fallback brukes i stedet (fint for en liten
+   * lyttergruppe, men delt/rate-begrenset). Sett alle tre for egen TURN. */
+  TURN_URL: '', TURN_USERNAME: '', TURN_CREDENTIAL: '',
+
   /* ---- LENKER (logoer nederst + podcast/web-radio) -------------------- */
   links: {
     // FeedFreq-forhåndsvisning → feedfreq.com

@@ -44,6 +44,7 @@
 
   <!-- Topbar -->
   <header class="topbar">
+    <a href="#" class="topbar-logo" aria-label="Ambient Mann"><img src="assets/am-logo.png?v=20260927" alt="Ambient Mann"></a>
     <button class="nav-toggle" id="nav-toggle" aria-label="Open menu">☰</button>
     <nav class="nav" id="nav">
       <a href="#live" class="owner-only" style="display:none">Live</a>
@@ -193,6 +194,23 @@
         <button class="btn btn-tiny" id="save-stream">Save stream</button>
         <p class="note">See docs/AZURACAST-TRAKTOR.md to hook up Traktor (Preferences → Broadcasting).</p>
         <hr>
+        <h3 class="mini-h">Go live now from your browser (WebRTC — no Traktor/BUTT needed)</h3>
+        <p class="note">Same audio setup as SiriusFM's browser broadcast — pick your BlackHole/loopback input below, no echo-cancellation or noise-suppression (it would wreck the music). Runs alongside the Traktor→AzuraCast stream above; use whichever is easiest right now.</p>
+        <div class="row">
+          <div><label>Audio input</label><select id="wl-device" class="input"><option value="">Grant access first…</option></select></div>
+          <div><label>&nbsp;</label><button class="btn btn-tiny" id="wl-grant">Grant access</button></div>
+        </div>
+        <div class="wl-meters-row" id="wl-meters" style="display:none">
+          <div><label>Level L</label><div class="wl-meter"><div id="wl-meter-l" class="wl-meter-fill"></div></div></div>
+          <div><label>Level R</label><div class="wl-meter"><div id="wl-meter-r" class="wl-meter-fill"></div></div></div>
+        </div>
+        <div class="wl-controls-row">
+          <button class="btn btn-primary" id="wl-go" disabled>📡 Go live now</button>
+          <button class="btn btn-ghost" id="wl-stop" style="display:none">■ Stop</button>
+          <span id="wl-listeners" class="muted"></span>
+        </div>
+        <pre id="wl-log" class="note wl-log"></pre>
+        <hr>
         <h3 class="mini-h">Background while live (image or mp4 video)</h3>
         <div class="row">
           <div><label>Type</label><select id="livebg-type" class="input"><option value="image">Image</option><option value="video">Video (mp4)</option></select></div>
@@ -333,6 +351,14 @@
     <p>✦ <span translate="no" class="notranslate">Ambient Mann</span> — Minimal · Ambient · Deep · Psybient · Psychill · Downtempo · Chill Out · Cinematic Dark Ambient</p>
   </footer>
 
+  <!-- WebRTC live-banner — kun synlig når Ambient Mann sender live rett fra
+       nettleseren (LiveCast, uavhengig av Traktor→AzuraCast-strømmen under) -->
+  <div id="wl-banner" class="wl-banner" style="display:none">
+    <span class="dot"></span> <span translate="no" class="notranslate">Ambient Mann</span> is live right now (browser stream)
+    <button class="btn btn-tiny" id="wl-tunein">🎧 Listen</button>
+    <button class="btn btn-tiny" id="wl-tuneout" style="display:none">■ Stop</button>
+  </div>
+
   <!-- Live-spiller-bar -->
   <div class="player-bar">
     <button class="pb-play" id="pb-play">▶</button>
@@ -431,6 +457,8 @@
   <script src="js/config.js?v=116"></script>
   <script src="js/ui.js"></script>
   <script src="js/storage.js"></script>
+  <script src="js/livecast.js"></script>
+  <script src="js/livecast-ui.js"></script>
   <script src="js/linkpreview.js"></script>
   <script src="js/starfield.js"></script>
   <script src="js/player.js"></script>
