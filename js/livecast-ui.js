@@ -123,6 +123,56 @@ window.LiveCastUI = (function () {
     log0.parentNode.insertBefore(b, log0);
   }
 
+  // ---- Sjekkliste før live ---------------------------------------------------
+  // Alt som spilles på Mac-en går via BlackHole og havner i sendinga (varsler, plinger).
+  // Siden kan ikke slå av noe selv – dette er en påminnelse du må bekrefte før start.
+  const CHECKS = [
+    'Do Not Disturb is ON (Control Center → Focus)',
+    'Messages, Slack, Mail and other chat apps are closed',
+    'Chrome site notifications are blocked',
+    'I will not change the audio device or close this tab while live',
+  ];
+  function confirmChecklist() {
+    return new Promise(resolve => {
+      const back = document.createElement('div');
+      back.className = 'share-back';
+      const box = document.createElement('div');
+      box.className = 'share-menu';
+      const head = document.createElement('div');
+      head.className = 'share-title';
+      head.textContent = 'Before you go live';
+      box.appendChild(head);
+      const note = document.createElement('p');
+      note.className = 'muted';
+      note.style.margin = '4px 0 10px';
+      note.textContent = 'Everything your Mac plays – notification dings included – goes into the broadcast.';
+      box.appendChild(note);
+      const boxes = CHECKS.map(txt => {
+        const row = document.createElement('label');
+        row.style.cssText = 'display:flex;align-items:flex-start;gap:8px;margin:8px 0;cursor:pointer';
+        const cb = document.createElement('input'); cb.type = 'checkbox'; cb.style.marginTop = '3px';
+        row.appendChild(cb); row.appendChild(document.createTextNode(txt));
+        box.appendChild(row);
+        return cb;
+      });
+      const btns = document.createElement('div');
+      btns.style.cssText = 'display:flex;gap:8px;margin-top:12px;flex-wrap:wrap';
+      const start = document.createElement('button');
+      start.className = 'btn btn-primary'; start.textContent = '📡 Go live'; start.disabled = true;
+      const cancel = document.createElement('button');
+      cancel.className = 'btn btn-ghost'; cancel.textContent = 'Cancel';
+      btns.appendChild(start); btns.appendChild(cancel); box.appendChild(btns);
+      function done(v) { back.remove(); document.removeEventListener('keydown', onKey); resolve(v); }
+      function onKey(e) { if (e.key === 'Escape') done(false); }
+      boxes.forEach(cb => cb.addEventListener('change', () => { start.disabled = !boxes.every(b => b.checked); }));
+      start.addEventListener('click', () => done(true));
+      cancel.addEventListener('click', () => done(false));
+      back.addEventListener('click', e => { if (e.target === back) done(false); });
+      document.addEventListener('keydown', onKey);
+      back.appendChild(box); document.body.appendChild(back);
+    });
+  }
+
   function bindOwnerPanel() {
     const grant = document.getElementById('wl-grant');
     const go = document.getElementById('wl-go');
@@ -157,6 +207,7 @@ window.LiveCastUI = (function () {
 
     go.addEventListener('click', async () => {
       if (!stream) { log('⚠️ Gi tilgang til lyd først.'); return; }
+      if (!(await confirmChecklist())) { log('Avbrutt – ikke live.'); return; }
       try {
         await LiveCast.goLive(stream, {
           onListeners: (n) => { if (listenersEl) listenersEl.textContent = n + (n === 1 ? ' listener' : ' listeners'); },
