@@ -35,6 +35,76 @@ window.LiveCastUI = (function () {
     el.style.width = Math.min(100, Math.round(level * 220)) + '%';
   }
 
+  // ---- Opptak av sendinga -------------------------------------------------
+  // MediaRecorder tar opp same lydstrøm som går live. Bitar lagres fortløpande
+  // i IndexedDB slik at eit opptak overlever refresh/krasj (kan gjenopprettast).
+  // Ved Stop lastast opptaket opp og legg seg i spor-lista (Tracks.addRecording).
+  let rec = null, recChunks = [], recStart = 0;
+  const IDB = { name: 'am-livecast-rec', store: 'chunks' };
+  function idb() {
+    return new Promise((res, rej) => {
+      const r = indexedDB.open(IDB.name, 1);
+      r.onupgradeneeded = () => r.result.createObjectStore(IDB.store, { autoIncrement: true });
+      r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+    });
+  }
+  async function idbPut(v) { try { const d = await idb(); d.transaction(IDB.store, 'readwrite').objectStore(IDB.store).add(v); } catch (_) {} }
+  async function idbAll() {
+    try {
+      const d = await idb();
+      return await new Promise(res => { const q = d.transaction(IDB.store).objectStore(IDB.store).getAll(); q.onsuccess = () => res(q.result); q.onerror = () => res([]); });
+    } catch (_) { return []; }
+  }
+  async function idbClear() { try { const d = await idb(); d.transaction(IDB.store, 'readwrite').objectStore(IDB.store).clear(); } catch (_) {} }
+
+  function recTitle(ts) {
+    const d = new Date(ts), p = n => String(n).padStart(2, '0');
+    return 'Live ' + d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + '.' + p(d.getMinutes());
+  }
+  function startRecording(s) {
+    if (!window.MediaRecorder) { log('⚠️ Nettleseren støtter ikke opptak.'); return; }
+    const mime = ['audio/webm;codecs=opus', 'audio/mp4', 'audio/webm'].find(m => MediaRecorder.isTypeSupported(m));
+    recChunks = []; recStart = Date.now();
+    idbClear();
+    rec = new MediaRecorder(s, mime ? { mimeType: mime, audioBitsPerSecond: 192000 } : {});
+    rec.ondataavailable = (e) => { if (e.data && e.data.size) { recChunks.push(e.data); idbPut({ blob: e.data, type: rec.mimeType, start: recStart }); } };
+    rec.start(10000);
+    log('⏺ Tar opp sendinga (lagres som spor når du stopper).');
+  }
+  function stopRecording() {
+    return new Promise(resolve => {
+      if (!rec || rec.state === 'inactive') { resolve(null); return; }
+      const r = rec, start = recStart;
+      r.onstop = () => { resolve({ blob: new Blob(recChunks, { type: r.mimeType }), start }); };
+      r.stop(); rec = null;
+    });
+  }
+  async function saveRecording(r) {
+    if (!r || !r.blob.size) return;
+    try {
+      log('⏫ Laster opp opptaket (' + Math.round(r.blob.size / 1048576) + ' MB) …');
+      let last = -1;
+      const meta = await Tracks.addRecording(r.blob, recTitle(r.start), p => { const v = Math.round(p * 10); if (v !== last) { last = v; log('   ' + v * 10 + '%'); } });
+      await idbClear();
+      log('✅ Opptaket ligger nå i spor-lista: «' + meta.title + '» (Edit for cover/navn, 🔗 for å dele).');
+      UI.toast('Recording saved to the track list.');
+    } catch (e) {
+      log('❌ Kunne ikke lagre opptaket: ' + (e && e.message ? e.message : e) + ' — det er beholdt lokalt, last siden på nytt og trykk «Recover».');
+    }
+  }
+  async function offerRecovery() {
+    if (!window.Owner || !Owner.isOwner()) return;
+    const parts = await idbAll();
+    if (!parts.length || rec) return;
+    const log0 = document.getElementById('wl-log');
+    if (!log0) return;
+    log('⚠️ Fant et ikke-lagret live-opptak fra ' + recTitle(parts[0].start) + '.');
+    const b = document.createElement('button');
+    b.className = 'btn btn-tiny'; b.textContent = 'Recover recording';
+    b.onclick = async () => { b.remove(); await saveRecording({ blob: new Blob(parts.map(p => p.blob), { type: parts[0].type }), start: parts[0].start }); };
+    log0.parentNode.insertBefore(b, log0);
+  }
+
   function bindOwnerPanel() {
     const grant = document.getElementById('wl-grant');
     const go = document.getElementById('wl-go');
@@ -74,14 +144,17 @@ window.LiveCastUI = (function () {
           onListeners: (n) => { if (listenersEl) listenersEl.textContent = n + (n === 1 ? ' listener' : ' listeners'); },
           onLog: log,
         });
+        startRecording(stream);
         go.style.display = 'none';
         stop.style.display = '';
         UI.toast('🔴 You are live (browser) on ambientmann.com');
       } catch (e) { log('❌ Kunne ikke gå live: ' + e.message); }
     });
 
-    stop.addEventListener('click', () => {
+    stop.addEventListener('click', async () => {
       LiveCast.stopLive();
+      const recorded = await stopRecording();
+      stream.getTracks().forEach(t => t.stop());
       stream = null;
       go.style.display = '';
       go.disabled = true;
@@ -89,7 +162,9 @@ window.LiveCastUI = (function () {
       if (metersRow) metersRow.style.display = 'none';
       if (listenersEl) listenersEl.textContent = '';
       log('■ Stoppet.');
+      saveRecording(recorded);
     });
+    offerRecovery();
   }
 
   // ---- Offentleg banner -------------------------------------------------

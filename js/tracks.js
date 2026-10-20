@@ -570,11 +570,32 @@ window.Tracks = (function () {
     render();
   }
 
+  // ---- eier: lagre et live-opptak som vanlig spor (samme liste som opplasting) ----
+  // Kalles fra LiveCastUI når en sending stoppes. Sporet får Edit/Share/cover/
+  // Replace akkurat som alle andre spor. Kaster ved feil (kalleren beholder blobben).
+  async function addRecording(blob, title, onProgress) {
+    if (!Owner.isOwner()) throw new Error('Log in as owner to save the recording.');
+    if (!SC_Storage.isConfigured()) throw new Error('Audio storage is not set up.');
+    let name = title, n = 2;
+    while (list().some(t => slugify(t.title) === slugify(name))) name = title + ' (' + n++ + ')';
+    const ext = /mp4|aac/.test(blob.type) ? 'm4a' : 'webm';
+    const file = new File([blob], slugify(name) + '.' + ext, { type: blob.type });
+    const up = await SC_Storage.upload(file, { prefix: 'tracks', onProgress });
+    const meta = { id: 't_' + Date.now().toString(36), title: name, url: up.url, path: up.path, size: up.size, coverUrl: '', coverPath: '' };
+    const r = await Owner.authFetch('/api/site?action=track-add', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(meta),
+    });
+    if (!r.ok) { const d = await r.json().catch(() => ({})); throw new Error(d.error || ('track-add HTTP ' + r.status)); }
+    const arr = list(); arr.push(meta); await Content.set('tracks', arr);
+    render();
+    return meta;
+  }
+
   function bind() {
     bindPlayer();
     const btn = document.getElementById('track-upload');
     if (btn) btn.addEventListener('click', doUpload);
   }
 
-  return { render, bind, play, resume };
+  return { render, bind, play, resume, addRecording };
 })();
