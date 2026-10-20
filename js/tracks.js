@@ -647,7 +647,7 @@ window.Tracks = (function () {
     // MediaRecorder-webm mangler lengde + søkeinformasjon → kan ikke spoles. Reparer før opplasting.
     let seekOk = ext !== 'webm';
     if (ext === 'webm') { const sk = await seekable(blob); blob = sk.blob; seekOk = sk.ok; }
-    const file = new File([blob], slugify(name) + '.' + ext, { type: blob.type });
+    const file = new File([blob], slugify(name) + '.' + ext, { type: ext === 'm4a' ? 'audio/mp4' : blob.type });
     const up = await SC_Storage.upload(file, { prefix: 'tracks', onProgress });
     const meta = { id: 't_' + Date.now().toString(36), title: name, url: up.url, path: up.path, size: up.size, coverUrl: '', coverPath: '' };
     const r = await Owner.authFetch('/api/site?action=track-add', {

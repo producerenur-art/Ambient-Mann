@@ -132,7 +132,7 @@ module.exports = async (req, res) => {
     cover ? '<meta property="og:image:height" content="630">' : '',
     cover ? '<meta property="og:image:type" content="image/jpeg">' : '',
     '<meta property="og:audio" content="' + esc(audioUrl) + '">',
-    '<meta property="og:audio:type" content="audio/mpeg">',
+    '<meta property="og:audio:type" content="' + (/\.m4a(\?|$)/i.test(audioUrl) ? 'audio/mp4' : /\.webm(\?|$)/i.test(audioUrl) ? 'audio/webm' : 'audio/mpeg') + '">',
     '<meta name="twitter:card" content="' + (cover ? 'summary_large_image' : 'summary') + '">',
     '<meta name="twitter:title" content="' + title + '">',
     '<meta name="twitter:description" content="' + esc(desc) + '">',

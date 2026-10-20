@@ -63,10 +63,13 @@ window.LiveCastUI = (function () {
   }
   function startRecording(s) {
     if (!window.MediaRecorder) { log('⚠️ Nettleseren støtter ikke opptak.'); return; }
-    const mime = ['audio/webm;codecs=opus', 'audio/mp4', 'audio/webm'].find(m => MediaRecorder.isTypeSupported(m));
+    // m4a (AAC) først: spilles på alle enheter og er spolbar uten reparasjon (testet i Chrome 155 over HTTP).
+    // webm/opus er reserve, og repareres da i Tracks.addRecording.
+    const mime = ['audio/mp4;codecs=mp4a.40.2', 'audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'].find(m => MediaRecorder.isTypeSupported(m));
     recChunks = []; recStart = Date.now();
     idbClear();
-    rec = new MediaRecorder(s, mime ? { mimeType: mime, audioBitsPerSecond: 192000 } : {});
+    try { rec = new MediaRecorder(s, mime ? { mimeType: mime, audioBitsPerSecond: 192000 } : {}); }
+    catch (_) { rec = new MediaRecorder(s); }
     rec.ondataavailable = (e) => { if (e.data && e.data.size) { recChunks.push(e.data); idbPut({ blob: e.data, type: rec.mimeType, start: recStart }); } };
     rec.start(10000);
     log('⏺ Tar opp sendinga (lagres som spor når du stopper).');
