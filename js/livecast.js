@@ -151,6 +151,67 @@ window.LiveCast = (function () {
     return { stop() { stopped = true; try { ch.unsubscribe(); } catch (_) {} } };
   }
 
+  // ---- Lydkvalitet / stabilitet ---------------------------------------------
+  // WebRTC bruker som standard ca. 32 kbps mono Opus – for lite for musikk, og uten
+  // feilretting hakker det lett på mobilnett. Vi ber om stereo, 128 kbps og FEC
+  // (feilretting mot tapte pakker) ved å justere Opus-parameterne i SDP-en.
+  function tuneOpus(sdp) {
+    try {
+      const m = sdp.match(/a=rtpmap:(\d+) opus\/48000\/2/i);
+      if (!m) return sdp;
+      const pt = m[1];
+      const want = { stereo: '1', 'sprop-stereo': '1', maxaveragebitrate: '128000', useinbandfec: '1', usedtx: '0', cbr: '0', maxplaybackrate: '48000' };
+      const re = new RegExp('a=fmtp:' + pt + ' ([^\\r\\n]*)');
+      if (re.test(sdp)) {
+        return sdp.replace(re, (all, params) => {
+          const kv = {};
+          params.split(';').forEach(x => { const [k, v] = x.split('='); if (k) kv[k.trim()] = v; });
+          Object.assign(kv, want);
+          return 'a=fmtp:' + pt + ' ' + Object.keys(kv).map(k => kv[k] === undefined ? k : k + '=' + kv[k]).join(';');
+        });
+      }
+      return sdp.replace(new RegExp('(a=rtpmap:' + pt + ' opus/48000/2\\r?\\n)'), '$1a=fmtp:' + pt + ' ' +
+        Object.keys(want).map(k => k + '=' + want[k]).join(';') + '\r\n');
+    } catch (_) { return sdp; }
+  }
+  async function _boostSender(pc) {
+    try {
+      for (const sn of pc.getSenders()) {
+        if (!sn.track || sn.track.kind !== 'audio') continue;
+        try { sn.track.contentHint = 'music'; } catch (_) {}
+        const prm = sn.getParameters();
+        if (!prm.encodings || !prm.encodings.length) prm.encodings = [{}];
+        prm.encodings[0].maxBitrate = 128000;
+        prm.encodings[0].priority = 'high';
+        prm.encodings[0].networkPriority = 'high';
+        await sn.setParameters(prm);
+      }
+    } catch (_) {}
+  }
+  // Én statuslinje per lytter: bitrate, tapte pakker, jitter, RTT og tilkoblingstype
+  // (host/srflx = direkte, relay = via delt gratis-TURN, som er tregest).
+  async function _statsLine(pc, prev) {
+    const st = await pc.getStats();
+    let out = null, remote = null, pair = null; const cands = {};
+    st.forEach(r => {
+      if (r.type === 'outbound-rtp' && r.kind === 'audio') out = r;
+      if (r.type === 'remote-inbound-rtp' && r.kind === 'audio') remote = r;
+      if (r.type === 'candidate-pair' && (r.nominated || r.selected) && r.state === 'succeeded') pair = r;
+      if (r.type === 'local-candidate' || r.type === 'remote-candidate') cands[r.id] = r;
+    });
+    if (!out) return null;
+    const now = Date.now();
+    const kbps = prev.t ? Math.round(((out.bytesSent - prev.bytes) * 8) / (now - prev.t)) : 0;
+    prev.t = now; prev.bytes = out.bytesSent;
+    const lost = remote ? remote.packetsLost : 0;
+    const dLost = lost - (prev.lost || 0); prev.lost = lost;
+    const jit = remote && remote.jitter != null ? Math.round(remote.jitter * 1000) : '?';
+    const rtt = remote && remote.roundTripTime != null ? Math.round(remote.roundTripTime * 1000) : (pair && pair.currentRoundTripTime != null ? Math.round(pair.currentRoundTripTime * 1000) : '?');
+    let via = '?';
+    if (pair) { const lc = cands[pair.localCandidateId], rc = cands[pair.remoteCandidateId]; via = (lc ? lc.candidateType : '?') + '→' + (rc ? rc.candidateType : '?'); }
+    return kbps + ' kbps, tapte pakker +' + dLost + ', jitter ' + jit + ' ms, RTT ' + rtt + ' ms, via ' + via;
+  }
+
   // ---- Kringkastar (eigar) -------------------------------------------------
   let _bc = null; // { channel, peers:Map, stream }
 
@@ -182,9 +243,11 @@ window.LiveCast = (function () {
         log('Listener ' + listenerId.slice(0, 6) + ': ' + pc.connectionState);
         if (pc.connectionState === 'failed' || pc.connectionState === 'closed') { peers.delete(listenerId); pc.close(); }
       };
+      await _boostSender(pc);
       const offer = await pc.createOffer();
+      offer.sdp = tuneOpus(offer.sdp);
       await pc.setLocalDescription(offer);
-      ch.send({ type: 'broadcast', event: 'offer', payload: { from: id, to: listenerId, sdp: offer } });
+      ch.send({ type: 'broadcast', event: 'offer', payload: { from: id, to: listenerId, sdp: { type: offer.type, sdp: offer.sdp } } });
     }
 
     ch.on('broadcast', { event: 'listener-hello' }, ({ payload }) => {
@@ -210,9 +273,22 @@ window.LiveCast = (function () {
       }
     });
 
+    // Kvalitetslogg hvert 10. sekund så hakking kan feilsøkes (direkte vs. relay, tap, jitter).
+    const statPrev = new Map();
+    const statTimer = setInterval(async () => {
+      for (const [lid, pc] of peers) {
+        if (pc.connectionState !== 'connected') continue;
+        try {
+          const line = await _statsLine(pc, statPrev.get(lid) || statPrev.set(lid, {}).get(lid));
+          if (line) log('📊 ' + lid.slice(0, 6) + ': ' + line);
+        } catch (_) {}
+      }
+    }, 10000);
+
     _bc = {
       channel: ch, peers,
       stop() {
+        clearInterval(statTimer);
         peers.forEach(pc => { try { pc.close(); } catch (_) {} });
         peers.clear();
         try { ch.unsubscribe(); } catch (_) {}
@@ -244,15 +320,21 @@ window.LiveCast = (function () {
       if (payload.to !== id) return;
       broadcasterId = payload.from;
       pc = new RTCPeerConnection({ iceServers: iceServers() });
-      pc.ontrack = (e) => { try { onTrack && onTrack(e.streams[0]); } catch (_) {} };
+      pc.ontrack = (e) => {
+        // Større jitter-buffer = litt mer forsinkelse, men mye mindre hakking på mobilnett.
+        try { if ('jitterBufferTarget' in e.receiver) e.receiver.jitterBufferTarget = 600; } catch (_) {}
+        try { if ('playoutDelayHint' in e.receiver) e.receiver.playoutDelayHint = 0.6; } catch (_) {}
+        try { onTrack && onTrack(e.streams[0]); } catch (_) {}
+      };
       pc.onicecandidate = (e) => {
         if (e.candidate) ch.send({ type: 'broadcast', event: 'ice', payload: { from: id, to: broadcasterId, candidate: e.candidate } });
       };
       pc.onconnectionstatechange = () => { log('Tilkobling: ' + pc.connectionState); try { onState && onState(pc.connectionState); } catch (_) {} };
       await pc.setRemoteDescription(payload.sdp);
       const answer = await pc.createAnswer();
+      answer.sdp = tuneOpus(answer.sdp);
       await pc.setLocalDescription(answer);
-      ch.send({ type: 'broadcast', event: 'answer', payload: { from: id, to: broadcasterId, sdp: answer } });
+      ch.send({ type: 'broadcast', event: 'answer', payload: { from: id, to: broadcasterId, sdp: { type: answer.type, sdp: answer.sdp } } });
     });
     ch.on('broadcast', { event: 'ice' }, ({ payload }) => {
       if (payload.to !== id || !pc) return;
