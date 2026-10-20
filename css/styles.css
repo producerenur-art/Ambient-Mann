@@ -9,6 +9,7 @@
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
+html{overflow-x:hidden}   /* iOS Safari zoomer ut hvis noe stikker utenfor; skjul på html også */
 body{
   font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
   color:var(--text); background:var(--bg); line-height:1.55;
@@ -193,14 +194,14 @@ hr{border:0; border-top:1px solid var(--line); margin:16px 0}
 
 /* ---- Lenke-forhåndsvisning (LinkPreview) ---- */
 .links{display:flex; flex-direction:column; gap:10px}
-.link-item{display:flex; align-items:center; gap:8px}
-.link-item .cp-prev{flex:1}
+.link-item{display:flex; align-items:center; gap:8px; min-width:0}
+.link-item .cp-prev{flex:1; min-width:0; max-width:100%}
 /* Eier-knapper på hver lenke: ▲/▼ (rekkefølge), Rediger, Fjern. Brytes til
    flere linjer på små skjermer så de aldri klemmer selve lenka. */
 .link-actions{display:flex; align-items:center; gap:6px; flex-wrap:wrap;
   justify-content:flex-end; flex:0 0 auto}
 /* Ingen boks/skygge bak teksten – universet skal synes gjennom. Forhåndsvisningen (thumb) beholder sin egen bakgrunn. */
-.cp-prev-card{display:flex; gap:12px; align-items:center; background:transparent;
+.cp-prev-card{display:flex; max-width:100%; min-width:0; gap:12px; align-items:center; background:transparent;
   border:0; border-radius:12px; overflow:hidden; color:var(--text); box-shadow:none}
 .cp-prev-thumb{position:relative; width:120px; height:80px; flex:0 0 auto; background:#0a0f2a}
 .cp-prev-thumb img{width:100%; height:100%; object-fit:cover}
@@ -351,3 +352,16 @@ hr{border:0; border-top:1px solid var(--line); margin:16px 0}
 .gs-link{font-size:13px; color:var(--accent2); font-weight:700; white-space:nowrap}
 .guest-admin-list{display:flex; flex-direction:column; gap:8px}
 #guest-panel h4.mini-h{margin-top:8px}
+
+/* Mobil: sportitler får bryte over 2 linjer (ellers blir de «A…» når knappene tar plassen) */
+@media (max-width:560px){
+  .track-row{gap:8px; padding:8px 6px}
+  .track-title{white-space:normal; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; line-height:1.25}
+  .track-share{width:30px; height:30px}
+  .tracks .btn-tiny{padding:6px 8px}
+}
+/* Mobil: lange lenketitler brytes (nowrap-span stakk 92 px utenfor skjermen → iOS Safari zoomet ut) */
+@media (max-width:560px){
+  .cp-prev-title{white-space:normal; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+}
+.cp-prev-card{contain:paint}
