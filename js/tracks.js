@@ -127,6 +127,8 @@ window.Tracks = (function () {
             '</span>' : '';
         const edit = isOwner
           ? '<button class="btn btn-tiny owner-only" data-edit="' + i + '">Edit</button>' : '';
+        const fixb = (isOwner && /\.webm$/i.test(t.path || ''))
+          ? '<button class="btn btn-tiny owner-only" data-fixseek="' + i + '" title="Make the progress bar draggable">Fix seek</button>' : '';
         const del = isOwner
           ? '<button class="btn btn-tiny owner-only" data-rm="' + i + '">Delete</button>' : '';
         const hasLink = !!(t.id && t.url);
@@ -142,7 +144,7 @@ window.Tracks = (function () {
           cov +
           '<button class="track-play" data-play="' + i + '" title="Play here" aria-label="Play here">' + (playing ? '⏸' : '▶') + '</button>' +
           '<div class="track-meta"><div class="track-title">' + UI.esc(t.title || ('Track ' + (i + 1))) + '</div>' +
-          '<div class="track-sub">' + UI.esc(fmtSize(t.size)) + '</div></div>' + copy + share + move + edit + del +
+          '<div class="track-sub">' + UI.esc(fmtSize(t.size)) + '</div></div>' + copy + share + move + edit + fixb + del +
         '</div>';
       }).join('');
     }
@@ -157,6 +159,8 @@ window.Tracks = (function () {
         if (s) { share(parseInt(s.getAttribute('data-share'), 10)); return; }
         const c = ev.target.closest('[data-copy]');
         if (c) { copyLink(parseInt(c.getAttribute('data-copy'), 10)); return; }
+        const fx = ev.target.closest('[data-fixseek]');
+        if (fx) { fixSeek(parseInt(fx.getAttribute('data-fixseek'), 10)); return; }
         const e = ev.target.closest('[data-edit]');
         if (e) { rename(parseInt(e.getAttribute('data-edit'), 10)); return; }
         const r = ev.target.closest('[data-rm]');
@@ -570,6 +574,41 @@ window.Tracks = (function () {
     render();
   }
 
+  // Legger lengde + Cues i en webm slik at spolefeltet virker. Faller tilbake til originalen.
+  async function seekable(blob) {
+    try {
+      if (!window.fixWebmSeek) return blob;
+      const out = await window.fixWebmSeek(blob);
+      return out && out.size ? new Blob([out], { type: blob.type }) : blob;
+    } catch (_) { return blob; }
+  }
+  // «Fix seek» på et allerede lagret webm-spor: last ned, reparer, last opp, bytt ut.
+  async function fixSeek(i) {
+    const arr = list(); const t = arr[i];
+    if (!t || !t.path || !/\.webm$/i.test(t.path)) return;
+    if (!SC_Storage.isConfigured()) { UI.toast('Storage is not set up.'); return; }
+    UI.toast('Fixing seeking … downloading the recording');
+    try {
+      const raw = await (await fetch(t.url)).blob();
+      const fixed = await seekable(new Blob([raw], { type: 'audio/webm' }));
+      const file = new File([fixed], slugify(t.title) + '.webm', { type: 'audio/webm' });
+      UI.toast('Uploading the fixed file …');
+      const up = await SC_Storage.upload(file, { prefix: 'tracks' });
+      const old = t.path;
+      const cur = list(); const j = cur.findIndex(x => x.id === t.id);
+      if (j < 0) throw new Error('track not found');
+      cur[j].url = up.url; cur[j].path = up.path; cur[j].size = up.size;
+      await Content.set('tracks', cur);
+      try {
+        await Owner.authFetch('/api/site?action=track-file-remove', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paths: [old] }),
+        });
+      } catch (_) {}
+      render();
+      UI.toast('Done – the progress bar can now be dragged.');
+    } catch (e) { UI.toast('Could not fix: ' + ((e && e.message) || e)); }
+  }
+
   // ---- eier: lagre et live-opptak som vanlig spor (samme liste som opplasting) ----
   // Kalles fra LiveCastUI når en sending stoppes. Sporet får Edit/Share/cover/
   // Replace akkurat som alle andre spor. Kaster ved feil (kalleren beholder blobben).
@@ -579,6 +618,8 @@ window.Tracks = (function () {
     let name = title, n = 2;
     while (list().some(t => slugify(t.title) === slugify(name))) name = title + ' (' + n++ + ')';
     const ext = /mp4|aac/.test(blob.type) ? 'm4a' : 'webm';
+    // MediaRecorder-webm mangler lengde + søkeinformasjon → kan ikke spoles. Reparer før opplasting.
+    if (ext === 'webm') blob = await seekable(blob);
     const file = new File([blob], slugify(name) + '.' + ext, { type: blob.type });
     const up = await SC_Storage.upload(file, { prefix: 'tracks', onProgress });
     const meta = { id: 't_' + Date.now().toString(36), title: name, url: up.url, path: up.path, size: up.size, coverUrl: '', coverPath: '' };

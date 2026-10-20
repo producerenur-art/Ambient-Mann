@@ -59,7 +59,7 @@ window.LiveCastUI = (function () {
 
   function recTitle(ts) {
     const d = new Date(ts), p = n => String(n).padStart(2, '0');
-    return 'Live ' + d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + '.' + p(d.getMinutes());
+    return 'Ambient Mann - Live ' + d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
   }
   function startRecording(s) {
     if (!window.MediaRecorder) { log('⚠️ Nettleseren støtter ikke opptak.'); return; }
