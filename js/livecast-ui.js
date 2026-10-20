@@ -144,7 +144,8 @@ window.LiveCastUI = (function () {
           onListeners: (n) => { if (listenersEl) listenersEl.textContent = n + (n === 1 ? ' listener' : ' listeners'); },
           onLog: log,
         });
-        startRecording(stream);
+        const recBox = document.getElementById('wl-record');
+        if (!recBox || recBox.checked) startRecording(stream); else log('Opptak er av for denne sendinga.');
         go.style.display = 'none';
         stop.style.display = '';
         UI.toast('🔴 You are live (browser) on ambientmann.com');
