@@ -128,7 +128,7 @@ window.Tracks = (function () {
         const edit = isOwner
           ? '<button class="btn btn-tiny owner-only" data-edit="' + i + '">Edit</button>' : '';
         const fixb = (isOwner && /\.webm$/i.test(t.path || ''))
-          ? '<button class="btn btn-tiny owner-only" data-fixseek="' + i + '" data-fixurl="' + UI.esc(t.url) + '" style="display:none" title="Make the progress bar draggable">Fix seek</button>' : '';
+          ? '<button class="btn btn-tiny" data-fixseek="' + i + '" data-fixurl="' + UI.esc(t.url) + '" style="display:none" title="Make the progress bar draggable">Fix seek</button>' : '';
         const del = isOwner
           ? '<button class="btn btn-tiny owner-only" data-rm="' + i + '">Delete</button>' : '';
         const hasLink = !!(t.id && t.url);

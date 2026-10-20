@@ -1,7 +1,7 @@
 /* Ambient Mann — service worker (installerbar PWA)
  * Cache-first for statiske filer; aldri cache API-kall eller lyd-strøm.
  * Bump CACHE-navnet når filene endres. */
-const CACHE = 'ambientmann-v126';
+const CACHE = 'ambientmann-v127';
 const ASSETS = [
   './', './index.html', './css/styles.css', './manifest.json',
   './js/config.js?v=116', './js/ui.js', './js/storage.js', './js/webm-fix.js', './js/livecast.js', './js/livecast-ui.js', './js/linkpreview.js',
