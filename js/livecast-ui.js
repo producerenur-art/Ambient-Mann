@@ -103,6 +103,7 @@ window.LiveCastUI = (function () {
       if (!ok) throw new Error('sporet ble ikke funnet på serveren etter lagring');
       await idbClear();
       log('✅ Opptaket ligger nå i spor-lista: «' + meta.title + '» (Edit for cover/navn, 🔗 for å dele).');
+      log(meta.seekable ? '✅ Spolefeltet virker (lengde + søkeinfo lagt inn).' : '⚠️ Kunne ikke gjøre opptaket spolbart automatisk – trykk «Fix seek» ved sporet.');
       UI.toast('Recording saved to the track list.');
     } catch (e) {
       log('❌ Kunne ikke lagre opptaket: ' + (e && e.message ? e.message : e) + ' — opptaket er beholdt lokalt (se «Recover»/«Download» over loggen).');
