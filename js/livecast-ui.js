@@ -243,23 +243,36 @@ window.LiveCastUI = (function () {
     if (!banner) return;
     const tuneInBtn = document.getElementById('wl-tunein');
     const tuneOutBtn = document.getElementById('wl-tuneout');
+    const center = document.getElementById('wl-center');
+    const centerPlay = document.getElementById('wl-center-play');
+    const centerClose = document.getElementById('wl-center-close');
+    let isLive = false, dismissed = false;
+    try { dismissed = sessionStorage.getItem('am_wl_dismissed') === '1'; } catch (_) {}
+
+    // Midt-på-skjermen-knappen vises til alle som ikke allerede lytter eller har sagt «Not now».
+    // Eieren (som selv sender) får den aldri – ellers ville han startet tilbakekobling.
+    function paint() {
+      const own = !!(window.LiveCast && LiveCast.isLive && LiveCast.isLive());
+      const showCenter = isLive && !tunedIn && !dismissed && !own;
+      if (center) center.style.display = showCenter ? '' : 'none';
+      banner.style.display = ((isLive && !own && (tunedIn || dismissed)) || tunedIn) ? '' : 'none';
+    }
 
     const startWatch = () => {
       bannerWatch = LiveCast.watchLiveStatus((live) => {
-        // Ikke skjul banneret midt i en aktiv lytteøkt sjølv om presence-
-        // synkroniseringa er eit lite auga bak (tunedIn = lokalt tilstandsflagg,
-        // ikke avhengig av presence-sync-timinga).
-        banner.style.display = (live || tunedIn) ? '' : 'none';
+        isLive = !!live;
+        paint();
       });
     };
     startWatch();
 
-    tuneInBtn && tuneInBtn.addEventListener('click', async () => {
+    async function doTuneIn() {
       try {
         await LiveCast.tuneIn({
           onTrack: (remoteStream) => {
-            if (!tuneAudioEl) { tuneAudioEl = new Audio(); tuneAudioEl.autoplay = true; }
+            if (!tuneAudioEl) { tuneAudioEl = new Audio(); tuneAudioEl.autoplay = true; tuneAudioEl.setAttribute('playsinline', ''); }
             tuneAudioEl.srcObject = remoteStream;
+            tuneAudioEl.muted = false; tuneAudioEl.volume = 1;
             tuneAudioEl.play().catch(() => {});
           },
           onState: (state) => { if (state === 'failed' || state === 'closed') { tuneOutBtn.click(); } },
@@ -268,16 +281,27 @@ window.LiveCastUI = (function () {
         tunedIn = true;
         tuneInBtn.style.display = 'none';
         tuneOutBtn.style.display = '';
+        paint();
         UI.toast('🎧 Connecting to the live browser stream…');
       } catch (e) { UI.toast('Could not connect: ' + e.message); }
+    }
+
+    tuneInBtn && tuneInBtn.addEventListener('click', doTuneIn);
+    centerPlay && centerPlay.addEventListener('click', doTuneIn);
+    centerClose && centerClose.addEventListener('click', () => {
+      dismissed = true;
+      try { sessionStorage.setItem('am_wl_dismissed', '1'); } catch (_) {}
+      paint();
     });
 
     tuneOutBtn && tuneOutBtn.addEventListener('click', () => {
       LiveCast.tuneOut();
       tunedIn = false;
+      dismissed = true; // brukeren stoppet selv – ikke pop opp igjen
       if (tuneAudioEl) { tuneAudioEl.pause(); tuneAudioEl.srcObject = null; }
       tuneInBtn.style.display = '';
       tuneOutBtn.style.display = 'none';
+      paint();
       setTimeout(startWatch, 800); // tuneIn rev ned vakt-kanalen; start den på nytt
     });
   }

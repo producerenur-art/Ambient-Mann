@@ -326,6 +326,8 @@ module.exports = async (req, res) => {
     'h1{font-size:22px;margin:0 0 18px;word-wrap:break-word}\n' +
     'audio{width:100%;margin:0 0 8px}\n' +
     '.hint{font-size:13px;color:var(--muted);min-height:18px;margin:0 0 16px}\n' +
+    '.sound-btn{display:none;margin:0 auto 14px;padding:14px 26px;font-size:17px;font-weight:700;border:0;border-radius:999px;cursor:pointer;\n' +
+    '  color:#06101c;background:linear-gradient(135deg,#7fd6e6,#9be3c4);box-shadow:0 6px 26px rgba(127,214,230,.35)}\n' +
     '.row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}\n' +
     '.btn{padding:11px 16px;border-radius:12px;border:1px solid var(--line);background:rgba(24,28,52,.6);color:var(--text);\n' +
     '  font-weight:700;font-size:14px;cursor:pointer;text-decoration:none;display:inline-block}\n' +
@@ -378,6 +380,7 @@ module.exports = async (req, res) => {
     '  <div class="cover" style="' + coverStyle + '">' + (cover ? '' : '♪') + '</div>\n' +
     '  <p class="brand" translate="no">Ambient Mann</p>\n' +
     '  <h1>' + title + '</h1>\n' +
+    '  <button class="sound-btn" id="soundbtn" type="button">🔊 Tap to play with sound</button>\n' +
     '  <audio id="a" controls controlsList="nodownload noplaybackrate" disablePictureInPicture autoplay playsinline preload="auto" src="' + esc(audioUrl) + '"></audio>\n' +
     '  <p class="hint" id="hint"></p>\n' +
     '  <div class="row">\n' +
@@ -418,13 +421,16 @@ module.exports = async (req, res) => {
     '  if(p&&p.catch){p.catch(function(){\n' +
     '    a.muted=true;\n' +
     '    a.play().catch(function(){});\n' +
-    '    hint.textContent="🔊 Tap anywhere for sound";\n' +
-    '    var unmute=function(){a.muted=false;if(a.paused){a.play().catch(function(){});}hint.textContent="";\n' +
+    '    var sb=document.getElementById("soundbtn");if(sb)sb.style.display="block";\n' +
+    '    hint.textContent="Your browser started the track muted.";\n' +
+    '    var unmute=function(){a.muted=false;a.volume=1;if(a.paused){a.play().catch(function(){});}hint.textContent="";\n' +
+    '      if(sb)sb.style.display="none";\n' +
     '      document.removeEventListener("pointerdown",unmute);document.removeEventListener("keydown",unmute);};\n' +
     '    document.addEventListener("pointerdown",unmute,{once:true});\n' +
     '    document.addEventListener("keydown",unmute,{once:true});\n' +
     '  });}\n' +
-    '  a.addEventListener("playing",function(){if(!a.muted){hint.textContent="";}});\n' +
+    '  a.addEventListener("playing",function(){if(!a.muted){hint.textContent="";var sb=document.getElementById("soundbtn");if(sb)sb.style.display="none";}});\n' +
+    '  a.addEventListener("volumechange",function(){var sb=document.getElementById("soundbtn");if(sb&&!a.muted){sb.style.display="none";hint.textContent="";}});\n' +
     // Teller én avspilling første gang sporet faktisk spiller (KUN eier ser tallet).
     '  var counted=false;\n' +
     '  a.addEventListener("playing",function(){if(counted)return;counted=true;\n' +
