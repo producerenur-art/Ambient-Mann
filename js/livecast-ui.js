@@ -137,10 +137,10 @@ window.LiveCastUI = (function () {
       } catch (e) { log('❌ Kunne ikke bytte enhet: ' + e.message); }
     });
 
-    go.addEventListener('click', () => {
+    go.addEventListener('click', async () => {
       if (!stream) { log('⚠️ Gi tilgang til lyd først.'); return; }
       try {
-        LiveCast.goLive(stream, {
+        await LiveCast.goLive(stream, {
           onListeners: (n) => { if (listenersEl) listenersEl.textContent = n + (n === 1 ? ' listener' : ' listeners'); },
           onLog: log,
         });
@@ -174,16 +174,19 @@ window.LiveCastUI = (function () {
     const tuneInBtn = document.getElementById('wl-tunein');
     const tuneOutBtn = document.getElementById('wl-tuneout');
 
-    bannerWatch = LiveCast.watchLiveStatus((live) => {
-      // Ikke skjul banneret midt i en aktiv lytteøkt sjølv om presence-
-      // synkroniseringa er eit lite auga bak (tunedIn = lokalt tilstandsflagg,
-      // ikke avhengig av presence-sync-timinga).
-      banner.style.display = (live || tunedIn) ? '' : 'none';
-    });
+    const startWatch = () => {
+      bannerWatch = LiveCast.watchLiveStatus((live) => {
+        // Ikke skjul banneret midt i en aktiv lytteøkt sjølv om presence-
+        // synkroniseringa er eit lite auga bak (tunedIn = lokalt tilstandsflagg,
+        // ikke avhengig av presence-sync-timinga).
+        banner.style.display = (live || tunedIn) ? '' : 'none';
+      });
+    };
+    startWatch();
 
-    tuneInBtn && tuneInBtn.addEventListener('click', () => {
+    tuneInBtn && tuneInBtn.addEventListener('click', async () => {
       try {
-        LiveCast.tuneIn({
+        await LiveCast.tuneIn({
           onTrack: (remoteStream) => {
             if (!tuneAudioEl) { tuneAudioEl = new Audio(); tuneAudioEl.autoplay = true; }
             tuneAudioEl.srcObject = remoteStream;
@@ -205,6 +208,7 @@ window.LiveCastUI = (function () {
       if (tuneAudioEl) { tuneAudioEl.pause(); tuneAudioEl.srcObject = null; }
       tuneInBtn.style.display = '';
       tuneOutBtn.style.display = 'none';
+      setTimeout(startWatch, 800); // tuneIn rev ned vakt-kanalen; start den på nytt
     });
   }
 

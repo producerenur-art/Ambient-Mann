@@ -122,6 +122,18 @@ window.LiveCast = (function () {
     return SC_Storage.client().channel(ROOM, { config: { broadcast: { self: false }, presence: { key: myId() } } });
   }
 
+  // supabase-js gjenbruker en eksisterende kanal med samme topic. Banner-vakta
+  // (watchLiveStatus) har da allerede subscribet den, og goLive/tuneIn kan ikke
+  // legge til presence-callbacks etterpå («cannot add presence callbacks after
+  // subscribe()»). Riv derfor ned den gamle kanalen først og lag en fersk.
+  async function _freshChannel() {
+    const cl = SC_Storage.client();
+    const topic = 'realtime:' + ROOM;
+    const old = cl.getChannels().filter(c => c.topic === topic);
+    for (const c of old) { try { await cl.removeChannel(c); } catch (_) {} }
+    return _channel();
+  }
+
   // Sjekk raskt om nokon sender akkurat no (presence), utan å opne WebRTC.
   // Brukast av den offentlege banneret for å avgjere om «Lytt live»-knappen
   // skal visast, uten at kvar besøkande opnar ei fangst-tilkobling for ingenting.
@@ -142,12 +154,13 @@ window.LiveCast = (function () {
   // ---- Kringkastar (eigar) -------------------------------------------------
   let _bc = null; // { channel, peers:Map, stream }
 
-  function goLive(stream, { onListeners, onLog } = {}) {
+  async function goLive(stream, { onListeners, onLog } = {}) {
     if (!supaOk()) throw new Error('Supabase er ikke satt opp (SUPABASE_URL/ANON_KEY i js/config.js).');
     if (_bc) throw new Error('Already live.');
     const log = (m) => { try { onLog && onLog(m); } catch (_) {} };
     const peers = new Map(); // listenerId -> RTCPeerConnection
-    const ch = _channel();
+    const ch = await _freshChannel();
+    if (_bc) throw new Error('Already live.');
     const id = myId();
 
     function countListeners() {
@@ -217,12 +230,13 @@ window.LiveCast = (function () {
   // ---- Lyttar ---------------------------------------------------------------
   let _ln = null; // { channel, pc }
 
-  function tuneIn({ onTrack, onState, onLog } = {}) {
+  async function tuneIn({ onTrack, onState, onLog } = {}) {
     if (!supaOk()) throw new Error('Supabase er ikke satt opp.');
     if (_ln) return _ln;
     const log = (m) => { try { onLog && onLog(m); } catch (_) {} };
     const id = myId();
-    const ch = _channel();
+    const ch = await _freshChannel();
+    if (_ln) return _ln;
     let pc = null;
     let broadcasterId = null;
 
