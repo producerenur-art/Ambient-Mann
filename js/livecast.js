@@ -37,7 +37,25 @@ window.LiveCast = (function () {
     } catch (_) { return 'anon-' + Math.random().toString(36).slice(2); }
   }
 
+  // Cloudflare TURN (samme tjeneste som SiriusFM bruker: kortlevde nøkler fra /api/turn). Mobilnett går
+  // ofte via relay, og den delte gratis-relayen under er treg → hakking. Hentes async før hver økt,
+  // og cachet i 6 timer (nøklene gjelder 24 t). Feiler hentingen, brukes gamle oppsettet.
+  let _cf = null, _cfAt = 0;
+  async function loadIce() {
+    const C = window.AM_CONFIG || {};
+    if (C.TURN_URL) return;
+    if (_cf && Date.now() - _cfAt < 6 * 3600 * 1000) return;
+    const ep = C.TURN_ENDPOINT || 'https://siriusfm.no/api/turn';
+    try {
+      const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 4000);
+      const r = await fetch(ep, { cache: 'no-store', signal: ctl.signal }); clearTimeout(to);
+      if (!r.ok) return;
+      const j = await r.json();
+      if (j && Array.isArray(j.iceServers) && j.iceServers.length) { _cf = j.iceServers; _cfAt = Date.now(); }
+    } catch (_) { /* fall tilbake til gratis-relay */ }
+  }
   function iceServers() {
+    if (_cf) return _cf.slice();
     const C = window.AM_CONFIG || {};
     const servers = [
       { urls: 'stun:stun.l.google.com:19302' },
@@ -219,6 +237,8 @@ window.LiveCast = (function () {
     if (!supaOk()) throw new Error('Supabase er ikke satt opp (SUPABASE_URL/ANON_KEY i js/config.js).');
     if (_bc) throw new Error('Already live.');
     const log = (m) => { try { onLog && onLog(m); } catch (_) {} };
+    await loadIce();
+    log(_cf ? 'ICE: Cloudflare TURN' : 'ICE: gratis relay (Cloudflare TURN utilgjengelig)');
     const peers = new Map(); // listenerId -> RTCPeerConnection
     const ch = await _freshChannel();
     if (_bc) throw new Error('Already live.');
@@ -310,6 +330,7 @@ window.LiveCast = (function () {
     if (!supaOk()) throw new Error('Supabase er ikke satt opp.');
     if (_ln) return _ln;
     const log = (m) => { try { onLog && onLog(m); } catch (_) {} };
+    await loadIce();
     const id = myId();
     const ch = await _freshChannel();
     if (_ln) return _ln;
