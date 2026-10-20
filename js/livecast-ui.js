@@ -79,17 +79,34 @@ window.LiveCastUI = (function () {
       r.stop(); rec = null;
     });
   }
+  // Nedlastingslenke slik at et opptak aldri går tapt om lagringen feiler.
+  function offerDownload(r) {
+    const el = document.getElementById('wl-log');
+    if (!el || !r || !r.blob) return;
+    const ext = /mp4|aac/.test(r.blob.type) ? 'm4a' : 'webm';
+    const a = document.createElement('a');
+    a.className = 'btn btn-tiny';
+    a.href = URL.createObjectURL(r.blob);
+    a.download = recTitle(r.start).replace(/[^a-z0-9]+/gi, '-') + '.' + ext;
+    a.textContent = '⬇ Download recording to this computer';
+    el.parentNode.insertBefore(a, el);
+  }
   async function saveRecording(r) {
-    if (!r || !r.blob.size) return;
+    if (!r || !r.blob.size) { log('⚠️ Opptaket var tomt (ingen lyd tatt opp).'); return; }
     try {
-      log('⏫ Laster opp opptaket (' + Math.round(r.blob.size / 1048576) + ' MB) …');
+      log('⏫ Laster opp opptaket (' + (r.blob.size / 1048576).toFixed(1) + ' MB) …');
       let last = -1;
       const meta = await Tracks.addRecording(r.blob, recTitle(r.start), p => { const v = Math.round(p * 10); if (v !== last) { last = v; log('   ' + v * 10 + '%'); } });
+      // Verifiser at sporet faktisk ligger på serveren (ikke bare i denne fanen).
+      const back = await fetch('/api/site?action=content-get&_=' + Date.now()).then(x => x.json()).catch(() => null);
+      const ok = back && Array.isArray(back.tracks) && back.tracks.some(t => t.id === meta.id);
+      if (!ok) throw new Error('sporet ble ikke funnet på serveren etter lagring');
       await idbClear();
       log('✅ Opptaket ligger nå i spor-lista: «' + meta.title + '» (Edit for cover/navn, 🔗 for å dele).');
       UI.toast('Recording saved to the track list.');
     } catch (e) {
-      log('❌ Kunne ikke lagre opptaket: ' + (e && e.message ? e.message : e) + ' — det er beholdt lokalt, last siden på nytt og trykk «Recover».');
+      log('❌ Kunne ikke lagre opptaket: ' + (e && e.message ? e.message : e) + ' — opptaket er beholdt lokalt (se «Recover»/«Download» over loggen).');
+      offerDownload(r);
     }
   }
   async function offerRecovery() {
