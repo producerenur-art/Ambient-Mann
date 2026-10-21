@@ -135,7 +135,8 @@ window.Player = (function () {
     if (!box) return;
     const vid = document.getElementById('live-bg-video');
     const bg = (window.Content && Content.get('liveBg')) || {};
-    const active = !!(state.live && bg && bg.url);
+    // Aktiv både når Traktor-strømmen er live OG når Ambient Mann sender fra nettleseren (LiveCast).
+    const active = !!((state.live || browserLive) && bg && bg.url);
     box.classList.toggle('active', active);
     if (active && bg.type === 'video') {
       box.style.backgroundImage = '';
@@ -149,7 +150,11 @@ window.Player = (function () {
     }
   }
 
-  function isLive() { return !!state.live; }
+  // Settes av LiveCastUI: true mens det sendes live fra nettleseren (WebRTC), så live-bakgrunnen vises offentlig.
+  let browserLive = false;
+  function setBrowserLive(v) { v = !!v; if (v === browserLive) return; browserLive = v; updateLiveBg(); }
+
+  function isLive() { return !!state.live || browserLive; }
 
   function autoHide() {
     var bar = document.querySelector('.player-bar');
@@ -185,5 +190,5 @@ window.Player = (function () {
     setInterval(() => { if (wantPlaying && audio.paused) scheduleReconnect(); }, 20000);
   }
 
-  return { init, poll, render, isLive, streamUrl };
+  return { init, poll, render, isLive, streamUrl, setBrowserLive };
 })();

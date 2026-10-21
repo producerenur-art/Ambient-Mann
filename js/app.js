@@ -118,16 +118,17 @@
       const status = document.getElementById('livebg-status');
       const fileEl = document.getElementById('livebg-file');
       let url = (lbUrl && lbUrl.value.trim()) || '';
-      const type = (lbType && lbType.value) || 'image';
+      let type = (lbType && lbType.value) || 'image';
       const f = fileEl && fileEl.files && fileEl.files[0];
+      if (f) { type = /^video\//.test(f.type) ? 'video' : 'image'; if (lbType) lbType.value = type; }   // typen følger filen du velger
       if (f) {
         if (!SC_Storage.isConfigured()) { UI.toast('Uploading requires Supabase (see README).'); return; }
         if (status) status.textContent = 'Uploading …';
         try { const up = await SC_Storage.upload(f, { prefix: 'livebg' }); url = up.url; if (lbUrl) lbUrl.value = url; }
         catch (_) { UI.toast('Upload failed.'); if (status) status.textContent = ''; return; }
       }
-      await Content.set('liveBg', { type: type, url: url });
-      if (status) status.textContent = 'Saved.';
+      const saved = await Content.set('liveBg', { type: type, url: url });
+      if (status) status.textContent = saved ? 'Saved – visitors see this while you are live.' : 'Not saved on the server – log in as owner and try again.';
       Player.render();
     });
   }

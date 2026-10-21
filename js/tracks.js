@@ -606,10 +606,24 @@ window.Tracks = (function () {
   async function toggleHidden(i) {
     if (!Owner.isOwner()) return;
     const arr = list(); const t = arr[i]; if (!t) return;
-    if (t.hidden) delete t.hidden; else t.hidden = true;
+    const id = t.id, wasHidden = !!t.hidden;
+    if (wasHidden) delete t.hidden; else t.hidden = true;
     const ok = await Content.set('tracks', arr);
-    if (ok !== false) UI.toast(t.hidden ? 'Hidden from visitors.' : 'Visible to visitors again.');
-    if (t.hidden && current === i && !Owner.isOwner()) { audio.pause(); }
+    if (!ok) {
+      // Ikke lagret på serveren (utlogget/token utløpt/feil) → ikke la lista LYVE om at sporet er skjult.
+      await Content.load(); render();
+      UI.toast('Not saved – nothing changed. Log in as owner again and retry.');
+      return;
+    }
+    // Dobbeltsjekk mot serveren (det besøkende faktisk henter), ikke bare lokal cache.
+    let confirmed = false;
+    try {
+      const back = await fetch('/api/site?action=content-get&_=' + Date.now(), { cache: 'no-store' }).then(r => r.json());
+      const bt = back && Array.isArray(back.tracks) && back.tracks.find(x => x.id === id);
+      confirmed = !!bt && (!!bt.hidden === !wasHidden);
+    } catch (_) {}
+    if (confirmed) UI.toast(wasHidden ? '✅ Visible to visitors again (verified on the server).' : '✅ Hidden from visitors (verified on the server).');
+    else UI.toast('⚠️ Could not verify on the server. Reload the page and check the list.');
     render();
   }
 
