@@ -33,7 +33,7 @@ window.Tracks = (function () {
     P.time = document.getElementById('tp-time');
     P.mute = document.getElementById('tp-mute');
     P.vol = document.getElementById('tp-vol');
-    if (P.play) P.play.addEventListener('click', () => { if (current < 0) play(0); else toggle(); });
+    if (P.play) P.play.addEventListener('click', () => { if (current < 0) { const f = list().findIndex(isShown); play(f < 0 ? 0 : f); } else toggle(); });
     if (P.seek) {
       P.seek.addEventListener('input', () => { seeking = true; if (P.time) P.time.textContent = fmtTime(audio.duration * (P.seek.value / 100)) + ' / ' + fmtTime(audio.duration); });
       P.seek.addEventListener('change', () => { if (audio.duration) audio.currentTime = audio.duration * (P.seek.value / 100); seeking = false; });
@@ -100,19 +100,25 @@ window.Tracks = (function () {
     recordPlay(tr[i]);
     paintPlayer(); renderList();
   }
-  function next() { const n = current + 1; if (n < list().length) play(n); else { current = -1; paintPlayer(); renderList(); } }
+  // Skjulte spor (t.hidden) vises kun for eier. Besøkende skal heller aldri få dem spilt automatisk.
+  function isShown(t) { return !!t && (!t.hidden || Owner.isOwner()); }
+  function next() {
+    const tr = list(); let n = current + 1;
+    while (n < tr.length && !isShown(tr[n])) n++;
+    if (n < tr.length) play(n); else { current = -1; paintPlayer(); renderList(); }
+  }
 
   // ---- spilleliste --------------------------------------------------------
   function renderList() {
     const wrap = document.getElementById('tracks-list');
     if (!wrap) return;
     const tr = list();
-    if (!tr.length) { wrap.innerHTML = '<p class="muted">No music uploaded yet.</p>'; }
+    if (!tr.some(isShown)) { wrap.innerHTML = '<p class="muted">No music uploaded yet.</p>'; }
     else {
       // Vis nyeste øverst for ALLE besøkende. Nye opplastinger legges bakerst i
       // lista, så vi reverserer VISNINGSrekkefølgen. Vi beholder den EKTE indeksen
       // «i» slik at spill/rediger/slett/del treffer riktig spor.
-      const order = tr.map((_, i) => i).reverse();
+      const order = tr.map((_, i) => i).filter(i => isShown(tr[i])).reverse();
       wrap.innerHTML = order.map((i, k) => {
         const t = tr[i];
         const playing = i === current && !audio.paused;
@@ -125,6 +131,8 @@ window.Tracks = (function () {
               '<button class="track-move" data-mvup="' + i + '" title="Move up"' + (k === 0 ? ' disabled' : '') + ' aria-label="Move up">▲</button>' +
               '<button class="track-move" data-mvdn="' + i + '" title="Move down"' + (k === order.length - 1 ? ' disabled' : '') + ' aria-label="Move down">▼</button>' +
             '</span>' : '';
+        const hideBtn = isOwner
+          ? '<button class="btn btn-tiny owner-only" data-hide="' + i + '" title="' + (t.hidden ? 'Show this track to visitors' : 'Hide this track from visitors') + '">' + (t.hidden ? '👁 Show' : '🙈 Hide') + '</button>' : '';
         const edit = isOwner
           ? '<button class="btn btn-tiny owner-only" data-edit="' + i + '">Edit</button>' : '';
         const fixb = (isOwner && /\.webm$/i.test(t.path || ''))
@@ -140,11 +148,11 @@ window.Tracks = (function () {
         // (/track/<navn>) i ny fane, hvor sporet autospiller. ▶-knappen spiller
         // fortsatt av lokalt i spilleren over. Uten egen side: klikk = lokal play.
         const rowAttr = hasLink ? ' data-open="' + UI.esc(trackUrl(t)) + '"' : ' data-play="' + i + '"';
-        return '<div class="track-row' + (i === current ? ' playing' : '') + '"' + rowAttr + (t.id ? ' data-tid="' + UI.esc(t.id) + '"' : '') + '>' +
+        return '<div class="track-row' + (i === current ? ' playing' : '') + (t.hidden ? ' track-hidden' : '') + '"' + rowAttr + (t.id ? ' data-tid="' + UI.esc(t.id) + '"' : '') + '>' +
           cov +
           '<button class="track-play" data-play="' + i + '" title="Play here" aria-label="Play here">' + (playing ? '⏸' : '▶') + '</button>' +
           '<div class="track-meta"><div class="track-title">' + UI.esc(t.title || ('Track ' + (i + 1))) + '</div>' +
-          '<div class="track-sub">' + UI.esc(fmtSize(t.size)) + '</div></div>' + copy + share + move + edit + fixb + del +
+          '<div class="track-sub">' + UI.esc(fmtSize(t.size)) + (t.hidden ? ' · Hidden from visitors' : '') + '</div></div>' + copy + share + move + hideBtn + edit + fixb + del +
         '</div>';
       }).join('');
     }
@@ -159,6 +167,8 @@ window.Tracks = (function () {
         if (s) { share(parseInt(s.getAttribute('data-share'), 10)); return; }
         const c = ev.target.closest('[data-copy]');
         if (c) { copyLink(parseInt(c.getAttribute('data-copy'), 10)); return; }
+        const hd = ev.target.closest('[data-hide]');
+        if (hd) { toggleHidden(parseInt(hd.getAttribute('data-hide'), 10)); return; }
         const fx = ev.target.closest('[data-fixseek]');
         if (fx) { fixSeek(parseInt(fx.getAttribute('data-fixseek'), 10)); return; }
         const e = ev.target.closest('[data-edit]');
@@ -592,6 +602,17 @@ window.Tracks = (function () {
     } catch (_) { return { blob, ok: false }; }
   }
   // «Fix seek» på et allerede lagret webm-spor: last ned, reparer, last opp, bytt ut.
+  // Eier: skjul/vis et spor i lista for besøkende (gjelder alle spor og live-opptak). Sporet slettes ikke.
+  async function toggleHidden(i) {
+    if (!Owner.isOwner()) return;
+    const arr = list(); const t = arr[i]; if (!t) return;
+    if (t.hidden) delete t.hidden; else t.hidden = true;
+    const ok = await Content.set('tracks', arr);
+    if (ok !== false) UI.toast(t.hidden ? 'Hidden from visitors.' : 'Visible to visitors again.');
+    if (t.hidden && current === i && !Owner.isOwner()) { audio.pause(); }
+    render();
+  }
+
   // Vis «Fix seek» kun på webm-spor som faktisk mangler søkeinformasjon (sjekker første 16 KB).
   const cueCache = {};
   function revealFixButtons() {

@@ -375,3 +375,7 @@ hr{border:0; border-top:1px solid var(--line); margin:16px 0}
 .wl-save-x{background:none; border:0; color:var(--muted); cursor:pointer; font-size:15px; padding:0 2px}
 .track-row.flash{animation:trflash 1.2s ease-in-out 3}
 @keyframes trflash{0%,100%{background:rgba(140,160,255,.14)}50%{background:rgba(120,230,170,.38)}}
+
+/* Skjulte spor: kun synlige for eier, nedtonet */
+.track-row.track-hidden{opacity:.5}
+.track-row.track-hidden:hover{opacity:.85}
