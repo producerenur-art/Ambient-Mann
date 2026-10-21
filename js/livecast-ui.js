@@ -70,7 +70,8 @@ window.LiveCastUI = (function () {
     idbClear();
     try { rec = new MediaRecorder(s, mime ? { mimeType: mime, audioBitsPerSecond: 192000 } : {}); }
     catch (_) { rec = new MediaRecorder(s); }
-    rec.ondataavailable = (e) => { if (e.data && e.data.size) { recChunks.push(e.data); idbPut({ blob: e.data, type: rec.mimeType, start: recStart }); } };
+    const usedMime = rec.mimeType, startedAt = recStart;   // rec nullstilles ved Stop før siste bit kommer
+    rec.ondataavailable = (e) => { if (e.data && e.data.size) { recChunks.push(e.data); idbPut({ blob: e.data, type: usedMime, start: startedAt }); } };
     rec.start(10000);
     log('⏺ Tar opp sendinga (lagres som spor når du stopper).');
   }
@@ -94,12 +95,46 @@ window.LiveCastUI = (function () {
     a.textContent = '⬇ Download recording to this computer';
     el.parentNode.insertBefore(a, el);
   }
+  // ---- Synlig lagrestatus: fast nederst på skjermen, uansett hvor du står på siden ----
+  // (Før sto statusen kun i loggen i Live-panelet, så opptaket «så ut til å mangle» under opplasting.)
+  let pill = null, pillTimer = null, saving = false;
+  window.addEventListener('beforeunload', (e) => {
+    if (saving || (rec && rec.state !== 'inactive')) { e.preventDefault(); e.returnValue = ''; return ''; }
+  });
+  function pillSet(text, kind, btnLabel, btnFn, keepMs) {
+    if (!pill) { pill = document.createElement('div'); pill.className = 'wl-save-pill'; document.body.appendChild(pill); }
+    clearTimeout(pillTimer);
+    pill.className = 'wl-save-pill ' + (kind || 'busy');
+    pill.textContent = '';
+    const sp = document.createElement('span'); sp.textContent = text; pill.appendChild(sp);
+    if (btnLabel && btnFn) {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn-tiny'; b.textContent = btnLabel;
+      b.addEventListener('click', btnFn); pill.appendChild(b);
+    }
+    if (kind !== 'busy') {
+      const x = document.createElement('button'); x.type = 'button'; x.className = 'wl-save-x'; x.textContent = '✕'; x.setAttribute('aria-label', 'Close');
+      x.addEventListener('click', () => { pill.style.display = 'none'; }); pill.appendChild(x);
+    }
+    pill.style.display = '';
+    if (keepMs) pillTimer = setTimeout(() => { if (pill) pill.style.display = 'none'; }, keepMs);
+  }
+  function showTrack(id) {
+    const row = document.querySelector('.track-row[data-tid="' + id + '"]');
+    const target = row || document.getElementById('tracks-list');
+    if (!target) return;
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (row) { row.classList.add('flash'); setTimeout(() => row.classList.remove('flash'), 4000); }
+  }
+
   async function saveRecording(r) {
-    if (!r || !r.blob.size) { log('⚠️ Opptaket var tomt (ingen lyd tatt opp).'); return; }
+    if (!r || !r.blob.size) { log('⚠️ Opptaket var tomt (ingen lyd tatt opp).'); pillSet('⚠️ The recording was empty (no audio captured).', 'err'); return; }
+    saving = true;
+    const mb = (r.blob.size / 1048576).toFixed(0);
     try {
       log('⏫ Laster opp opptaket (' + (r.blob.size / 1048576).toFixed(1) + ' MB) …');
+      pillSet('⏫ Saving recording (' + mb + ' MB) … 0% – keep this tab open', 'busy');
       let last = -1;
-      const meta = await Tracks.addRecording(r.blob, recTitle(r.start), p => { const v = Math.round(p * 10); if (v !== last) { last = v; log('   ' + v * 10 + '%'); } });
+      const meta = await Tracks.addRecording(r.blob, recTitle(r.start), p => { const v = Math.round(p * 10); if (v !== last) { last = v; log('   ' + v * 10 + '%'); pillSet('⏫ Saving recording (' + mb + ' MB) … ' + v * 10 + '% – keep this tab open', 'busy'); } });
       // Verifiser at sporet faktisk ligger på serveren (ikke bare i denne fanen).
       const back = await fetch('/api/site?action=content-get&_=' + Date.now()).then(x => x.json()).catch(() => null);
       const ok = back && Array.isArray(back.tracks) && back.tracks.some(t => t.id === meta.id);
@@ -108,7 +143,12 @@ window.LiveCastUI = (function () {
       log('✅ Opptaket ligger nå i spor-lista: «' + meta.title + '» (Edit for cover/navn, 🔗 for å dele).');
       log(meta.seekable ? '✅ Spolefeltet virker (lengde + søkeinfo lagt inn).' : '⚠️ Kunne ikke gjøre opptaket spolbart automatisk – trykk «Fix seek» ved sporet.');
       UI.toast('Recording saved to the track list.');
+      saving = false;
+      pillSet('✅ Recording saved: ' + meta.title, 'ok', 'Show it', () => showTrack(meta.id), 60000);
+      setTimeout(() => showTrack(meta.id), 400);
     } catch (e) {
+      saving = false;
+      pillSet('❌ Could not save the recording – it is kept in this browser. Use Download, or Recover after reloading.', 'err');
       log('❌ Kunne ikke lagre opptaket: ' + (e && e.message ? e.message : e) + ' — opptaket er beholdt lokalt (se «Recover»/«Download» over loggen).');
       offerDownload(r);
     }
@@ -225,6 +265,7 @@ window.LiveCastUI = (function () {
     });
 
     stop.addEventListener('click', async () => {
+      pillSet('■ Stopped – preparing the recording …', 'busy');
       LiveCast.stopLive();
       const recorded = await stopRecording();
       stream.getTracks().forEach(t => t.stop());

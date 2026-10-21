@@ -365,3 +365,13 @@ hr{border:0; border-top:1px solid var(--line); margin:16px 0}
   .cp-prev-title{white-space:normal; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
 }
 .cp-prev-card{contain:paint}
+
+/* Lagrestatus for live-opptak: fast nederst, synlig uansett scroll */
+.wl-save-pill{position:fixed; left:50%; bottom:96px; transform:translateX(-50%); z-index:90; display:flex; align-items:center; gap:10px;
+  max-width:min(94vw,560px); padding:11px 16px; border-radius:999px; font-size:14px; font-weight:600;
+  background:rgba(8,12,28,.95); color:var(--text); border:1px solid rgba(140,160,255,.35); box-shadow:0 10px 36px rgba(0,0,0,.55)}
+.wl-save-pill.ok{border-color:rgba(120,230,170,.6)}
+.wl-save-pill.err{border-color:rgba(255,100,120,.7); color:#ffb4c0}
+.wl-save-x{background:none; border:0; color:var(--muted); cursor:pointer; font-size:15px; padding:0 2px}
+.track-row.flash{animation:trflash 1.2s ease-in-out 3}
+@keyframes trflash{0%,100%{background:rgba(140,160,255,.14)}50%{background:rgba(120,230,170,.38)}}

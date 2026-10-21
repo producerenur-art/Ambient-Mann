@@ -140,7 +140,7 @@ window.Tracks = (function () {
         // (/track/<navn>) i ny fane, hvor sporet autospiller. ▶-knappen spiller
         // fortsatt av lokalt i spilleren over. Uten egen side: klikk = lokal play.
         const rowAttr = hasLink ? ' data-open="' + UI.esc(trackUrl(t)) + '"' : ' data-play="' + i + '"';
-        return '<div class="track-row' + (i === current ? ' playing' : '') + '"' + rowAttr + '>' +
+        return '<div class="track-row' + (i === current ? ' playing' : '') + '"' + rowAttr + (t.id ? ' data-tid="' + UI.esc(t.id) + '"' : '') + '>' +
           cov +
           '<button class="track-play" data-play="' + i + '" title="Play here" aria-label="Play here">' + (playing ? '⏸' : '▶') + '</button>' +
           '<div class="track-meta"><div class="track-title">' + UI.esc(t.title || ('Track ' + (i + 1))) + '</div>' +
