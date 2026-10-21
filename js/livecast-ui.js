@@ -39,7 +39,7 @@ window.LiveCastUI = (function () {
   // MediaRecorder tar opp same lydstrøm som går live. Bitar lagres fortløpande
   // i IndexedDB slik at eit opptak overlever refresh/krasj (kan gjenopprettast).
   // Ved Stop lastast opptaket opp og legg seg i spor-lista (Tracks.addRecording).
-  let rec = null, recChunks = [], recStart = 0;
+  let rec = null, recChunks = [], recStart = 0, liveCover = null;
   const IDB = { name: 'am-livecast-rec', store: 'chunks' };
   function idb() {
     return new Promise((res, rej) => {
@@ -126,7 +126,7 @@ window.LiveCastUI = (function () {
     if (row) { row.classList.add('flash'); setTimeout(() => row.classList.remove('flash'), 4000); }
   }
 
-  async function saveRecording(r) {
+  async function saveRecording(r, coverFile) {
     if (!r || !r.blob.size) { log('⚠️ Opptaket var tomt (ingen lyd tatt opp).'); pillSet('⚠️ The recording was empty (no audio captured).', 'err'); return; }
     saving = true;
     const mb = (r.blob.size / 1048576).toFixed(0);
@@ -134,12 +134,14 @@ window.LiveCastUI = (function () {
       log('⏫ Laster opp opptaket (' + (r.blob.size / 1048576).toFixed(1) + ' MB) …');
       pillSet('⏫ Saving recording (' + mb + ' MB) … 0% – keep this tab open', 'busy');
       let last = -1;
-      const meta = await Tracks.addRecording(r.blob, recTitle(r.start), p => { const v = Math.round(p * 10); if (v !== last) { last = v; log('   ' + v * 10 + '%'); pillSet('⏫ Saving recording (' + mb + ' MB) … ' + v * 10 + '% – keep this tab open', 'busy'); } });
+      const meta = await Tracks.addRecording(r.blob, recTitle(r.start), p => { const v = Math.round(p * 10); if (v !== last) { last = v; log('   ' + v * 10 + '%'); pillSet('⏫ Saving recording (' + mb + ' MB) … ' + v * 10 + '% – keep this tab open', 'busy'); } }, coverFile);
       // Verifiser at sporet faktisk ligger på serveren (ikke bare i denne fanen).
       const back = await fetch('/api/site?action=content-get&_=' + Date.now()).then(x => x.json()).catch(() => null);
       const ok = back && Array.isArray(back.tracks) && back.tracks.some(t => t.id === meta.id);
       if (!ok) throw new Error('sporet ble ikke funnet på serveren etter lagring');
       await idbClear();
+      if (meta.coverNote) log('⚠️ Omslagsbildet kunne ikke lastes opp – legg det inn via Edit på sporet.');
+      else if (meta.coverUrl) log('🖼 Omslagsbildet er lagt på sporet (vises offentlig i lista og ved deling).');
       log('✅ Opptaket ligger nå i spor-lista: «' + meta.title + '» (Edit for cover/navn, 🔗 for å dele).');
       log(meta.seekable ? '✅ Spolefeltet virker (lengde + søkeinfo lagt inn).' : '⚠️ Kunne ikke gjøre opptaket spolbart automatisk – trykk «Fix seek» ved sporet.');
       UI.toast('Recording saved to the track list.');
@@ -258,6 +260,8 @@ window.LiveCastUI = (function () {
         });
         const recBox = document.getElementById('wl-record');
         try { window.Player && Player.setBrowserLive && Player.setBrowserLive(true); } catch (_) {}
+        const coverEl = document.getElementById('wl-cover');
+        liveCover = (coverEl && coverEl.files && coverEl.files[0]) || null;   // fanges ved start, så det ikke endres underveis
         if (!recBox || recBox.checked) startRecording(stream); else log('Opptak er av for denne sendinga.');
         go.style.display = 'none';
         stop.style.display = '';
@@ -278,7 +282,9 @@ window.LiveCastUI = (function () {
       if (metersRow) metersRow.style.display = 'none';
       if (listenersEl) listenersEl.textContent = '';
       log('■ Stoppet.');
-      saveRecording(recorded);
+      saveRecording(recorded, liveCover);
+      liveCover = null;
+      const ce = document.getElementById('wl-cover'); if (ce) ce.value = '';   // nytt opptak = nytt valg
     });
     offerRecovery();
   }

@@ -673,7 +673,7 @@ window.Tracks = (function () {
   // ---- eier: lagre et live-opptak som vanlig spor (samme liste som opplasting) ----
   // Kalles fra LiveCastUI når en sending stoppes. Sporet får Edit/Share/cover/
   // Replace akkurat som alle andre spor. Kaster ved feil (kalleren beholder blobben).
-  async function addRecording(blob, title, onProgress) {
+  async function addRecording(blob, title, onProgress, coverFile) {
     if (!Owner.isOwner()) throw new Error('Log in as owner to save the recording.');
     if (!SC_Storage.isConfigured()) throw new Error('Audio storage is not set up.');
     let name = title, n = 2;
@@ -684,14 +684,23 @@ window.Tracks = (function () {
     if (ext === 'webm') { const sk = await seekable(blob); blob = sk.blob; seekOk = sk.ok; }
     const file = new File([blob], slugify(name) + '.' + ext, { type: ext === 'm4a' ? 'audio/mp4' : blob.type });
     const up = await SC_Storage.upload(file, { prefix: 'tracks', onProgress });
-    const meta = { id: 't_' + Date.now().toString(36), title: name, url: up.url, path: up.path, size: up.size, coverUrl: '', coverPath: '' };
+    // Omslag: bildet valgt i live-panelet. Uten valgt bilde brukes live-bakgrunnen hvis den er et opplastet bilde.
+    let coverUrl = '', coverPath = '', coverNote = '';
+    if (coverFile) {
+      try { const cu = await SC_Storage.upload(coverFile, { prefix: 'covers' }); coverUrl = cu.url; coverPath = cu.path; }
+      catch (_) { coverNote = 'cover-upload-failed'; }
+    } else {
+      const lb = (window.Content && Content.get('liveBg')) || {};
+      if (lb.type === 'image' && /\/storage\/v1\/object\/public\//.test(lb.url || '')) coverUrl = lb.url;   // delt fil: ingen coverPath (slettes ikke med sporet)
+    }
+    const meta = { id: 't_' + Date.now().toString(36), title: name, url: up.url, path: up.path, size: up.size, coverUrl, coverPath };
     const r = await Owner.authFetch('/api/site?action=track-add', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(meta),
     });
     if (!r.ok) { const d = await r.json().catch(() => ({})); throw new Error(d.error || ('track-add HTTP ' + r.status)); }
     const arr = list(); arr.push(meta); await Content.set('tracks', arr);
     render();
-    meta.seekable = seekOk;
+    meta.seekable = seekOk; meta.coverNote = coverNote;
     return meta;
   }
 
