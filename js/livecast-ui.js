@@ -259,7 +259,6 @@ window.LiveCastUI = (function () {
           onLog: log,
         });
         const recBox = document.getElementById('wl-record');
-        try { window.Player && Player.setBrowserLive && Player.setBrowserLive(true); } catch (_) {}
         const coverEl = document.getElementById('wl-cover');
         liveCover = (coverEl && coverEl.files && coverEl.files[0]) || null;   // fanges ved start, så det ikke endres underveis
         if (!recBox || recBox.checked) startRecording(stream); else log('Opptak er av for denne sendinga.');
@@ -271,7 +270,6 @@ window.LiveCastUI = (function () {
 
     stop.addEventListener('click', async () => {
       pillSet('■ Stopped – preparing the recording …', 'busy');
-      try { window.Player && Player.setBrowserLive && Player.setBrowserLive(false); } catch (_) {}
       LiveCast.stopLive();
       const recorded = await stopRecording();
       stream.getTracks().forEach(t => t.stop());
@@ -313,7 +311,6 @@ window.LiveCastUI = (function () {
     const startWatch = () => {
       bannerWatch = LiveCast.watchLiveStatus((live) => {
         isLive = !!live;
-        try { window.Player && Player.setBrowserLive && Player.setBrowserLive(isLive); } catch (_) {}
         paint();
       });
     };

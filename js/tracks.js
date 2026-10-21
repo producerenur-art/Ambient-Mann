@@ -684,14 +684,11 @@ window.Tracks = (function () {
     if (ext === 'webm') { const sk = await seekable(blob); blob = sk.blob; seekOk = sk.ok; }
     const file = new File([blob], slugify(name) + '.' + ext, { type: ext === 'm4a' ? 'audio/mp4' : blob.type });
     const up = await SC_Storage.upload(file, { prefix: 'tracks', onProgress });
-    // Omslag: bildet valgt i live-panelet. Uten valgt bilde brukes live-bakgrunnen hvis den er et opplastet bilde.
+    // Omslag: bildet valgt i live-panelet (kun bilde på sporet – live-bakgrunnen på siden er urørt).
     let coverUrl = '', coverPath = '', coverNote = '';
     if (coverFile) {
       try { const cu = await SC_Storage.upload(coverFile, { prefix: 'covers' }); coverUrl = cu.url; coverPath = cu.path; }
       catch (_) { coverNote = 'cover-upload-failed'; }
-    } else {
-      const lb = (window.Content && Content.get('liveBg')) || {};
-      if (lb.type === 'image' && /\/storage\/v1\/object\/public\//.test(lb.url || '')) coverUrl = lb.url;   // delt fil: ingen coverPath (slettes ikke med sporet)
     }
     const meta = { id: 't_' + Date.now().toString(36), title: name, url: up.url, path: up.path, size: up.size, coverUrl, coverPath };
     const r = await Owner.authFetch('/api/site?action=track-add', {
